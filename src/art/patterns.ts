@@ -344,29 +344,6 @@ export function planksTex(base: string, joint: string, nail: string, plank = 3, 
   };
 }
 
-/** Potager / massif : rangées de plantes sur terre. */
-export function rowsTex(soil: string, leaf: string, leafDark: string): TexDef {
-  return {
-    w: 12,
-    h: 6,
-    maxRes: 8,
-    paint: (c) => {
-      c.fillStyle = soil;
-      c.fillRect(0, 0, 12, 6);
-      for (let i = 0; i < 4; i++) {
-        c.fillStyle = leafDark;
-        c.beginPath();
-        c.arc(1.5 + i * 3, 3.3, 1.2, 0, TAU);
-        c.fill();
-        c.fillStyle = leaf;
-        c.beginPath();
-        c.arc(1.3 + i * 3, 2.9, 0.9, 0, TAU);
-        c.fill();
-      }
-    },
-  };
-}
-
 /* ----------------------------------------------------------------------------
  * Toitures et murs (origine = coin du toit ou de la façade)
  * ------------------------------------------------------------------------- */

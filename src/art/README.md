@@ -42,7 +42,7 @@ pas été modifié.
 | `building.ts` | Bâtiments : plan de façade (étages, fenêtres, portes, vitrines) calculé une fois par entité, toits (équipements des toits plats : aérations, climatiseurs, verrières, réservoir, trappe), murs, features, niveaux 0/1/2 |
 | `buildingParts.ts` | Éléments de façade : fenêtres par lots, portes, vitrines, stores, enseignes, horloges, colonnes, frontons, drapeaux, cheminées |
 | `buildingStyles.ts` | Styles reconnaissables (église, mairie, gare, musée, théâtre, cinéma, hôpital, commissariat, banque, école, hôtel, entrepôt, usine, garage, cabane, serre, pharmacie, poste, bijouterie, bar) |
-| `vehicle.ts` | Véhicules de profil (10), conducteur, passagers du bus, livrées, gyrophares, nom du bateau |
+| `vehicle.ts` | Véhicules de profil (10), conducteur, passagers du bus, livrées, gyrophares, nom du bateau ; porte latérale ouverte (`doorOpen`) du fourgon et de l'ambulance contre la cabine, inscriptions peintes repliées sur le reste de la caisse (toujours lisibles) |
 | `tree.ts` | Arbres (boule, conifère, peuplier, nu) et leur ombre |
 | `props.ts` | Les 50 `PropKind` et les variantes utilisées par le monde |
 | `ground.ts` | Sol (13 `GroundKind`) et lignes (8 `GroundLineKind`) |

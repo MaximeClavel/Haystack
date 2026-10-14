@@ -9,8 +9,6 @@ import type { Color, HairColor, SkinTone } from '../types';
 export const PAPER = '#f3ecdc';
 /** Encre des contours (brun-noir chaud). */
 export const INK = '#2f2622';
-/** Encre adoucie (détails fins, contours secondaires). */
-export const INK_SOFT = '#5a4a40';
 /** Ombre portée au sol (ellipse translucide). */
 export const SHADOW = 'rgba(70, 48, 30, 0.2)';
 /** Ombre plus légère (sous les grands objets, auvents). */

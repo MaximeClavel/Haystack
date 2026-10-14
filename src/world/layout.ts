@@ -9,8 +9,8 @@
 import type { DistrictId, Rect, Vec2 } from '../types';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config';
 import { Rng } from '../lib/rng';
-import { AVENUES, DISTRICTS, LANDMARKS, RAIL, RIVER } from './layoutSpec';
-import { containsPoint, inflate, intersects, rect, rectPoints, rectXY } from './geom';
+import { AVENUES, DISTRICTS, LANDMARKS } from './layoutSpec';
+import { containsPoint, inflate, intersects, rectPoints, rectXY } from './geom';
 
 export type StreetKind = 'avenue' | 'street' | 'lane' | 'port';
 
@@ -794,8 +794,3 @@ function assignBlockKinds(blocks: Block[], rng: Rng): void {
   ensure('parking', ['halles', 'centre'], 'urban');
   ensure('sand', ['faubourg', 'jardins'], 'houses');
 }
-
-/** Rectangle de la rivière (eau). */
-export const RIVER_RECT: Rect = rect(0, RIVER.y0, WORLD_WIDTH, RIVER.y1 - RIVER.y0);
-/** Ballast de la voie ferrée. */
-export const RAIL_RECT: Rect = rect(RAIL.x - RAIL.width / 2, 0, RAIL.width, WORLD_HEIGHT);

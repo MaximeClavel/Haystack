@@ -1,4 +1,4 @@
-// Contrôle des enquêtes BROUILLONS de la bible (src/content/cases) contre la vraie ville.
+// Contrôle des enquêtes publiées (src/content/cases, registre CASES) contre la vraie ville.
 // Usage : npx tsx tools/content/check.ts [--verbose]
 //
 // 1. validateAllCases (module game) : placements praticables, toits, zones d'indice, fils, ids…

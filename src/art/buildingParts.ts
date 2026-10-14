@@ -5,7 +5,7 @@
 import type { Lod } from './lod';
 import { INK, MAT, mix } from './palette';
 import { awningShape } from './props';
-import { fitText } from './text';
+import { SERIF_STACK, fitText } from './text';
 import { TAU, type Ctx, boxFS, circleFS, polyFS } from './util';
 
 export type WinState = 'normal' | 'open' | 'broken' | 'lit';
@@ -579,7 +579,7 @@ export function drawSign(
     }
     return;
   }
-  fitText(ctx, text, cx, cy, w - h * 0.6, h * 0.68, fg, 'bold', opts.serif ? "Georgia, 'Times New Roman', serif" : undefined);
+  fitText(ctx, text, cx, cy, w - h * 0.6, h * 0.68, fg, 'bold', opts.serif ? SERIF_STACK : undefined);
 }
 
 /** Lettres peintes directement sur le mur (sans bandeau). */

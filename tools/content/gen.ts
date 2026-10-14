@@ -1,5 +1,5 @@
 // Génère docs/CONTENT.md à partir du gabarit tools/content/CONTENT.template.md et des enquêtes
-// brouillons (src/content/cases) : les tableaux techniques (personnages, entités, étapes,
+// publiées (src/content/cases) : les tableaux techniques (personnages, entités, étapes,
 // récapitulatif) sont ainsi TOUJOURS identiques au code vérifié par check.ts.
 //
 // Usage : npx tsx tools/content/gen.ts

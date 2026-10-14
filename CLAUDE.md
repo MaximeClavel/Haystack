@@ -18,6 +18,9 @@ Vite 7 · TypeScript 5.9 strict · Preact 10 (interface) · Canvas 2D (carte) ·
 | `npm run e2e` | Tests de bout en bout Playwright (téléphone émulé) |
 | `npm run shot -- "<chemin-url>" <sortie.png>` | Capture d'écran d'une page (voir `scripts/shot.mjs`) |
 | `npm run world -- <cmd>` | Interroger le monde généré : `landmarks`, `districts`, `streets [filtre]`, `zones`, `entity <id>`, `rect x y w h`, `near x y [r]`, `ground x y`, `free x y w h [pas]`, `lookalikes <id> [d]`, `stats` (option `--no-cases`) |
+| `npm run content:check` | Contrôle des enquêtes dans la vraie ville (validateur + règles de la bible) : doit finir par « OK : aucun problème » |
+| `npm run content:doc` | Régénère `docs/CONTENT.md` à partir du code des enquêtes (`src/content/cases`) |
+| `node scripts/perf-map.mjs` | Fluidité de la carte à CPU ×1 et ×4 ; `--gestures` : contrôles des gestes ; `--startup` : durée du démarrage (`buildWorld` + premier rendu) |
 | `npm run build` | Build de production dans `dist/` |
 
 ## Règles communes

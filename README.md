@@ -14,3 +14,34 @@ npm run dev      # puis ouvrir l'URL affichée (accessible depuis un téléphone
 npm test         # tests unitaires
 npm run build    # version de production dans dist/
 ```
+
+## Commandes utiles
+
+| Commande | Rôle |
+|---|---|
+| `npm run typecheck` | Vérification des types |
+| `npm test` | Tests unitaires (monde, moteur, règles, contenu publié) |
+| `npm run e2e` | Tests de bout en bout Playwright (téléphone émulé) |
+| `npm run content:check` | Contrôle des enquêtes dans la vraie ville (doit afficher « OK : aucun problème ») |
+| `npm run content:doc` | Régénère la bible `docs/CONTENT.md` à partir du code des enquêtes |
+| `npm run world -- <cmd>` | Interroger la ville générée : `landmarks`, `districts`, `streets`, `zones`, `entity <id>`, `rect`, `near`, `ground`, `free`, `lookalikes`, `stats` |
+| `npm run shot -- "<chemin-url>" sortie.png` | Capture d'écran d'une page (ex. `"/dev/map.html?x=2850&y=2060&zoom=2"`) |
+| `node scripts/perf-map.mjs` | Mesure de fluidité de la carte (`--gestures` : contrôles des gestes ; `--startup` : durée du démarrage) |
+
+Pages de développement (servies par `npm run dev`, non publiées) : `/dev/map.html` (carte brute),
+`/dev/gallery.html` (catalogue graphique), `/dev/overview.html` (plan de la ville),
+`/tools/content/preview.html` (scènes des enquêtes).
+
+## Organisation
+
+| Dossier | Contenu |
+|---|---|
+| `src/world` | Génération déterministe de Meulebourg et insertion des scènes d'enquête |
+| `src/art` | Illustration en Canvas 2D (sol, bâtiments, personnages, véhicules, objets) |
+| `src/engine` | Moteur de carte : caméra, gestes, tuiles, overlays |
+| `src/game` | Règles : désignation, étapes, indices, étoiles, sauvegarde, validation du contenu |
+| `src/content` | Les enquêtes (une par fichier dans `cases/`) |
+| `src/ui` | Interface Preact |
+| `tools/content`, `scripts` | Outils de contrôle, de capture et de mesure |
+
+Détails : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) et le README de chaque module.

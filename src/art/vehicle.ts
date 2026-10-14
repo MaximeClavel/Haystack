@@ -349,6 +349,10 @@ function drawVan(v: VCtx, ambulance: boolean): void {
   ctx.moveTo(half - 13, -h + 0.4);
   ctx.lineTo(half - 13, -4.5);
   ctx.stroke();
+  // Porte latérale ouverte : l'ouverture est juste derrière la cabine et les inscriptions peintes
+  // se replient sur le reste de la caisse (sinon l'ouverture masquait une partie du nom — indice
+  // d'enquête illisible, ex. « VOLAILLES BARBARIE » réduit à « LES BARBARIE »).
+  const open = e.doorOpen === true;
   if (ambulance) {
     ctx.fillStyle = MAT.red;
     ctx.fillRect(-half + 0.4, -12.8, L - 1.2, 2.6);
@@ -359,8 +363,11 @@ function drawVan(v: VCtx, ambulance: boolean): void {
     ctx.fillStyle = MAT.red;
     ctx.fillRect(cx - 3.6, cy - 1.2, 7.2, 2.4);
     ctx.fillRect(cx - 1.2, cy - 3.6, 2.4, 7.2);
-    if (fine) fitTextUpright(ctx, v.dir, 'AMBULANCE', -6, -11.4, 30, 2.1, '#ffffff');
-    if (e.label && !isPlate(e.label)) fitTextUpright(ctx, v.dir, e.label, 4.5, -20, 17, 5, MAT.red);
+    if (fine) fitTextUpright(ctx, v.dir, 'AMBULANCE', open ? -11 : -6, -11.4, open ? 28 : 30, 2.1, '#ffffff');
+    if (e.label && !isPlate(e.label)) {
+      if (open) fitTextUpright(ctx, v.dir, e.label, 0.2, -20, 9.6, 5, MAT.red);
+      else fitTextUpright(ctx, v.dir, e.label, 4.5, -20, 17, 5, MAT.red);
+    }
     // gyrophares
     ctx.fillStyle = '#2f6fd8';
     ctx.beginPath();
@@ -369,8 +376,8 @@ function drawVan(v: VCtx, ambulance: boolean): void {
     ctx.fill();
     ctx.stroke();
   } else {
-    // porte coulissante et enseigne peinte
-    if (fine) {
+    // porte coulissante (fermée) et enseigne peinte
+    if (fine && !open) {
       ctx.lineWidth = 0.35;
       ctx.beginPath();
       ctx.moveTo(-4, -h + 2);
@@ -384,15 +391,19 @@ function drawVan(v: VCtx, ambulance: boolean): void {
     }
     if (e.label && !isPlate(e.label)) {
       const lc = COLOR_HEX[e.color] && ['white', 'beige', 'yellow', 'pink'].includes(e.color) ? '#283f78' : '#fbf6ea';
-      fitTextUpright(ctx, v.dir, e.label, -half + 18, -18, 26, 4.5, lc);
+      // Porte ouverte : l'enseigne tient entre l'arrière de la caisse et l'ouverture.
+      if (open) fitTextUpright(ctx, v.dir, e.label, -half + 13.5, -18, 23, 4.5, lc);
+      else fitTextUpright(ctx, v.dir, e.label, -half + 18, -18, 26, 4.5, lc);
     } else if (fine) {
       ctx.fillStyle = v.light;
-      ctx.fillRect(-half + 3, -h + 4, L - 20, 2);
+      ctx.fillRect(-half + 3, -h + 4, open ? L - 27 : L - 20, 2);
     }
   }
-  if (e.doorOpen) {
+  if (open) {
+    // Ouverture de la porte latérale, contre la cabine (fourgon : x ∈ [1,5 ; 12], ambulance : [6 ; 14]).
     ctx.fillStyle = '#3a3330';
-    ctx.fillRect(-4, -h + 2.5, 11.5, h - 7);
+    if (ambulance) ctx.fillRect(6, -h + 2.5, 8, h - 9);
+    else ctx.fillRect(1.5, -h + 2.5, 10.5, h - 7);
   }
   rboxFS(ctx, half - 1.8, -6, 2.6, 2.0, 0.6, BUMPER);
   rboxFS(ctx, -half - 0.8, -6, 2.6, 2.0, 0.6, BUMPER);

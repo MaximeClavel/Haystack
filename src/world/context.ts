@@ -212,12 +212,6 @@ export function addVehicle(
   return e;
 }
 
-/** Rectangle de base (au sol) d'un véhicule, pour vérifier qu'il est sur la chaussée. */
-export function vehicleBase(vehicle: VehicleKind, x: number, y: number): Rect {
-  const [len] = VEHICLE_SIZE[vehicle];
-  return { x: x - len / 2, y: y - 8, w: len, h: 8 };
-}
-
 /** Masque des cellules interdites pour la base d'un objet posé au sol. */
 export const PROP_BLOCK = F_WATER | F_BUILDING | F_HIDDEN | F_SOLID | F_PERSON | F_LINE | F_RAIL | F_ROAD;
 

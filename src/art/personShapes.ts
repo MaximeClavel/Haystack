@@ -129,11 +129,6 @@ export function torsoShape(ctx: Ctx, m: Metrics, top: TopKind): void {
   ctx.closePath();
 }
 
-/** Bas du buste (pour la ligne de taille). */
-export function torsoLen(m: Metrics, top: TopKind): number {
-  return m.torso + TOP_DIMS[top][2];
-}
-
 /** Cou (repère du buste) : s'arrête au ras de l'encolure. */
 export function neckShape(ctx: Ctx, m: Metrics): void {
   const s = m.s;

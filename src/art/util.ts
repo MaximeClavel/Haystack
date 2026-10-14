@@ -20,14 +20,6 @@ export const LW = {
   fine: [0.3, 0.5, 0] as const,
 };
 
-/** Prépare le contexte pour dessiner une entité (encre, jointures arrondies). */
-export function beginInk(ctx: Ctx, lw: number): void {
-  ctx.strokeStyle = INK;
-  ctx.lineWidth = lw;
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-}
-
 /** Ombre portée au sol : ellipse translucide. */
 export function groundShadow(ctx: Ctx, x: number, y: number, rx: number, ry: number): void {
   ctx.fillStyle = SHADOW;
@@ -164,8 +156,4 @@ export function deviceScale(ctx: Ctx): number {
 
 export function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
-}
-
-export function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
 }

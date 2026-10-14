@@ -73,6 +73,13 @@ export function generateAmbient(seed: number): AmbientWorld {
   placeVehicles(g);
   populate(g);
 
+  // Garde-fou final : aucun arbre n'a le pied sur la chaussée (les bosquets du parc ignoraient le
+  // boulevard des Halles qui le traverse ; un arbre d'alignement débordait sur une rue en biais).
+  // Le retrait a lieu APRÈS toute la génération : la grille d'occupation garde leur trace, donc
+  // aucune autre entité ne change de place ni d'id — seuls ces arbres disparaissent.
+  const finalGround = new GroundIndex(ground);
+  g.entities = g.entities.filter((e) => e.kind !== 'tree' || finalGround.kindAt(e.x, e.y) !== 'road');
+
   const all: Entity[] = [...g.buildings, ...g.entities];
   all.sort(compareDrawOrder);
   const bounds = all.map((e) => getEntityBounds(e));

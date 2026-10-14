@@ -6,7 +6,7 @@
 //   - le toit ne doit recouvrir ni une rue, ni une place, ni l'eau (drapeau F_KEEPVIS).
 // D'où l'organisation en rangées : rangée avant alignée sur la rue au sud (façades visibles),
 // rangée arrière dont le toit s'aligne sur la rue au nord, cour intérieure visible entre les deux.
-import type { BuildingEntity, BuildingFeature, BuildingStyle, Color, DistrictId, Rect } from '../types';
+import type { BuildingEntity, BuildingFeature, BuildingStyle, Color, Rect } from '../types';
 import { hashString, type Rng } from '../lib/rng';
 import { LANDMARKS } from './layoutSpec';
 import { inflate } from './geom';
@@ -477,15 +477,3 @@ export function fillBlocks(g: Gen): void {
   const blocks = [...g.plan.blocks].sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
   for (const b of blocks) fillBlock(g, b, signs);
 }
-
-/** Nombre de bâtiments générés par quartier (diagnostic). */
-export function countByDistrict(list: BuildingEntity[]): Record<DistrictId | string, number> {
-  const out: Record<string, number> = {};
-  for (const b of list) {
-    const d = b.id.split('.')[1];
-    out[d] = (out[d] ?? 0) + 1;
-  }
-  return out;
-}
-
-

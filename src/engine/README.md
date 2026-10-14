@@ -157,6 +157,7 @@ davantage (toutes les entités) — à faire une fois et à garder.
 npx vitest run src/engine                   # 64 tests : caméra, tuiles, LRU, vols, gestes, inertie
 node scripts/perf-map.mjs --gestures        # 30 contrôles Playwright des gestes (Pixel 7 + bureau)
 node scripts/perf-map.mjs                   # parcours de performance, CPU ×1 et ×4
+node scripts/perf-map.mjs --startup         # démarrage : buildWorld({ cases }) à froid + premier rendu, ×1 et ×4
 node scripts/shot.mjs "/dev/map.html?x=780&y=1700&zoom=2.5&ids=1" .shots/carte.png
 ```
 

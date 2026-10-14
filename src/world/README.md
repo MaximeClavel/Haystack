@@ -51,7 +51,10 @@ scènes des enquêtes. Module **pur** : aucun accès au DOM, testable sous Node.
 8. **Foule** (`people.ts`) — places réservées (« slots » : vendeurs, musiciens, assis…), gens aux
    fenêtres, puis foule selon le sol et le quartier, en activités (groupes face à face, familles,
    promeneurs de chiens, pique-niques, joggeurs…), piétons sur les passages piétons.
-9. **Intégration des enquêtes** (`story.ts`) — voir ci-dessous.
+9. **Garde-fou final** — les arbres dont le pied tombe sur la chaussée (bosquets du parc traversé par le
+   boulevard des Halles, un arbre d'alignement au bord d'une rue en biais) sont retirés **après** toute la
+   génération : la grille d'occupation garde leur trace, aucune autre entité ne bouge ni ne change d'id.
+10. **Intégration des enquêtes** (`story.ts`) — voir ci-dessous.
 
 Une **grille d'occupation** (`raster.ts`, cases de 4 u, drapeaux conservateurs) sert aux tests de
 collision pendant la génération ; elle n'est pas conservée. Les vérifications finales des piétons
@@ -127,6 +130,6 @@ Valeurs libres (`variant`, `label`) employées par le générateur :
 `npx vitest run src/world` : déterminisme, lieux et zones, sol (rivière, ponts, rail, passages
 piétons), aucun chevauchement bâtiment/bâtiment/rue/eau/zone, lisibilité des façades et des rues,
 foule (aucun passant dans l'eau, sur la chaussée hors passage piéton, sur le ballast ou dans un
-bâtiment ; vocabulaire complet ; densités), comptes, ids, sens de circulation, index spatial
+bâtiment ; vocabulaire complet ; densités), aucun arbre sur la chaussée ni dans l'eau, comptes, ids, sens de circulation, index spatial
 (exactitude et vitesse), intégration d'une enquête factice (anti-sosie, retrait, stabilité des ids),
 performance.

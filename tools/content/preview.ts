@@ -1,4 +1,4 @@
-// Aperçu des scènes de la bible (docs/CONTENT.md) : la vraie ville + les enquêtes BROUILLONS
+// Aperçu des scènes de la bible (docs/CONTENT.md) : la vraie ville + les enquêtes publiées
 // de src/content/cases, rendues par le moteur. Outil de scénariste, non publié.
 //
 // Paramètres d'URL :

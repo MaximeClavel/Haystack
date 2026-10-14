@@ -1,15 +1,7 @@
-// PROVISOIRE (phase 0) — point d'entrée remplacé par le module ui en phase 2.
-import { render } from 'preact';
+// Point d'entrée de Haystack : polices, styles, démarrage de l'interface (voir src/ui/README.md).
+import '@fontsource/special-elite';
+import '@fontsource-variable/inter';
+import './ui/styles.css';
+import { boot } from './ui/boot';
 
-declare global {
-  interface Window {
-    __haystackReady?: boolean;
-  }
-}
-
-function Placeholder() {
-  return <main style={{ fontFamily: 'sans-serif', padding: 24 }}>Haystack — en construction</main>;
-}
-
-render(<Placeholder />, document.getElementById('app')!);
-window.__haystackReady = true;
+void boot();

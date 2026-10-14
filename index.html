@@ -4,14 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#2b2622" />
+    <meta name="color-scheme" content="light" />
     <meta name="description" content="Haystack — enquêtes à Meulebourg. Explorez une ville foisonnante et résolvez des affaires en observant." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Haystack" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <title>Haystack — Enquêtes à Meulebourg</title>
+    <style>
+      /* Avant le chargement des styles : fond de la « table », pas d'éclair blanc. */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #2b2622;
+      }
+    </style>
   </head>
   <body>
+    <div id="map-layer"><canvas id="map" aria-label="Carte de Meulebourg"></canvas></div>
     <div id="app"></div>
+    <noscript>Haystack a besoin de JavaScript pour dessiner Meulebourg.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

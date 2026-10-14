@@ -8,6 +8,8 @@
 //   node scripts/perf-map.mjs --json out.json  écrit aussi les mesures brutes
 //   node scripts/perf-map.mjs --gestures       contrôles fonctionnels des gestes (code de sortie ≠ 0 si échec)
 //   node scripts/perf-map.mjs --path "/dev/map.html?cases=0"   autre page / paramètres
+//   node scripts/perf-map.mjs --startup        durée du démarrage (buildWorld + premier rendu),
+//                                              ×1 et ×4 (--rates), 3 pages neuves par taux (--repeat N)
 //
 // Parcours scripté : vol vers la gare, glissers (avec inertie), pincements (zoom avant / arrière),
 // double-taps, vols à travers la ville (avec dézoom intermédiaire), retour à la ville entière.
@@ -532,12 +534,92 @@ async function runGestures() {
 }
 
 /* ----------------------------------------------------------------------------
+ * Démarrage : construction du monde et premier rendu
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Mesure, dans une page neuve (Pixel 7 émulé), ce que coûte le démarrage du jeu :
+ * `buildWorld({ cases: CASES })` à froid (cache vide, JIT froid), puis le premier rendu complet
+ * de la carte (`createMapView` → `whenIdle()`) à la vue « ville entière » et à une vue de jeu.
+ * Les modules sont chargés AVANT le ralentissement CPU : en développement, Vite sert des centaines
+ * de modules un par un, ce qui n'est pas représentatif du paquet de production.
+ */
+async function runStartup(rate, repeat) {
+  const out = [];
+  for (let k = 0; k < repeat; k++) {
+    const context = await browser.newContext({ ...devices['Pixel 7'] });
+    const page = await context.newPage();
+    page.on('pageerror', (err) => console.log(`[page:exception] ${err.message}`));
+    await page.route('**/__startup.html', (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body:
+          '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+          '<body style="margin:0"><div style="position:fixed;inset:0"><canvas id="map"></canvas></div></body>',
+      }),
+    );
+    await page.goto(`${base}/__startup.html`, { waitUntil: 'load' });
+    await page.evaluate(async () => {
+      window.__mods = await Promise.all([
+        import('/src/world/index.ts'),
+        import('/src/content/index.ts'),
+        import('/src/engine/index.ts'),
+      ]);
+    });
+    const cdp = await context.newCDPSession(page);
+    if (rate > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate });
+    const r = await page.evaluate(async () => {
+      const [W, C, E] = window.__mods;
+      const t0 = performance.now();
+      const world = W.buildWorld({ cases: C.CASES });
+      const t1 = performance.now();
+      W.buildWorld({ cases: C.CASES }); // monde ambiant en cache : intégration des enquêtes seule
+      const t2 = performance.now();
+      const map = E.createMapView({ canvas: document.getElementById('map'), world });
+      await map.whenIdle();
+      const t3 = performance.now();
+      const c00 = C.CASES[0].start;
+      map.setCamera({ x: c00.x, y: c00.y, zoom: Math.max(2, c00.zoom) });
+      await map.whenIdle();
+      const t4 = performance.now();
+      const s = map.debugStats();
+      map.destroy();
+      return {
+        build: t1 - t0,
+        rebuild: t2 - t1,
+        firstRender: t3 - t2,
+        gameView: t4 - t3,
+        entities: world.entities.length,
+        tiles: s.tilesRendered,
+      };
+    });
+    out.push(r);
+    await context.close();
+  }
+  const med = (key) => {
+    const v = out.map((r) => r[key]).sort((a, b) => a - b);
+    return v[Math.floor(v.length / 2)];
+  };
+  const list = (key) => out.map((r) => r[key].toFixed(0)).join(' / ');
+  console.log(`\n=== Démarrage, CPU ×${rate} (${out[0].entities} entités, ${repeat} pages neuves) ===`);
+  console.log(`buildWorld({ cases }) à froid  : médiane ${med('build').toFixed(0).padStart(5)} ms  (${list('build')})`);
+  console.log(`  idem, monde ambiant en cache : médiane ${med('rebuild').toFixed(0).padStart(5)} ms  (${list('rebuild')})`);
+  console.log(`premier rendu, ville entière   : médiane ${med('firstRender').toFixed(0).padStart(5)} ms  (${list('firstRender')})`);
+  console.log(`puis vue de jeu (c00, zoom ≥ 2) : médiane ${med('gameView').toFixed(0).padStart(5)} ms  (${list('gameView')})`);
+  return { rate, runs: out };
+}
+
+/* ----------------------------------------------------------------------------
  * Programme
  * ------------------------------------------------------------------------- */
 
 let exitCode = 0;
 try {
-  if (args.gestures) {
+  if (args.startup) {
+    const runs = [];
+    for (const rate of rates) runs.push(await runStartup(rate, Math.max(1, Number(args.repeat ?? 3))));
+    if (args.json) writeFileSync(String(args.json), JSON.stringify(runs, null, 1));
+  } else if (args.gestures) {
     console.log('Contrôles des gestes (Pixel 7 émulé, puis bureau) :');
     exitCode = (await runGestures()) > 0 ? 1 : 0;
   } else {

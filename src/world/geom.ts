@@ -23,15 +23,6 @@ export function containsPoint(r: Rect, x: number, y: number): boolean {
   return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 }
 
-export function containsRect(outer: Rect, inner: Rect): boolean {
-  return (
-    inner.x >= outer.x &&
-    inner.y >= outer.y &&
-    inner.x + inner.w <= outer.x + outer.w &&
-    inner.y + inner.h <= outer.y + outer.h
-  );
-}
-
 export function inflate(r: Rect, m: number): Rect {
   return { x: r.x - m, y: r.y - m, w: r.w + 2 * m, h: r.h + 2 * m };
 }
@@ -125,20 +116,6 @@ export function rectIntersectsConvex(r: Rect, points: readonly Vec2[]): boolean 
   const span = convexSpanInBand(points, r.y, r.y + r.h);
   if (!span) return false;
   return span[0] < r.x + r.w && span[1] > r.x;
-}
-
-/** Distance d'un point à un segment, et position projetée t ∈ [0, 1]. */
-export function projectOnSegment(p: Vec2, a: Vec2, b: Vec2): { t: number; dist: number; along: number; len: number } {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len2 = dx * dx + dy * dy;
-  const len = Math.sqrt(len2);
-  if (len2 === 0) return { t: 0, dist: Math.hypot(p.x - a.x, p.y - a.y), along: 0, len: 0 };
-  const tRaw = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2;
-  const t = Math.max(0, Math.min(1, tRaw));
-  const cx = a.x + dx * t;
-  const cy = a.y + dy * t;
-  return { t: tRaw, dist: Math.hypot(p.x - cx, p.y - cy), along: tRaw * len, len };
 }
 
 /** Point dans un « segment épais » à bouts plats (largeur totale `width`). */

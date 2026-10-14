@@ -54,25 +54,6 @@ export function fitText(
   return size;
 }
 
-/** Écrit un texte à une taille donnée. */
-export function drawText(
-  ctx: Ctx,
-  text: string,
-  x: number,
-  y: number,
-  size: number,
-  color: string,
-  align: CanvasTextAlign = 'center',
-  weight = 'bold',
-  family = FONT_STACK,
-): void {
-  ctx.font = fontString(size, weight, family);
-  ctx.fillStyle = color;
-  ctx.textAlign = align;
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, x, y + size * 0.06);
-}
-
 /**
  * Écrit un texte non retourné dans un repère éventuellement en miroir (dir = -1).
  * Utilisé pour les véhicules et objets dessinés « face à droite » puis retournés.

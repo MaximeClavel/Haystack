@@ -319,6 +319,16 @@ describe('véhicules, arbres, objets', () => {
     }
   });
 
+  it('aucun arbre n’a le pied sur la chaussée ni dans l’eau', () => {
+    const bad: string[] = [];
+    for (const t of world.entities) {
+      if (t.kind !== 'tree') continue;
+      const k = groundAt(world, t);
+      if (k === 'road' || k === 'water') bad.push(`${t.id} (${t.x.toFixed(0)}, ${t.y.toFixed(0)}) sur ${k}`);
+    }
+    expect(bad).toEqual([]);
+  });
+
   it('vocabulaire des véhicules, arbres et objets bien représenté', () => {
     const v = new Set(world.entities.map((e) => (e.kind === 'vehicle' ? e.vehicle : '')));
     for (const k of ['car', 'van', 'taxi', 'police', 'bus', 'truck', 'ambulance', 'bicycle', 'scooter', 'boat'] as const) expect(v, k).toContain(k);
