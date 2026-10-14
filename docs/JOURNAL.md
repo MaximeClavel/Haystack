@@ -64,3 +64,31 @@ dans `docs/journal/phase1-<agent>.md`.
     suivi d'**un critique adverse** qui tente de casser chaque étape (ambiguïté, visibilité, placement,
     vocabulaire, logique, plaisir) et corrige le document ;
   - puis `integration` et `direction-artistique` comme prévu.
+
+### Phase 1 — fin (troisième passage)
+- `game` terminé (169 tests, `docs/journal/phase1-game.md`), `art` terminé (0 débordement sur 17 394 rendus,
+  `docs/journal/phase1-art.md`).
+- L'agent `scenario` a écrit les 7 enquêtes directement en `CaseDef` TypeScript, placées sur la vraie ville et
+  validées ; interrompu juste avant son compte rendu (rédigé par l'orchestrateur : `docs/journal/phase1-scenario.md`).
+- Réorganisation par l'orchestrateur : enquêtes déplacées dans `src/content/cases/` (source unique du jeu),
+  outils du scénariste dans `tools/content/` (`npm run content:check`, `npm run content:doc` qui régénère
+  `docs/CONTENT.md`). Commit `22d5c99` : 277 tests verts.
+- `critique`, `integration` et `direction-artistique` n'ont pas tourné (limite d'usage) : `integration` passe en
+  phase 2, `critique` et `direction-artistique` en phase 3.
+
+## 2026-10-14 — Suivi et reprise automatique
+- **Tableau de bord** (artefact claude.ai privé) : https://claude.ai/artifact/XE28VYtZKrb6ThAuN5dfkm — phases,
+  agents et journal lus en direct depuis la base de l'artefact (mise à jour par l'orchestrateur et, au mieux,
+  par les agents eux-mêmes). Bouton **Continuer** : publie `data/continue.json`, ce qui réveille la session
+  Claude Code qui suit le tableau.
+- **Reprise automatique** : routine horaire `trig_01Uj26Mjc3rcJLgFNx9F7eGD` (« Haystack — reprise automatique »)
+  qui relance le travail interrompu par une limite d'usage dès qu'elle est levée. À désactiver en fin de projet.
+
+### Phase 2 — Interface jouable (workflow `haystack-interface`, lancé)
+| Ordre | Agent | Mission |
+|---|---|---|
+| 1 | `ui` | Toute l'interface Preact : accueil, dossiers, enquête (désignation avec vignette, indices, fils rouges), carnet, fin et reconstitution, explorer, minicarte, réglages, PWA |
+| 1 | `integration` | Performance réelle, contrôle visuel, documentation d'architecture à jour |
+| 2 | `e2e` | Tests Playwright, dont la résolution de TOUTES les enquêtes par de vrais taps |
+| 3 | `revue-ux`, `revue-code` | Revues indépendantes (constats avec preuves, sans modifier le code) |
+| 4 | `correcteur` | Vérifie chaque constat, corrige les réels, écarte les autres en expliquant |
