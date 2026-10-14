@@ -1390,10 +1390,16 @@ const DRAW: Record<PropKind, (p: P) => void> = {
 
   needle(p) {
     const { ctx, fine } = p;
+    // ombre portée minuscule : l'aiguille « se pose » sur le sol au lieu de flotter
+    p.sh(0, 0, 2.4, 0.45);
     drawNeedle(ctx, 0, -1.6, 5.6, p.lod, -0.35);
     if (fine) {
-      // petit éclat supplémentaire pour attirer l'œil attentif
-      ctx.fillStyle = 'rgba(255, 244, 190, 0.85)';
+      // petit éclat supplémentaire pour attirer l'œil attentif, cerné d'or sombre pour rester
+      // visible sur les sols clairs (place pavée, sable, papier)
+      ctx.fillStyle = '#fff6cf';
+      ctx.strokeStyle = MAT.goldDark;
+      ctx.lineWidth = 0.16;
+      ctx.lineJoin = 'round';
       ctx.beginPath();
       ctx.moveTo(2.2, -4.6);
       ctx.lineTo(2.5, -3.7);
@@ -1404,6 +1410,7 @@ const DRAW: Record<PropKind, (p: P) => void> = {
       ctx.lineTo(1.0, -3.4);
       ctx.lineTo(1.9, -3.7);
       ctx.closePath();
+      ctx.stroke();
       ctx.fill();
     }
   },

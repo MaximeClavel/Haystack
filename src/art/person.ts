@@ -4,10 +4,12 @@
 // Technique (rapide) :
 //   • Toutes les formes ne dépendent que de (corpulence, pose, attribut) : elles sont construites
 //     UNE fois dans des Path2D en coordonnées locales (repère des pieds) et mises en cache.
-//     Dessiner une personne = une quinzaine de fill(path) / stroke(path), sans aucune
-//     construction de chemin ni changement de repère (coûteux dans Chromium).
+//     Dessiner une personne = une quinzaine de fill(path) (et 1 à 3 stroke pour les traits fins),
+//     sans aucune construction de chemin ni changement de repère (coûteux dans Chromium).
+//     Les membres sont des polylignes épaisses REMPLIES (disques + segments), pas des traits :
+//     un stroke() de Path2D est nettement plus cher qu'un fill() dans Chromium.
 //   • SOUS-COUCHE D'ENCRE : toute la silhouette (membres, buste, tête, cheveux, chapeau…) est
-//     contournée d'un seul trait épais (2 × épaisseur de contour) ;
+//     peinte à l'encre, agrandie de l'épaisseur du contour, en un ou deux remplissages ;
 //   • APLATS : toutes les formes d'une même couleur en un seul remplissage, dans l'ordre de
 //     profondeur. L'encre ne reste visible qu'autour de la silhouette ;
 //   • CONTOURS INTÉRIEURS en un seul trait fin (bord du haut, lisière des cheveux, visage) et un
@@ -317,10 +319,12 @@ export function drawFigure(ctx: Ctx, f: Figure): void {
 
   // 2. Bras arrière (derrière le buste)
   const holdsBack = f.ap.accessory !== 'none';
+  // accessoire de la main arrière masqué par le corps (marche, course, assis) : dessiné devant
+  const accFront = lod0 && backAccessoryHidden(f);
   if (lod0 && !sk.farArmOver) {
     // main arrière : peinte avec le visage (même passe) sauf si elle tient un accessoire
     armFill(ctx, f, 0, true, holdsBack);
-    if (holdsBack) {
+    if (holdsBack && !accFront) {
       pen(ctx, f);
       drawAccessoryBack(ctx, f);
     }
@@ -337,6 +341,7 @@ export function drawFigure(ctx: Ctx, f: Figure): void {
     frontHand: armsInTorso,
     shoes: true,
     armsInTorso,
+    cameraLater: lod0,
   });
   if (armsInTorso && holdsBack) {
     pen(ctx, f);
@@ -360,6 +365,15 @@ export function drawFigure(ctx: Ctx, f: Figure): void {
       }
     } else inkLimbs(ctx, f, 'b1');
     frontArm(ctx, f);
+    // accessoire de la main arrière masqué par le corps : par-dessus tout (course : bras croisés)
+    if (accFront) {
+      pen(ctx, f);
+      drawAccessoryBack(ctx, f);
+    }
+    if (f.ap.accessory === 'camera') {
+      pen(ctx, f);
+      drawAccessoryFront(ctx, f);
+    }
   } else {
     pen(ctx, f);
     if (big) drawBigHeld(ctx, f);
@@ -367,6 +381,21 @@ export function drawFigure(ctx: Ctx, f: Figure): void {
   }
   ctx.strokeStyle = INK;
   ctx.lineWidth = f.ol;
+}
+
+/** Accessoires tenus par la main arrière (dessinés par drawAccessoryBack). */
+const BACK_HAND_ACC = new Set<string>(['handbag', 'briefcase', 'cane', 'flowers', 'newspaper']);
+
+/**
+ * L'accessoire tenu par la main arrière serait-il caché par le corps ? C'est le cas quand la main
+ * n'est pas nettement en arrière de l'épaule (marche, course, assis…) : sans correction, le bouquet
+ * de fleurs ou la mallette d'un passant qui marche seraient invisibles. Il est alors dessiné devant
+ * le corps (même position, donc même emprise).
+ */
+function backAccessoryHidden(f: Figure): boolean {
+  const sk = f.sk;
+  if (!BACK_HAND_ACC.has(f.ap.accessory) || sk.lie || sk.farArmOver) return false;
+  return sk.hd[0].x > sk.sh[0].x - 0.3 * sk.m.s;
 }
 
 function shadowPath(f: Figure): Path2D | null {
@@ -502,8 +531,15 @@ function frontArm(ctx: Ctx, f: Figure): void {
 }
 
 /* ----------------------------------------------------------------------------
- * Bras, mains, jambes : polylignes tracées en traits épais à bouts ronds
+ * Bras, mains, jambes : polylignes épaisses à bouts et articulations ronds.
+ *
+ * Elles sont REMPLIES (union de disques et de segments épais, mise en cache) et non tracées au
+ * trait : dans Chromium, un stroke() de Path2D coûte plusieurs fois un fill() côté JS (mesuré :
+ * 40 % du temps de dessin d'une personne avant ce changement). Le résultat est identique à un
+ * trait de largeur 2r avec lineCap = lineJoin = 'round'.
  * ------------------------------------------------------------------------- */
+
+type Pts = readonly Pt[];
 
 /** Rayon de la main (un peu plus large que le bras). */
 function handR(f: Figure): number {
@@ -518,29 +554,48 @@ function legsCovered(top: TopKind): boolean {
   return top === 'dress' || top === 'coat';
 }
 
-/** Bras et jambes ont-ils (presque) la même largeur d'encre ? (un seul trait pour les deux) */
+/** Bras et jambes ont-ils (presque) la même largeur d'encre ? (un seul rayon pour les deux) */
 function limbsShareInk(f: Figure): boolean {
   return Math.abs(legR(f) - handR(f)) <= 0.12;
 }
 
-function line3(p: Path2D, a: Pt, b: Pt, c: Pt): void {
-  p.moveTo(a.x, a.y);
-  p.lineTo(b.x, b.y);
-  p.lineTo(c.x, c.y);
+/** Ajoute à p le contour plein de la polyligne pts épaissie de r (disques + segments, même sens). */
+function thick(p: Path2D, pts: Pts, r: number): void {
+  for (let i = 0; i < pts.length; i++) {
+    S.circ(p, pts[i].x, pts[i].y, r);
+    if (i > 0) S.seg(p, pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y, r);
+  }
 }
 
-function armLine(f: Figure, i: 0 | 1): Path2D | null {
-  return cached(`al${f.k}|${i}`, (p) => line3(p, f.sk.sh[i], f.sk.el[i], f.sk.hd[i]));
+/** Chemin plein (mis en cache sous `key`) de plusieurs polylignes épaisses, chacune avec son rayon. */
+function thickPath(key: string, parts: [Pts, number][]): Path2D | null {
+  let k = key;
+  for (const [, r] of parts) k += `|${r.toFixed(3)}`;
+  return cached(k, (p) => {
+    if (parts.length === 0) return false;
+    for (const [pts, r] of parts) thick(p, pts, r);
+  });
+}
+
+function armPts(f: Figure, i: 0 | 1): Pts {
+  return [f.sk.sh[i], f.sk.el[i], f.sk.hd[i]];
 }
 
 /** Manche courte : de l'épaule aux 2/3 du bras. */
-function shortSleeveLine(f: Figure, i: 0 | 1): Path2D | null {
-  return cached(`as${f.k}|${i}`, (p) => {
-    const a = f.sk.sh[i];
-    const b = S.along(a, f.sk.el[i], 0.62);
-    p.moveTo(a.x, a.y);
-    p.lineTo(b.x, b.y);
-  });
+function sleevePts(f: Figure, i: 0 | 1): Pts {
+  return [f.sk.sh[i], S.along(f.sk.sh[i], f.sk.el[i], 0.62)];
+}
+
+/** Jambe i ; hips = la jambe avant part de la hanche arrière (bassin du pantalon). */
+function legPts(f: Figure, i: 0 | 1, hips: boolean): Pts {
+  const sk = f.sk;
+  return i === 1 && hips ? [sk.hip[0], sk.hip[1], sk.kn[1], sk.ft[1]] : [sk.hip[i], sk.kn[i], sk.ft[i]];
+}
+
+/** Short : cuisse arrière → hanches → cuisse avant. */
+function shortsPts(f: Figure): Pts {
+  const sk = f.sk;
+  return [S.along(sk.hip[0], sk.kn[0], 0.9), sk.hip[0], sk.hip[1], S.along(sk.hip[1], sk.kn[1], 0.9)];
 }
 
 function handPath(f: Figure, i: 0 | 1): Path2D | null {
@@ -555,100 +610,28 @@ function handsShape(p: Path2D, f: Figure, back: boolean, front: boolean): void {
 }
 
 /**
- * Jambes : 0 (arrière), 1 (avant), -1 (les deux). hips = trait entre les hanches (bassin du
- * pantalon) ajouté avant la jambe avant.
- */
-function legLine(f: Figure, i: -1 | 0 | 1, hips: boolean): Path2D | null {
-  return cached(`ll${f.k}|${i}|${hips ? 'h' : ''}`, (p) => {
-    const sk = f.sk;
-    if (i !== 1) line3(p, sk.hip[0], sk.kn[0], sk.ft[0]);
-    if (i !== 0) {
-      if (hips) {
-        p.moveTo(sk.hip[0].x, sk.hip[0].y);
-        p.lineTo(sk.hip[1].x, sk.hip[1].y);
-        p.lineTo(sk.kn[1].x, sk.kn[1].y);
-        p.lineTo(sk.ft[1].x, sk.ft[1].y);
-      } else line3(p, sk.hip[1], sk.kn[1], sk.ft[1]);
-    }
-  });
-}
-
-/** Short : cuisse arrière → hanches → cuisse avant (un seul trait épais). */
-function shortsLine(f: Figure): Path2D | null {
-  return cached(`sl${f.k}`, (p) => {
-    const sk = f.sk;
-    const a0 = S.along(sk.hip[0], sk.kn[0], 0.9);
-    const a1 = S.along(sk.hip[1], sk.kn[1], 0.9);
-    p.moveTo(a0.x, a0.y);
-    p.lineTo(sk.hip[0].x, sk.hip[0].y);
-    p.lineTo(sk.hip[1].x, sk.hip[1].y);
-    p.lineTo(a1.x, a1.y);
-  });
-}
-
-/**
- * Traits d'encre des membres : jambes (+ bassin) et bras. arms : 'a' (deux bras), 'b' (bras
- * arrière), 'n' (aucun), 'b0' / 'b1' / 'b01' (bras seuls, sans les jambes).
+ * Encre des membres (sous-couche) : arms = 'a' (jambes + deux bras), 'b' (jambes + bras arrière),
+ * 'n' (jambes seules), 'b0' / 'b1' / 'b01' (bras seuls). Un seul remplissage, chaque membre
+ * élargi de l'épaisseur du contour.
  */
 type LimbSet = 'a' | 'b' | 'n' | 'b0' | 'b1' | 'b01';
 
-function limbInkPath(f: Figure, arms: LimbSet): Path2D | null {
-  const hips = f.ap.bottom !== 'skirt' && !legsCovered(f.ap.top);
-  return cached(`li${f.k}|${arms}|${hips ? 'h' : ''}`, (p) => {
-    const legs = arms === 'a' || arms === 'b' || arms === 'n';
-    if (legs) {
-      const l = legLine(f, -1, false);
-      if (l) p.addPath(l);
-      if (hips) {
-        const sk = f.sk;
-        p.moveTo(sk.hip[0].x, sk.hip[0].y);
-        p.lineTo(sk.hip[1].x, sk.hip[1].y);
-      }
-    }
-    const a0 = arms === 'a' || arms === 'b' || arms === 'b0' || arms === 'b01';
-    const a1 = arms === 'a' || arms === 'b1' || arms === 'b01';
-    if (a0) {
-      const a = armLine(f, 0);
-      if (a) p.addPath(a);
-    }
-    if (a1) {
-      const a = armLine(f, 1);
-      if (a) p.addPath(a);
-    }
-  });
-}
-
-/** Traits d'encre des membres (un seul trait si bras et jambes ont presque la même largeur). */
 function inkLimbs(ctx: Ctx, f: Figure, arms: LimbSet): void {
-  ctx.strokeStyle = f.statue ? f.topDark : INK;
+  const sk = f.sk;
   const legs = arms === 'a' || arms === 'b' || arms === 'n';
-  const lr = legR(f);
-  const hr = handR(f);
-  if (!legs || limbsShareInk(f)) {
-    const p = limbInkPath(f, arms);
-    if (!p) return;
-    ctx.lineWidth = 2 * (legs ? Math.max(lr, hr) : hr) + 2 * f.ol;
-    ctx.stroke(p);
-    return;
+  const hips = legs && f.ap.bottom !== 'skirt' && !legsCovered(f.ap.top);
+  const hr = handR(f) + f.ol;
+  // bras et jambes de largeurs voisines : même rayon (le plus grand), comme un trait unique
+  const lr = (limbsShareInk(f) ? Math.max(legR(f), handR(f)) : legR(f)) + f.ol;
+  const ar = legs && limbsShareInk(f) ? lr : hr;
+  const parts: [Pts, number][] = [];
+  if (legs) {
+    parts.push([legPts(f, 0, false), lr], [legPts(f, 1, false), lr]);
+    if (hips) parts.push([[sk.hip[0], sk.hip[1]], lr]);
   }
-  const lp = limbInkPath(f, 'n');
-  if (lp) {
-    ctx.lineWidth = 2 * lr + 2 * f.ol;
-    ctx.stroke(lp);
-  }
-  const armSet = arms === 'a' ? 'b01' : arms === 'b' ? 'b0' : null;
-  const ap = armSet ? limbInkPath(f, armSet) : null;
-  if (ap) {
-    ctx.lineWidth = 2 * hr + 2 * f.ol;
-    ctx.stroke(ap);
-  }
-}
-
-function strokeP(ctx: Ctx, p: Path2D | null, color: string, w: number): void {
-  if (!p) return;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = w;
-  ctx.stroke(p);
+  if (arms === 'a' || arms === 'b' || arms === 'b0' || arms === 'b01') parts.push([armPts(f, 0), ar]);
+  if (arms === 'a' || arms === 'b1' || arms === 'b01') parts.push([armPts(f, 1), ar]);
+  fillP(ctx, thickPath(`li${f.k}|${arms}|${hips ? 'h' : ''}`, parts), f.statue ? f.topDark : INK);
 }
 
 /** Aplats d'un bras : avant-bras nu éventuel, manche, main. */
@@ -656,9 +639,9 @@ function armFill(ctx: Ctx, f: Figure, i: 0 | 1, shade: boolean, hand: boolean): 
   const w = f.sk.m.armW;
   const skin = shade ? f.skinShade : f.skin;
   if (f.sleeveShort) {
-    strokeP(ctx, armLine(f, i), skin, w * 0.82);
-    strokeP(ctx, shortSleeveLine(f, i), shade ? f.sleeveShade : f.sleeve, w + 0.25);
-  } else strokeP(ctx, armLine(f, i), shade ? f.sleeveShade : f.sleeve, w);
+    fillP(ctx, thickPath(`af${f.k}|${i}`, [[armPts(f, i), w * 0.41]]), skin);
+    fillP(ctx, thickPath(`as${f.k}|${i}`, [[sleevePts(f, i), (w + 0.25) / 2]]), shade ? f.sleeveShade : f.sleeve);
+  } else fillP(ctx, thickPath(`af${f.k}|${i}`, [[armPts(f, i), w / 2]]), shade ? f.sleeveShade : f.sleeve);
   if (hand) fillP(ctx, handPath(f, i), skin);
 }
 
@@ -675,12 +658,15 @@ function shoesShape(p: Path2D, f: Figure): void {
 function legsFill(ctx: Ctx, f: Figure): void {
   const trousers = f.ap.bottom === 'trousers';
   const covered = legsCovered(f.ap.top);
-  const w = 2 * legR(f);
-  // jambe arrière ombrée (gros plan), sinon les deux jambes d'un seul trait
+  const r = legR(f);
+  const hips = trousers && !covered;
+  // jambe arrière ombrée (gros plan), sinon les deux jambes d'un seul aplat
   const shade = f.micro || f.statue;
-  if (shade) strokeP(ctx, legLine(f, 0, false), trousers ? f.bottomShade : f.skinShade, w);
-  strokeP(ctx, legLine(f, shade ? 1 : -1, trousers && !covered), trousers ? f.bottom : f.skin, w);
-  if (f.ap.bottom === 'shorts' && !covered) strokeP(ctx, shortsLine(f), f.bottom, f.sk.m.legW + 0.45);
+  if (shade) fillP(ctx, thickPath(`l0${f.k}`, [[legPts(f, 0, false), r]]), trousers ? f.bottomShade : f.skinShade);
+  const front: [Pts, number][] = [[legPts(f, 1, hips), r]];
+  if (!shade) front.push([legPts(f, 0, false), r]);
+  fillP(ctx, thickPath(`l1${f.k}|${shade ? 's' : ''}${hips ? 'h' : ''}`, front), trousers ? f.bottom : f.skin);
+  if (f.ap.bottom === 'shorts' && !covered) fillP(ctx, thickPath(`sh${f.k}`, [[shortsPts(f), (f.sk.m.legW + 0.45) / 2]]), f.bottom);
   if (f.statue) fillP(ctx, cached(`s${f.k}`, (p) => shoesShape(p, f)), f.bottom);
 }
 
@@ -764,10 +750,15 @@ function scaleHull(pts: readonly number[], c: Pt, k: number): number[] {
  * Motifs
  * ------------------------------------------------------------------------- */
 
-/** Remplit p avec la couleur du haut et son motif (niveau 0). `m` = repère du motif (null = local). */
+/**
+ * Remplit p avec la couleur du haut et son motif. Motifs au niveau 0 seulement, et à partir de
+ * MICRO_SCALE px par unité : en dessous, une rayure de 1,5 u ne couvre qu'un pixel (bruit, moiré).
+ * Les tuiles du zoom de jeu (≥ 1,5) sont toujours rendues à 2 px par unité ou plus.
+ * `m` = repère du motif (null = local).
+ */
 function fillTop(ctx: Ctx, f: Figure, p: Path2D | null, m: DOMMatrix2DInit | null): void {
   if (!p) return;
-  if (f.lod === 0 && f.ap.topPattern !== 'plain') {
+  if (f.micro && f.ap.topPattern !== 'plain') {
     const pat = topPattern(ctx, f);
     if (pat) {
       setPatternFillMatrix(ctx, pat, m ?? IDENTITY);
@@ -905,6 +896,8 @@ interface UpperOpts {
   shoes: boolean;
   /** Niveau 1 : les deux bras (manches) sont peints avec le buste. */
   armsInTorso: boolean;
+  /** Appareil photo dessiné plus tard, par-dessus le bras avant (sinon caché en marchant). */
+  cameraLater?: boolean;
 }
 
 function torsoPath(f: Figure): Path2D | null {
@@ -930,10 +923,7 @@ function upperBody(ctx: Ctx, f: Figure, o: UpperOpts): void {
   // buste (et manches au niveau 1)
   const overlay = ap.top === 'apron' || ap.top === 'overalls';
   if (o.armsInTorso) {
-    strokeP(ctx, cached(`aa${k}`, (p) => {
-      line3(p, sk.sh[0], sk.el[0], sk.hd[0]);
-      line3(p, sk.sh[1], sk.el[1], sk.hd[1]);
-    }), f.sleeve, m.armW);
+    fillP(ctx, thickPath(`aa${k}`, [[armPts(f, 0), m.armW / 2], [armPts(f, 1), m.armW / 2]]), f.sleeve);
     fillP(ctx, torsoPath(f), overlay ? f.sleeve : f.top);
   } else if (overlay) fillP(ctx, torsoPath(f), f.sleeve);
   else fillTop(ctx, f, torsoPath(f), fr.torso);
@@ -941,7 +931,7 @@ function upperBody(ctx: Ctx, f: Figure, o: UpperOpts): void {
   if (overlay) fillTop(ctx, f, cached(`o${k}|${ap.top}`, (p) => inFrame(p, fr.torso, (q) => S.topOverlayShape(q, m, ap.top))), fr.torso);
   // détails colorés du haut
   for (const [p, role] of torsoDetails(f)) fillP(ctx, p, detailColor(f, role));
-  if (ap.accessory === 'camera' || ap.accessory === 'scarf' || ap.accessory === 'backpack') {
+  if ((ap.accessory === 'camera' && !o.cameraLater) || ap.accessory === 'scarf' || ap.accessory === 'backpack') {
     ctx.strokeStyle = INK;
     ctx.lineWidth = f.ol;
     drawAccessoryFront(ctx, f);

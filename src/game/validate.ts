@@ -3,9 +3,9 @@
 import type { CaseDef, CharacterDef, Circle, Entity, Rect, StepDef, Vec2, World } from '../types';
 import { MAX_ZOOM, MIN_ZOOM_FLOOR } from '../config';
 import { getEntityBounds } from '../art/bounds';
-import { groundAt, isHiddenByRoof, isWalkable } from '../world';
+import { buildingAt, groundAt, isHiddenByRoof, isWalkable } from '../world';
 import { circleContains, rectsIntersect, targetCenter, targetExists } from './geometry';
-import { stepDependencies } from './session';
+import { matchTargets, stepDependencies } from './session';
 
 const CASE_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 
@@ -158,7 +158,9 @@ function checkCaseWith(def: CaseDef, world: World, characters: ReadonlyMap<strin
         const onWater = groundAt(world, p) === 'water';
         const duckOk = e.kind === 'prop' && e.prop === 'duck' && onWater;
         if (!duckOk && !isWalkable(world, p)) {
-          err(`${where} : n'est pas posée sur un sol praticable (${Math.round(e.x)}, ${Math.round(e.y)} : ${onWater ? 'eau' : 'bâtiment ou hors du monde'})`);
+          const inside = buildingAt(world, p);
+          const why = onWater ? 'dans l\'eau' : inside ? `dans le bâtiment « ${inside.id} »` : 'hors du monde';
+          err(`${where} : n'est pas posée sur un sol praticable (${Math.round(e.x)}, ${Math.round(e.y)} : ${why})`);
         }
         if (isHiddenByRoof(world, p)) err(`${where} : cachée par le toit d'un bâtiment (invisible)`);
       }
@@ -203,8 +205,8 @@ function checkCaseWith(def: CaseDef, world: World, characters: ReadonlyMap<strin
   const unreachable = stepIds.filter((s) => !ok.has(s));
   if (unreachable.length) err(`étapes jamais atteignables : ${list(unreachable)}`);
 
-  // --- Reconstitution
-  if (def.replay.length === 0) err('reconstitution (replay) vide');
+  // --- Reconstitution (facultative pour une enquête bonus, qui n'a pas de chronologie)
+  if (def.replay.length === 0 && !def.bonus) err('reconstitution (replay) vide');
   def.replay.forEach((r, i) => {
     if (!targetExists(world, r.id)) err(`replay[${i}] : entité ou zone inconnue « ${r.id} »`);
     if (blank(r.caption)) err(`replay[${i}] : légende vide`);
@@ -243,6 +245,15 @@ function checkStep(s: StepDef, world: World, stepSet: ReadonlySet<string>, err: 
     if (isAmbientId(n.id)) err(`${where} : fausse piste « ${n.id} » ambiante (instable) — placer une entité d'enquête`);
     if (s.accept.includes(n.id)) err(`${where} : « ${n.id} » est à la fois réponse et fausse piste`);
     if (blank(n.feedback)) err(`${where} : fausse piste « ${n.id} » sans message`);
+    // Fausse piste masquée : un tap en son centre serait accepté comme une réponse (zone ou façade
+    // d'un bâtiment de accept qui la contient) ; son message ne s'afficherait jamais.
+    const c = targetCenter(world, n.id);
+    if (c && !s.accept.includes(n.id)) {
+      const shadow = matchTargets(world, s.accept, { point: c, entityId: n.id });
+      if (shadow.length > 0) {
+        err(`${where} : fausse piste « ${n.id} » masquée par la réponse « ${shadow[0]} » (un tap dessus serait accepté)`);
+      }
+    }
   }
 
   // Indices

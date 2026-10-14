@@ -334,6 +334,16 @@ personPlate(
 );
 personPlate('accessories', 'Accessoires (12)', ACCESSORIES.map((a) => ({ label: a, entity: person({ accessory: a }) })));
 personPlate(
+  'accposes',
+  'Accessoires × poses courantes (marche, course, assis, téléphone) — l’accessoire doit rester visible',
+  ACCESSORIES.filter((a) => a !== 'none').flatMap((a) =>
+    (['walk', 'run', 'sit', 'phone'] as Pose[]).map((pose, i) => ({
+      label: `${a} · ${pose}`,
+      entity: person({ accessory: a, topColor: (['blue', 'green', 'orange', 'purple'] as Color[])[i] }, { pose, facing: i % 2 ? 'left' : 'right' }),
+    })),
+  ),
+);
+personPlate(
   'builds',
   'Corpulences (4) × hauts',
   BUILDS.flatMap((b) =>
@@ -456,13 +466,14 @@ personPlate(
     ax: 17,
     ay: 17,
     items: Array.from({ length: 12 }, (_, i) => {
-      const ap = randomAppearance(r);
+      const r0 = randomAppearance(r);
+      const ap: PersonAppearance = i === 0 ? { ...BASE, hat: 'tophat', face: 'mustache' } : r0;
       return {
-        label: `${ap.hat}/${ap.top}`,
+        label: `${ap.hat}/${ap.top}${ap.face !== 'none' ? '/' + ap.face : ''}`,
         draw: (ctx) => {
           ctx.fillStyle = '#efe4cb';
           ctx.fillRect(-15, -15, 30, 30);
-          drawPortrait(ctx, i === 0 ? { ...BASE, hat: 'tophat', face: 'mustache' } : ap, 0, 0, 30);
+          drawPortrait(ctx, ap, 0, 0, 30);
           ctx.strokeStyle = '#2f2622';
           ctx.lineWidth = 0.5;
           ctx.strokeRect(-15, -15, 30, 30);
@@ -976,7 +987,7 @@ function runBoundsCheck(): HTMLElement {
     const ch = Math.ceil((b.h + 2 * M) * S);
     if (canvas.width < cw) canvas.width = cw;
     if (canvas.height < ch) canvas.height = ch;
-    for (const lod of [0, 1] as Lod[]) {
+    for (const lod of [0, 1, 2] as Lod[]) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
       ctx.setTransform(S, 0, 0, S, (M - b.x) * S, (M - b.y) * S);
@@ -1018,7 +1029,7 @@ function runBoundsCheck(): HTMLElement {
   const sec = document.createElement('section');
   sec.id = 'check';
   const status = violations.length === 0 ? `<span class="ok">AUCUN débordement</span>` : `<span class="bad">${violations.length} débordement(s)</span>`;
-  sec.innerHTML = `<h2>Contrôle des emprises <small>— ${ents.length} entités × niveaux 0 et 1 (${checked} rendus, ${Math.round(ms)} ms)</small></h2><p>${status}</p>`;
+  sec.innerHTML = `<h2>Contrôle des emprises <small>— ${ents.length} entités × niveaux 0, 1 et 2 (${checked} rendus, ${Math.round(ms)} ms)</small></h2><p>${status}</p>`;
   if (violations.length) {
     const t = document.createElement('table');
     t.innerHTML = '<tr><th>type</th><th>description</th><th>niveau</th><th>dépassement (u)</th><th>pixels</th></tr>' + violations.slice(0, 60).map((v) => `<tr><td>${v.kind}</td><td>${v.desc}</td><td>${v.lod}</td><td>${v.overflow}</td><td>${v.pixels}</td></tr>`).join('');
@@ -1098,12 +1109,20 @@ function runPerf(): HTMLElement {
   // niveau 0 au zoom 2 (tuiles du zoom de jeu) : 4 fois moins d'entités par tuile qu'au zoom 1
   result.person.lod0z2 = Math.round(measure(people, 0, 2) * 10000) / 10000;
   result.building.lod0z2 = Math.round(measure(buildings, 0, 2) * 10000) / 10000;
-  const perf = { unit: 'ms par entité', people: N_PEOPLE, buildings: N_BUILDINGS, zooms, ...result, target: { personLod0: 0.05 } };
+  const perf = {
+    unit: 'ms par entité',
+    people: N_PEOPLE,
+    buildings: N_BUILDINGS,
+    zooms,
+    ...result,
+    target: { personLod0: 0.05 },
+    note: 'deuxième meilleur de 6 passages ; sans GPU (conteneur de développement), les valeurs varient de ±30 % entre deux exécutions',
+  };
   window.__artPerf = perf;
   const sec = document.createElement('section');
   sec.id = 'perf';
   const ok = (v: number, lim: number) => `<span class="${v <= lim ? 'ok' : 'bad'}">${v}</span>`;
-  sec.innerHTML = `<h2>Performance <small>— ${N_PEOPLE} personnes, ${N_BUILDINGS} bâtiments, canevas 1024², ms par entité (médiane de 4)</small></h2>
+  sec.innerHTML = `<h2>Performance <small>— ${N_PEOPLE} personnes, ${N_BUILDINGS} bâtiments, canevas 1024², ms par entité (deuxième meilleur de 6 passages)</small></h2>
   <table><tr><th></th><th>niveau 0 (zoom 1)</th><th>niveau 0 (zoom 2)</th><th>niveau 1 (zoom 0,5)</th><th>niveau 2 (zoom 0,15)</th></tr>
   <tr><td>personne</td><td>${ok(result.person.lod0, 0.05)}</td><td>${ok(result.person.lod0z2, 0.2)}</td><td>${ok(result.person.lod1, 0.03)}</td><td>${ok(result.person.lod2, 0.005)}</td></tr>
   <tr><td>bâtiment</td><td>${ok(result.building.lod0, 1)}</td><td>${ok(result.building.lod0z2, 2)}</td><td>${ok(result.building.lod1, 0.3)}</td><td>${ok(result.building.lod2, 0.05)}</td></tr></table>

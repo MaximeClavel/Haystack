@@ -480,11 +480,16 @@ export class CaseSession {
 
   /* ------------------------------------------------------------------ carnet */
 
-  /** Ajoute une punaise ; renvoie son indice. Au-delà de MAX_PINS, la plus ancienne est retirée. */
+  /**
+   * Ajoute une punaise (ramenée dans les limites du monde) ; renvoie son indice.
+   * Au-delà de MAX_PINS, la plus ancienne est retirée. Coordonnées non finies : erreur.
+   */
   addPin(p: Vec2): number {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) throw new Error('[game] punaise hors du monde');
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) throw new Error('[game] punaise invalide (coordonnées non finies)');
     this.begin();
-    this.state.pins.push({ x: p.x, y: p.y });
+    const x = Math.max(0, Math.min(this.world.width, p.x));
+    const y = Math.max(0, Math.min(this.world.height, p.y));
+    this.state.pins.push({ x, y });
     if (this.state.pins.length > MAX_PINS) this.state.pins.shift();
     return this.state.pins.length - 1;
   }

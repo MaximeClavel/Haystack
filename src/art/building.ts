@@ -538,7 +538,6 @@ function fillWith(ctx: Ctx, m: CanvasPattern | string): void {
 function drawRoof(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
   const { x0, x1, W, roofTop: yt, facadeTop: yb, D } = L;
   const mat = roofMaterial(ctx, L, lod);
-  const fine = lod === 0;
   switch (L.roof) {
     case 'tiles':
     case 'slate':
@@ -635,25 +634,7 @@ function drawRoof(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
       ctx.lineWidth = lw * 0.6;
       ctx.strokeRect(x0 + p, yt + p, W - 2 * p, D - 2 * p);
       ctx.lineWidth = lw;
-      if (fine) {
-        // bouches d'aération, réservoir
-        const r = L.rnd;
-        void r;
-        const k = (L.seed >>> 3) % 3;
-        if (k === 0 && D > 30 && W > 50) {
-          const tx = x0 + W * 0.7;
-          const ty = yt + D * 0.55;
-          boxFS(ctx, tx - 5, ty - 7, 10, 7, '#9aa0a4');
-          ctx.fillStyle = '#c9cccd';
-          ctx.beginPath();
-          ctx.ellipse(tx, ty - 7, 5, 1.6, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        } else if (D > 20 && W > 40) {
-          boxFS(ctx, x0 + W * 0.3, yt + D * 0.4, 7, 5, '#b9bcbd');
-          boxFS(ctx, x0 + W * 0.3 + 1, yt + D * 0.4 + 1, 5, 1.4, '#7d8285');
-        }
-      }
+      drawRoofKit(ctx, L, lod, lw, p);
       break;
     }
     case 'glass': {
@@ -733,6 +714,134 @@ function drawRoof(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
     }
   }
   for (const c of L.chimneys) drawChimney(ctx, c.x, c.y, c.w, c.h, c.y > yt + D * 0.5 ? L.wall : mix(L.wall, '#b5603f', 0.5), lod);
+}
+
+/* ---------- Équipements des toits plats ---------- */
+
+type KitKind = 'vent' | 'ac' | 'skylight' | 'tank' | 'hatch';
+interface KitItem {
+  kind: KitKind;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+const KIT_SIZE: Record<KitKind, [number, number]> = {
+  vent: [8, 5],
+  ac: [7, 5],
+  skylight: [11, 6],
+  tank: [10, 9],
+  hatch: [5, 4],
+};
+const KIT_ORDER: KitKind[] = ['vent', 'ac', 'skylight', 'tank', 'hatch', 'ac', 'vent', 'skylight'];
+const roofKits = new WeakMap<Layout, KitItem[]>();
+
+/**
+ * Plan des équipements d'un toit plat (aérations, climatiseurs, verrières, réservoir, trappe) :
+ * leur nombre suit la surface du toit, leurs places évitent cheminées et décors propres au style
+ * (verrière du musée, hélistation de l'hôpital, balustrade de la banque). Calculé une fois.
+ */
+function roofKitOf(L: Layout, p: number): KitItem[] {
+  let kit = roofKits.get(L);
+  if (kit) return kit;
+  kit = [];
+  roofKits.set(L, kit);
+  const ix0 = L.x0 + p + 2;
+  const ix1 = L.x1 - p - 2;
+  const iy0 = L.roofTop + p + 2;
+  const iy1 = L.roofTop + L.D - p - 5;
+  if (ix1 - ix0 < 14 || iy1 - iy0 < 8) return kit;
+  const busy: { x: number; y: number; w: number; h: number }[] = L.chimneys.map((c) => ({ x: c.x - 1, y: c.y - c.h - 1, w: c.w + 2, h: c.h + 3 }));
+  const st = L.e.style;
+  if (st === 'museum') busy.push({ x: L.x0 + L.W * 0.3 - 2, y: L.roofTop + L.D * 0.25 - 2, w: L.W * 0.4 + 4, h: L.D * 0.5 + 4 });
+  if (st === 'hospital') {
+    const r = Math.min(L.D * 0.32, 22) + 2;
+    busy.push({ x: L.x0 + L.W * 0.72 - r, y: L.roofTop + L.D / 2 - r, w: 2 * r, h: 2 * r });
+  }
+  const n = Math.max(1, Math.min(6, Math.floor(((ix1 - ix0) * (iy1 - iy0)) / 2600)));
+  const r = quickRand(L.seed * 7 + 13);
+  const start = Math.floor(r() * KIT_ORDER.length);
+  for (let i = 0; i < n; i++) {
+    const kind = KIT_ORDER[(start + i) % KIT_ORDER.length];
+    const [w, h] = KIT_SIZE[kind];
+    if (w > ix1 - ix0 || h > iy1 - iy0) continue;
+    for (let t = 0; t < 8; t++) {
+      const x = ix0 + r() * (ix1 - ix0 - w);
+      const y = iy0 + r() * (iy1 - iy0 - h);
+      const hit = [...busy, ...kit].some((b) => x < b.x + b.w + 2 && b.x < x + w + 2 && y < b.y + b.h + 2 && b.y < y + h + 2);
+      if (hit) continue;
+      kit.push({ kind, x, y, w, h });
+      break;
+    }
+  }
+  return kit;
+}
+
+function drawRoofKit(ctx: Ctx, L: Layout, lod: Lod, lw: number, p: number): void {
+  const kit = roofKitOf(L, p);
+  if (!kit.length) return;
+  // ombres portées (vers le sud-est), un seul remplissage
+  ctx.fillStyle = SHADOW_LIGHT;
+  ctx.beginPath();
+  for (const k of kit) ctx.rect(k.x + 1.2, k.y + 1.2, k.w, k.h);
+  ctx.fill();
+  if (lod !== 0) {
+    // niveau 1 : simples blocs
+    ctx.fillStyle = '#b9bcbd';
+    ctx.beginPath();
+    for (const k of kit) ctx.rect(k.x, k.y, k.w, k.h);
+    ctx.fill();
+    return;
+  }
+  ctx.lineWidth = lw * 0.8;
+  for (const k of kit) {
+    const { x, y, w, h } = k;
+    switch (k.kind) {
+      case 'vent':
+        boxFS(ctx, x, y, w, h, '#b9bcbd');
+        ctx.fillStyle = '#7d8285';
+        for (let i = 0; i < 3; i++) ctx.fillRect(x + 1.2, y + 1 + i * 1.3, w - 2.4, 0.55);
+        break;
+      case 'ac':
+        boxFS(ctx, x, y, w, h, '#d4d6d3');
+        ctx.fillStyle = '#7d8285';
+        ctx.beginPath();
+        ctx.arc(x + w * 0.62, y + h / 2, h * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        break;
+      case 'skylight':
+        boxFS(ctx, x, y, w, h, MAT.glass);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.2, y + h - 1);
+        ctx.lineTo(x + w * 0.45, y + 1);
+        ctx.stroke();
+        ctx.strokeStyle = INK;
+        ctx.beginPath();
+        ctx.moveTo(x + w / 2, y);
+        ctx.lineTo(x + w / 2, y + h);
+        ctx.stroke();
+        break;
+      case 'tank': {
+        // réservoir cylindrique vu de haut-trois-quarts
+        boxFS(ctx, x + 1, y + 2, w - 2, h - 2, '#9aa0a4');
+        ctx.fillStyle = '#c9cccd';
+        ctx.beginPath();
+        ctx.ellipse(x + w / 2, y + 2, w / 2 - 1, 1.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        break;
+      }
+      case 'hatch':
+        boxFS(ctx, x, y, w, h, mix(L.roofC, INK, 0.25));
+        ctx.fillStyle = mix(L.roofC, '#ffffff', 0.2);
+        ctx.fillRect(x + 0.8, y + 0.8, w - 1.6, 0.7);
+        break;
+    }
+  }
+  ctx.lineWidth = lw;
 }
 
 /* ---------- Mur ---------- */
