@@ -50,3 +50,17 @@ dans `docs/journal/phase1-<agent>.md`.
   workflow ; la consigne de l'agent `art` a été complétée pour qu'il **reprenne** ses fichiers au lieu de
   repartir de zéro, et pour qu'il dessine les variantes utilisées par le monde (tombes, statues, potagers,
   vélos garés…) ; l'agent `game` doit utiliser les utilitaires du monde (`isHiddenByRoof`, `isWalkable`).
+
+### Phase 1 — deuxième interruption, réorganisation
+- Deuxième passage (≈ 1 h) : l'agent `engine` a terminé (moteur de carte complet, tests verts,
+  `docs/journal/phase1-engine.md`) ; `art` a beaucoup avancé ; `game` a commencé. Nouvelle limite d'usage.
+- Commit de sauvegarde `2f46d2c` (typecheck OK, 103 tests verts).
+- Constat : un passage consomme ≈ 1,2 M de jetons de sous-agents avant la limite. Pour avancer plus sûrement :
+  - nouveau workflow **`haystack-fondations-suite`** limité au travail restant (pas de ré-exécution de
+    `world` ni d'`engine`) ;
+  - `game` et `art` reprennent leurs fichiers, avec consigne de faire d'abord l'inventaire de ce qui manque ;
+  - les deux scénaristes + l'éditeur sont remplacés par **un scénariste** (qui écrit directement
+    `docs/CONTENT.md` en s'appuyant sur la vraie ville : `npm run world -- ground/free/near`, captures)
+    suivi d'**un critique adverse** qui tente de casser chaque étape (ambiguïté, visibilité, placement,
+    vocabulaire, logique, plaisir) et corrige le document ;
+  - puis `integration` et `direction-artistique` comme prévu.
