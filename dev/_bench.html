@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body><script type="module">
+const c = document.createElement('canvas'); c.width = 1024; c.height = 1024;
+const ctx = c.getContext('2d');
+const N = 20000;
+function bench(name, fn) {
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,1024,1024); ctx.getImageData(0,0,1,1);
+  ctx.setTransform(1,0,0,1,0,0);
+  const t0 = performance.now();
+  for (let i = 0; i < N; i++) fn(i);
+  ctx.getImageData(0,0,1,1);
+  return [name, ((performance.now() - t0) / N * 1000).toFixed(2) + ' µs'];
+}
+const out = [];
+ctx.strokeStyle = '#222'; ctx.lineWidth = 1; ctx.lineJoin='round'; ctx.lineCap='round';
+out.push(bench('fillRect', i => { ctx.fillStyle = '#c33'; ctx.fillRect(i%1000, (i*7)%1000, 8, 12); }));
+out.push(bench('path rect fill', i => { ctx.fillStyle = '#c33'; ctx.beginPath(); ctx.rect(i%1000, (i*7)%1000, 8, 12); ctx.fill(); }));
+out.push(bench('circle fill', i => { ctx.fillStyle = '#c33'; ctx.beginPath(); ctx.arc(i%1000, (i*7)%1000, 5, 0, 6.283); ctx.fill(); }));
+out.push(bench('circle fill+stroke', i => { ctx.fillStyle = '#c33'; ctx.beginPath(); ctx.arc(i%1000, (i*7)%1000, 5, 0, 6.283); ctx.fill(); ctx.stroke(); }));
+out.push(bench('polyline stroke 3pts w3', i => { ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(i%1000, (i*7)%1000); ctx.lineTo(i%1000+5, (i*7)%1000+5); ctx.lineTo(i%1000+3, (i*7)%1000+12); ctx.stroke(); }));
+out.push(bench('save/translate/scale/restore', i => { ctx.save(); ctx.translate(i%1000, 5); ctx.scale(-1,1); ctx.restore(); }));
+out.push(bench('fillStyle string change x2', i => { ctx.fillStyle = (i&1)?'#c33':'#3c3'; ctx.fillStyle = (i&1)?'#33c':'#cc3'; }));
+out.push(bench('transform scaled circle (zoom2)', i => { ctx.setTransform(2,0,0,2,0,0); ctx.fillStyle='#c33'; ctx.beginPath(); ctx.arc(i%500, (i*7)%500, 2.5, 0, 6.283); ctx.fill(); ctx.stroke(); }));
+out.push(bench('quad curve shape fill+stroke', i => { const x=i%1000,y=(i*7)%1000; ctx.fillStyle='#c33'; ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+5,y-3,x+8,y+2); ctx.lineTo(x+6,y+9); ctx.lineTo(x,y+8); ctx.closePath(); ctx.fill(); ctx.stroke(); }));
+out.push(bench('ellipse fill', i => { ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(i%1000, (i*7)%1000, 6, 1.5, 0, 0, 6.283); ctx.fill(); }));
+out.push(bench('getTransform', i => { ctx.getTransform(); }));
+document.body.innerText = JSON.stringify(out);
+window.__bench = out; window.__haystackReady = true;
+</script></body></html>

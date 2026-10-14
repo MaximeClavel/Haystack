@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Haystack — galerie graphique</title>
+    <style>
+      :root {
+        --paper: #f3ecdc;
+        --ink: #2f2622;
+      }
+      body {
+        margin: 0;
+        background: #e9e1cf;
+        color: var(--ink);
+        font: 13px/1.4 system-ui, sans-serif;
+      }
+      header {
+        padding: 10px 16px;
+        background: #2f2622;
+        color: #f3ecdc;
+      }
+      header a {
+        color: #f3c96a;
+        margin-right: 8px;
+      }
+      header .opts {
+        margin-top: 4px;
+        opacity: 0.85;
+      }
+      section {
+        margin: 12px 16px 24px;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 8px 0 6px;
+      }
+      h2 small {
+        font-weight: normal;
+        opacity: 0.7;
+      }
+      canvas {
+        display: block;
+        background: var(--paper);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      }
+      table {
+        border-collapse: collapse;
+        background: #fffaf0;
+      }
+      td,
+      th {
+        border: 1px solid #cbbfa7;
+        padding: 2px 6px;
+        text-align: left;
+        font-size: 12px;
+      }
+      .ok {
+        color: #2c7a3a;
+        font-weight: bold;
+      }
+      .bad {
+        color: #b3261e;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Haystack — galerie graphique</strong> (module <code>src/art</code>)
+      <div id="nav"></div>
+      <div class="opts" id="opts"></div>
+    </header>
+    <main id="main"></main>
+    <script type="module" src="/src/dev/gallery.ts"></script>
+  </body>
+</html>

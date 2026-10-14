@@ -17,7 +17,7 @@ Vite 7 · TypeScript 5.9 strict · Preact 10 (interface) · Canvas 2D (carte) ·
 | `npm test` | Tests unitaires Vitest (`src/**/*.test.ts`, `tests/unit/`) |
 | `npm run e2e` | Tests de bout en bout Playwright (téléphone émulé) |
 | `npm run shot -- "<chemin-url>" <sortie.png>` | Capture d'écran d'une page (voir `scripts/shot.mjs`) |
-| `npm run world -- <cmd>` | Interroger le monde généré (`landmarks`, `entity <id>`, `rect x y w h`, `stats`) |
+| `npm run world -- <cmd>` | Interroger le monde généré : `landmarks`, `districts`, `streets [filtre]`, `zones`, `entity <id>`, `rect x y w h`, `near x y [r]`, `ground x y`, `free x y w h [pas]`, `lookalikes <id> [d]`, `stats` (option `--no-cases`) |
 | `npm run build` | Build de production dans `dist/` |
 
 ## Règles communes
