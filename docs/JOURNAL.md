@@ -40,3 +40,13 @@ Neuf sous-agents, deux à la fois au plus (limite de la machine : 4 cœurs) :
 
 Chaque agent vérifie son travail (tests Vitest, captures d'écran lues et critiquées) et rend un compte rendu
 dans `docs/journal/phase1-<agent>.md`.
+
+### Phase 1 — incident et reprise
+- Le workflow s'est arrêté après ~1 h : **limite d'usage du compte atteinte**. Seul l'agent `world` avait
+  terminé (35 tests verts, 786 bâtiments, 3 231 passants — voir `docs/journal/phase1-world.md`) ;
+  l'agent `art` était à mi-chemin, les 7 autres n'avaient pas démarré.
+- Commit de sauvegarde `3fb389a` (monde terminé + art inachevé).
+- Reprise après réinitialisation de la limite : le résultat de `world` est réutilisé depuis le cache du
+  workflow ; la consigne de l'agent `art` a été complétée pour qu'il **reprenne** ses fichiers au lieu de
+  repartir de zéro, et pour qu'il dessine les variantes utilisées par le monde (tombes, statues, potagers,
+  vélos garés…) ; l'agent `game` doit utiliser les utilitaires du monde (`isHiddenByRoof`, `isWalkable`).
