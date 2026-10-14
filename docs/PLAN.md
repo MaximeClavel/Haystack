@@ -1,5 +1,8 @@
 # Haystack — Plan d'implémentation
 
+> **Note (14/10/2026)** : pour l'instant, le projet est développé sous forme de **site web mobile récréatif** —
+> voir [`PLAN-WEB.md`](PLAN-WEB.md). Le présent document reste la vision long terme d'une application native.
+
 > Jeu mobile d'enquête de type « cherche-et-trouve » : le joueur explore la carte géante et très détaillée d'une ville pour reconstituer des affaires criminelles, dans l'esprit du jeu de société *MicroMacro: Crime City*.
 
 Statut : brouillon v0.1 — 14/10/2026

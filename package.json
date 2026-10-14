@@ -1,0 +1,32 @@
+{
+  "name": "haystack",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Haystack — jeu d'enquête web mobile : explorez la ville de Meulebourg pour résoudre des affaires.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "shot": "node scripts/shot.mjs",
+    "world": "tsx scripts/world-query.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/special-elite": "^5.3.0",
+    "preact": "^10.29.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.7",
+    "vitest": "^3.2.7"
+  }
+}
