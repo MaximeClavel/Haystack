@@ -446,6 +446,8 @@ const DRAW: Record<PropKind, (p: P) => void> = {
   },
 
   statue(p) {
+    if (p.e.variant === 'angel') return drawAngel(p);
+    if (p.e.variant === 'sculpture') return drawSculpture(p);
     const { ctx, fine } = p;
     p.sh(0, 0, 8, 1.4);
     // socle
@@ -736,14 +738,23 @@ const DRAW: Record<PropKind, (p: P) => void> = {
   },
 
   pallet(p) {
+    // palette vue de côté : deux plateaux de planches sur trois dés, vides sombres entre eux
     const { ctx, fine } = p;
     const c = p.c(MAT.woodLight);
-    boxFS(ctx, -7, -2, 14, 4, p.cd(MAT.woodLight));
-    ctx.fillStyle = c;
-    for (let i = 0; i < 5; i++) ctx.fillRect(-7, -2 + i * 0.85, 14, 0.6);
+    const cd = p.cd(MAT.woodLight);
+    ctx.fillStyle = 'rgba(47, 38, 34, 0.55)';
+    ctx.fillRect(-6.6, -1.2, 13.2, 2.4);
+    boxFS(ctx, -7, -2, 14, 0.95, c);
+    boxFS(ctx, -7, 1.05, 14, 0.95, c);
+    for (const x0 of [-7, -1, 5]) boxFS(ctx, x0, -1.05, 2, 2.1, cd);
     if (fine) {
-      ctx.lineWidth = 0.25;
-      ctx.strokeRect(-7, -2, 14, 4);
+      ctx.lineWidth = 0.22;
+      ctx.beginPath();
+      for (const x0 of [-3.6, 0, 3.6]) {
+        ctx.moveTo(x0, -2);
+        ctx.lineTo(x0, -1.05);
+      }
+      ctx.stroke();
       ctx.lineWidth = p.ol;
     }
   },
@@ -972,6 +983,7 @@ const DRAW: Record<PropKind, (p: P) => void> = {
   },
 
   flowerbed(p) {
+    if (p.e.variant === 'vegetables') return drawVegetables(p);
     const { ctx, fine } = p;
     rboxFS(ctx, -12, -5.5, 24, 5.5, 1.5, '#8a6a4e');
     const rnd = quickRand(p.seed);
@@ -1000,6 +1012,7 @@ const DRAW: Record<PropKind, (p: P) => void> = {
   },
 
   rock(p) {
+    if (p.e.variant === 'tombstone') return drawTombstone(p);
     const { ctx } = p;
     p.sh(0, 0, 5, 1);
     polyFS(ctx, [-4.8, 0, -4.2, -4.4, -1.2, -6.8, 2.8, -6.2, 4.8, -2.6, 4.4, 0], p.c('#a39f98'));
@@ -1432,3 +1445,311 @@ export function awningShape(ctx: Ctx, x0: number, x1: number, y: number, d: numb
   }
 }
 
+/* ----------------------------------------------------------------------------
+ * Variantes utilisées par le générateur (voir src/world/README.md)
+ * ------------------------------------------------------------------------- */
+
+/** Pierres : marbre blanc, granit gris, granit noir, grès beige, bronze. */
+const STONE: Partial<Record<string, [string, string, string]>> = {
+  white: ['#f1ede4', '#c9c2b2', '#9d968a'],
+  grey: ['#b3b4b1', '#8b8d8b', '#5f6264'],
+  black: ['#4a4746', '#2f2c2b', '#c9b27a'],
+  beige: ['#dccaa4', '#b49f78', '#8a7656'],
+  brown: ['#a7744a', '#7c5333', '#5a3b24'],
+};
+
+function stoneOf(p: P, def: string): [string, string, string] {
+  return STONE[p.e.color ?? def] ?? STONE[def]!;
+}
+
+/** Pierre tombale : stèle (arrondie, en pignon ou en croix selon la graine) sur un socle. */
+function drawTombstone(p: P): void {
+  const { ctx, fine } = p;
+  const [base, dark, carve] = stoneOf(p, 'grey');
+  p.sh(0, 0, 5, 1);
+  // socle
+  boxFS(ctx, -4.7, -1.5, 9.4, 1.5, dark);
+  const shape = p.seed % 3;
+  ctx.fillStyle = base;
+  ctx.beginPath();
+  if (shape === 0) {
+    // stèle arrondie
+    ctx.moveTo(-3.1, -1.5);
+    ctx.lineTo(-3.1, -4.4);
+    ctx.arc(0, -4.4, 3.1, Math.PI, 0);
+    ctx.lineTo(3.1, -1.5);
+  } else if (shape === 1) {
+    // stèle à pignon
+    ctx.moveTo(-3.0, -1.5);
+    ctx.lineTo(-3.0, -5.2);
+    ctx.lineTo(0, -7.3);
+    ctx.lineTo(3.0, -5.2);
+    ctx.lineTo(3.0, -1.5);
+  } else {
+    // croix
+    ctx.moveTo(-1.1, -1.5);
+    ctx.lineTo(-1.1, -4.6);
+    ctx.lineTo(-3.2, -4.6);
+    ctx.lineTo(-3.2, -6.0);
+    ctx.lineTo(-1.1, -6.0);
+    ctx.lineTo(-1.1, -7.3);
+    ctx.lineTo(1.1, -7.3);
+    ctx.lineTo(1.1, -6.0);
+    ctx.lineTo(3.2, -6.0);
+    ctx.lineTo(3.2, -4.6);
+    ctx.lineTo(1.1, -4.6);
+    ctx.lineTo(1.1, -1.5);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  if (fine && shape !== 2) {
+    // croix gravée et lignes d'épitaphe
+    ctx.strokeStyle = carve;
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    ctx.moveTo(0, -6.0);
+    ctx.lineTo(0, -4.0);
+    ctx.moveTo(-0.8, -5.3);
+    ctx.lineTo(0.8, -5.3);
+    ctx.moveTo(-1.8, -3.1);
+    ctx.lineTo(1.8, -3.1);
+    ctx.moveTo(-1.3, -2.3);
+    ctx.lineTo(1.3, -2.3);
+    ctx.stroke();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = p.ol;
+  }
+  if (fine && p.seed % 4 === 1) {
+    // petit bouquet au pied
+    circleFS(ctx, 3.6, -0.9, 0.7, '#e2463d', false);
+    circleFS(ctx, 4.3, -1.4, 0.6, '#f0cb3f', false);
+  }
+}
+
+/** Plinthe de pierre (statues). */
+function plinth(p: P, w: number, h: number, base: string, dark: string): void {
+  const { ctx } = p;
+  boxFS(ctx, -w / 2 - 1, -2, w + 2, 2, dark);
+  boxFS(ctx, -w / 2, -h, w, h - 2, base);
+  boxFS(ctx, -w / 2 - 0.8, -h - 1.4, w + 1.6, 1.4, base);
+}
+
+/** Ange de pierre (cimetière) : silhouette en robe, ailes repliées, sur une plinthe. */
+function drawAngel(p: P): void {
+  const { ctx } = p;
+  const [base, dark] = stoneOf(p, 'white');
+  p.sh(0, 0, 7, 1.4);
+  plinth(p, 10, 9, base, dark);
+  ctx.save();
+  ctx.translate(0, -10.4);
+  ctx.scale(1.2, 1.2);
+  // ailes (derrière le dos)
+  const wing = (dx: number, c: string) => {
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.moveTo(-0.8 + dx, -14.5);
+    ctx.bezierCurveTo(-5.2 + dx, -19.5, -7.2 + dx, -21.5, -6.4 + dx, -15.5);
+    ctx.bezierCurveTo(-6.0 + dx, -12.0, -4.6 + dx, -9.0, -2.2 + dx, -7.0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  };
+  ctx.lineWidth = p.ol / 1.2;
+  wing(1.6, dark);
+  wing(0, base);
+  if (p.fine) {
+    ctx.lineWidth = 0.25;
+    ctx.beginPath();
+    ctx.moveTo(-1.6, -14.2);
+    ctx.quadraticCurveTo(-4.6, -15.2, -5.4, -17.5);
+    ctx.moveTo(-2.4, -11.4);
+    ctx.quadraticCurveTo(-4.6, -12.4, -5.6, -14.2);
+    ctx.stroke();
+  }
+  drawBronzeFigure(ctx, 'stand', p.lod, 'stone', ANGEL_AP);
+  ctx.restore();
+  ctx.lineWidth = p.ol;
+}
+
+const ANGEL_AP = {
+  skin: 'light',
+  hair: 'long',
+  hairColor: 'blond',
+  hat: 'none',
+  top: 'dress',
+  topColor: 'white',
+  topPattern: 'plain',
+  bottom: 'skirt',
+  bottomColor: 'white',
+  face: 'none',
+  accessory: 'none',
+  build: 'slim',
+} as const;
+
+/** Sculpture moderne sur socle (parvis du musée) : anneau, galets empilés ou vague, selon la graine. */
+function drawSculpture(p: P): void {
+  const { ctx, fine } = p;
+  const [base, dark] = stoneOf(p, 'white');
+  const [pb, pd] = STONE.grey!;
+  p.sh(0, 0, 7.5, 1.4);
+  plinth(p, 11, 12, pb, pd);
+  const top = -13.4;
+  const kind = p.seed % 3;
+  if (kind === 0) {
+    // anneau sur une tige
+    ctx.fillStyle = dark;
+    ctx.fillRect(-0.7, top - 6, 1.4, 6);
+    ctx.strokeRect(-0.7, top - 6, 1.4, 6);
+    ctx.lineWidth = 3.4;
+    ctx.strokeStyle = INK;
+    ctx.beginPath();
+    ctx.ellipse(0, top - 15, 6.2, 8.4, 0.25, 0, TAU);
+    ctx.stroke();
+    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = base;
+    ctx.stroke();
+    if (fine) {
+      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.beginPath();
+      ctx.ellipse(0, top - 15, 6.2, 8.4, 0.25, 3.6, 4.6);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = INK;
+  } else if (kind === 1) {
+    // galets empilés
+    const stones: [number, number, number, number][] = [
+      [0.4, top - 3.0, 5.4, 3.0],
+      [-0.6, top - 8.4, 4.4, 2.6],
+      [0.6, top - 12.8, 3.4, 2.0],
+      [-0.2, top - 16.2, 2.4, 1.5],
+    ];
+    for (const [cx, cy, rx, ry] of stones) ellipseFS(ctx, cx, cy, rx, ry, base);
+    if (fine) {
+      ctx.fillStyle = dark;
+      for (const [cx, cy, rx, ry] of stones) {
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + ry * 0.35, rx * 0.8, ry * 0.45, 0, 0, Math.PI);
+        ctx.fill();
+      }
+    }
+  } else {
+    // vague torsadée
+    ctx.fillStyle = base;
+    ctx.beginPath();
+    ctx.moveTo(-3.6, top);
+    ctx.bezierCurveTo(-7.0, top - 9, 5.0, top - 12, 1.0, top - 21);
+    ctx.bezierCurveTo(0.2, top - 23.5, 4.2, top - 24.5, 5.4, top - 22.0);
+    ctx.bezierCurveTo(6.6, top - 15, -1.2, top - 10, 3.6, top);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    if (fine) {
+      ctx.fillStyle = dark;
+      ctx.beginPath();
+      ctx.moveTo(3.6, top);
+      ctx.bezierCurveTo(-1.2, top - 10, 6.6, top - 15, 5.4, top - 22.0);
+      ctx.bezierCurveTo(4.0, top - 15, -0.4, top - 9, 1.6, top);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  ctx.lineWidth = p.ol;
+}
+
+/** Planche de légumes (jardins ouvriers) : la couleur choisit la culture. */
+function drawVegetables(p: P): void {
+  const { ctx, fine } = p;
+  const rnd = quickRand(p.seed);
+  // terre et sillons
+  rboxFS(ctx, -12, -4.2, 24, 4.2, 1.2, '#7d5c40');
+  if (fine) {
+    ctx.strokeStyle = '#5f4430';
+    ctx.lineWidth = 0.3;
+    ctx.beginPath();
+    for (const yy of [-3.0, -1.6]) {
+      ctx.moveTo(-11, yy);
+      ctx.lineTo(11, yy);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = p.ol;
+  }
+  const leaf = MAT.foliage;
+  const leafD = MAT.foliageDark;
+  switch (p.e.color) {
+    case 'red': {
+      // tomates sur tuteurs
+      ctx.strokeStyle = MAT.woodDark;
+      ctx.lineWidth = 0.4;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const x = -9 + i * 4.5;
+        ctx.moveTo(x, -2.2);
+        ctx.lineTo(x, -8.4);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = p.ol;
+      for (let i = 0; i < 5; i++) {
+        const x = -9 + i * 4.5;
+        ellipseFS(ctx, x, -5.4, 1.9, 2.6, leaf);
+        circleFS(ctx, x - 0.7, -4.6 - rnd() * 1.6, 0.75, '#d9402f', fine);
+        circleFS(ctx, x + 0.8, -5.8 - rnd() * 1.4, 0.7, '#e2463d', fine);
+      }
+      return;
+    }
+    case 'orange': {
+      // citrouilles
+      for (let i = 0; i < 4; i++) {
+        const x = -8.4 + i * 5.6;
+        ellipseFS(ctx, x + 1.6, -3.4, 1.8, 1.1, leaf);
+        ellipseFS(ctx, x - 0.4, -2.8, 2.3, 1.8, '#e8862f');
+        if (fine) {
+          ctx.lineWidth = 0.3;
+          line(ctx, x - 0.4, -4.4, x - 0.4, -1.2);
+          ctx.lineWidth = p.ol;
+          ctx.fillStyle = MAT.woodDark;
+          ctx.fillRect(x - 0.6, -5.0, 0.4, 0.7);
+        }
+      }
+      return;
+    }
+    case 'yellow': {
+      // courges jaunes et grandes feuilles
+      for (let i = 0; i < 4; i++) {
+        const x = -8.6 + i * 5.7;
+        ellipseFS(ctx, x, -4.6, 2.6, 2.0, leaf);
+        ellipseFS(ctx, x + 1.4, -2.0, 1.9, 0.9, '#f2cf45', true, -0.2);
+      }
+      return;
+    }
+    case 'olive': {
+      // poireaux et haricots : tiges dressées
+      ctx.lineWidth = 0.9;
+      for (let i = 0; i < 8; i++) {
+        const x = -10 + i * 2.85;
+        inkedStroke(ctx, [x, -1.8, x + (rnd() - 0.5) * 1.2, -7.6], 0.8, i % 2 ? leaf : '#a3b65a', p.ol * 0.8);
+      }
+      ctx.lineWidth = p.ol;
+      return;
+    }
+    default: {
+      // choux et salades
+      for (let i = 0; i < 5; i++) {
+        const x = -9.4 + i * 4.7;
+        circleFS(ctx, x, -3.6, 2.1, i % 2 ? '#8cc56a' : '#6aa653');
+        if (fine) {
+          ctx.lineWidth = 0.3;
+          ctx.beginPath();
+          ctx.arc(x, -3.6, 1.1, 0.4, Math.PI * 1.6);
+          ctx.stroke();
+          ctx.lineWidth = p.ol;
+        }
+      }
+      ctx.fillStyle = leafD;
+      return;
+    }
+  }
+}

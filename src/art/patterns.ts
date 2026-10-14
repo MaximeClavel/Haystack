@@ -76,6 +76,17 @@ export function getPattern(ctx: CanvasRenderingContext2D, key: string, res: numb
 const cacheDefs = new Map<string, TexDef>();
 const patternRes = new WeakMap<CanvasPattern, [number, number]>();
 
+/** Utilise `pat` comme couleur de remplissage, dans le repère `m` (unités monde, ex. repère du buste). */
+export function setPatternFillMatrix(ctx: CanvasRenderingContext2D, pat: CanvasPattern, m: DOMMatrix2DInit): void {
+  const r = patternRes.get(pat) ?? [1, 1];
+  const a = m.a ?? 1;
+  const b = m.b ?? 0;
+  const c = m.c ?? 0;
+  const d = m.d ?? 1;
+  pat.setTransform({ a: a / r[0], b: b / r[0], c: c / r[1], d: d / r[1], e: m.e ?? 0, f: m.f ?? 0 });
+  ctx.fillStyle = pat;
+}
+
 /** Utilise `pat` comme couleur de remplissage, avec l'origine du motif en (ox, oy) (unités monde). */
 export function setPatternFill(ctx: CanvasRenderingContext2D, pat: CanvasPattern, ox: number, oy: number): void {
   const r = patternRes.get(pat) ?? [1, 1];

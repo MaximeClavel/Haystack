@@ -7,7 +7,7 @@ import type { Lod } from './lod';
 import { COLOR_DARK, COLOR_HEX, COLOR_LIGHT, HAIR_HEX, INK, MAT, SKIN_HEX, mix } from './palette';
 import { drawHeadOnly, drawRider } from './person';
 import type { RideSpec } from './skeleton';
-import { fitTextUpright } from './text';
+import { fitTextUpright, isPlate } from './text';
 import { TAU, type Ctx, boxFS, circleFS, groundShadow, polyFS, quickRand, rboxFS, seedOf } from './util';
 
 const GLASS = '#a9c6d3';
@@ -77,6 +77,16 @@ interface VCtx {
   dark: string;
   light: string;
   seed: number;
+}
+
+/** Plaque d'immatriculation (5,6 × 1,9 u), coin haut-gauche en (x, y). */
+function plateAt(v: VCtx, x: number, y: number, label: string): void {
+  const { ctx } = v;
+  const lw = ctx.lineWidth;
+  ctx.lineWidth = 0.35;
+  boxFS(ctx, x, y, 5.6, 1.9, '#f6f3ea');
+  ctx.lineWidth = lw;
+  fitTextUpright(ctx, v.dir, label, x + 2.8, y + 0.95, 5.0, 1.5, '#203060');
 }
 
 function wheel(v: VCtx, cx: number, cy: number, r: number): void {
@@ -243,10 +253,7 @@ function drawCar(v: VCtx): void {
   ctx.fillStyle = MAT.red;
   ctx.fillRect(-21.7, -10.2, 1.0, 2.0);
   // plaque
-  if (fine && e.label && !police) {
-    boxFS(ctx, -20.6, -7.2, 5.6, 1.9, '#f6f3ea');
-    fitTextUpright(ctx, v.dir, e.label, -17.8, -6.25, 5.0, 1.5, '#203060');
-  }
+  if (fine && e.label && !police) plateAt(v, -20.6, -7.2, e.label);
   // gyrophare / lumineux
   if (police) {
     rboxFS(ctx, -4.5, -21.0, 9, 1.9, 0.5, '#e9e6de');
@@ -352,7 +359,8 @@ function drawVan(v: VCtx, ambulance: boolean): void {
     ctx.fillStyle = MAT.red;
     ctx.fillRect(cx - 3.6, cy - 1.2, 7.2, 2.4);
     ctx.fillRect(cx - 1.2, cy - 3.6, 2.4, 7.2);
-    if (fine) fitTextUpright(ctx, v.dir, 'AMBULANCE', -half + 18, -8.5, 20, 2.2, MAT.redDark);
+    if (fine) fitTextUpright(ctx, v.dir, 'AMBULANCE', -6, -11.4, 30, 2.1, '#ffffff');
+    if (e.label && !isPlate(e.label)) fitTextUpright(ctx, v.dir, e.label, 4.5, -20, 17, 5, MAT.red);
     // gyrophares
     ctx.fillStyle = '#2f6fd8';
     ctx.beginPath();
@@ -374,7 +382,7 @@ function drawVan(v: VCtx, ambulance: boolean): void {
       ctx.fillRect(5.5, -14.5, 2, 0.6);
       ctx.lineWidth = 0.6;
     }
-    if (e.label) {
+    if (e.label && !isPlate(e.label)) {
       const lc = COLOR_HEX[e.color] && ['white', 'beige', 'yellow', 'pink'].includes(e.color) ? '#283f78' : '#fbf6ea';
       fitTextUpright(ctx, v.dir, e.label, -half + 18, -18, 26, 4.5, lc);
     } else if (fine) {
@@ -388,6 +396,7 @@ function drawVan(v: VCtx, ambulance: boolean): void {
   }
   rboxFS(ctx, half - 1.8, -6, 2.6, 2.0, 0.6, BUMPER);
   rboxFS(ctx, -half - 0.8, -6, 2.6, 2.0, 0.6, BUMPER);
+  if (fine && e.label && isPlate(e.label)) plateAt(v, -half + 1.2, -8.6, e.label);
   ctx.fillStyle = MAT.lamp;
   ctx.beginPath();
   ctx.ellipse(half - 1.0, -10.6, 0.9, 0.9, 0, 0, TAU);
@@ -517,10 +526,10 @@ function drawTruck(v: VCtx): void {
     ctx.strokeStyle = INK;
     ctx.lineWidth = 0.6;
   }
-  if (e.label) {
+  if (e.label && !isPlate(e.label)) {
     boxFS(ctx, -34, -26, 48, 10, '#fbf6ea');
     fitTextUpright(ctx, v.dir, e.label, -10, -21, 44, 6.5, v.dark);
-  }
+  } else if (fine && e.label) plateAt(v, -39.4, -10.6, e.label);
   // cabine
   ctx.fillStyle = v.body;
   ctx.beginPath();

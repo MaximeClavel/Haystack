@@ -351,6 +351,32 @@ personPlate(
   ),
 );
 personPlate(
+  'lying',
+  'Allongés (corpulences × objets tenus × chapeaux) — vérifier les emprises avec ?bounds=1',
+  BUILDS.flatMap((b) =>
+    (['jewel', 'leash', 'bottle', 'baguette', 'none'] as HeldItem[]).map((h, i) => ({
+      label: `${b} ${h}`,
+      entity: person({ build: b, hat: (['fedora', 'none', 'straw', 'bowler', 'tophat'] as Hat[])[i] }, { pose: 'lie', holding: h, facing: i % 2 ? 'left' : 'right' }),
+    })),
+  ),
+  { cw: 40 },
+);
+personPlate(
+  'posetops',
+  'Vêtements longs en mouvement (manteau, robe + jupe, tablier, salopette, short) × poses',
+  (['walk', 'run', 'sit', 'crouch', 'climb', 'sneak', 'lie', 'fight'] as Pose[]).flatMap((pose) =>
+    (
+      [
+        { top: 'coat', topColor: 'brown', bottom: 'trousers' },
+        { top: 'dress', topColor: 'purple', bottom: 'skirt', bottomColor: 'pink' },
+        { top: 'apron', topColor: 'yellow', bottom: 'trousers' },
+        { top: 'overalls', topColor: 'blue', bottom: 'trousers', bottomColor: 'blue' },
+        { top: 'hoodie', topColor: 'green', bottom: 'shorts', bottomColor: 'beige' },
+      ] as Partial<PersonAppearance>[]
+    ).map((ap) => ({ label: `${pose} · ${ap.top}`, entity: person(ap, { pose }) })),
+  ),
+);
+personPlate(
   'emotes',
   'Émotions (11)',
   EMOTES.map((e) => ({ label: e, entity: person({ hat: e === 'music' ? 'tophat' : 'none' }, { emote: e }) })),
@@ -500,12 +526,16 @@ plates.push({
         y: 0,
         color,
         driver: f === 'right' || v === 'bicycle' || v === 'scooter' ? randomAppearance(r) : undefined,
-        label: v === 'boat' ? 'LA MOUETTE' : v === 'bus' ? '12 GARE' : v === 'truck' ? 'DÉMÉNAGEURS' : 'MB-1234',
+        label: v === 'boat' ? 'LA MOUETTE' : v === 'bus' ? 'LIGNE 3' : v === 'truck' ? (f === 'right' ? 'DÉMÉNAGEURS' : 'KT-512-RB') : v === 'van' && f === 'right' ? 'FLEURS LILAS' : v === 'ambulance' ? 'SAMU' : 'MB-123-AZ',
         doorOpen: v === 'car' && f === 'left',
       };
       items.push({ label: `${v} ${f === 'right' ? '→' : '←'}${e.driver ? ' +conducteur' : ''}${e.doorOpen ? ' porte ouverte' : ''}`, entity: e });
     }
   }
+  items.push({ label: 'bicycle garé →', entity: { id: 'g.v.parked1', kind: 'vehicle', vehicle: 'bicycle', facing: 'right', x: 0, y: 0, color: 'blue' } });
+  items.push({ label: 'bicycle garé ←', entity: { id: 'g.v.parked2', kind: 'vehicle', vehicle: 'bicycle', facing: 'left', x: 0, y: 0, color: 'red' } });
+  items.push({ label: 'scooter garé', entity: { id: 'g.v.parked3', kind: 'vehicle', vehicle: 'scooter', facing: 'right', x: 0, y: 0, color: 'green' } });
+  items.push({ label: 'boat sans nom', entity: { id: 'g.v.boat0', kind: 'vehicle', vehicle: 'boat', facing: 'left', x: 0, y: 0, color: 'red' } });
   plates.push({ id: 'vehicles', title: 'Véhicules (10) × orientation', cw: 112, ch: 50, ax: 56, ay: 40, items });
 }
 
@@ -543,10 +573,32 @@ plates.push({
       items.push({ label: 'dog small', entity: mk(p, { variant: 'small', color: 'white' }) });
     }
     if (p === 'safe') items.push({ label: 'safe open', entity: mk(p, { variant: 'open' }) });
+    if (p === 'rock')
+      for (const c of ['grey', 'white', 'black', 'beige'] as Color[])
+        items.push({ label: `tombstone ${c}`, entity: mk(p, { variant: 'tombstone', color: c, scale: 1.1, id: `g.o.tomb.${c}` }) });
+    if (p === 'flowerbed')
+      for (const c of ['green', 'olive', 'red', 'orange', 'yellow'] as Color[])
+        items.push({ label: `vegetables ${c}`, entity: mk(p, { variant: 'vegetables', color: c }) });
     if (p === 'stall') items.push({ label: 'stall blue', entity: mk(p, { color: 'blue' }) });
     if (p === 'needle') items.push({ label: 'needle ×1 (zoom réel)', entity: mk(p) });
   }
-  plates.push({ id: 'props', title: 'Objets', cw: 44, ch: 40, ax: 22, ay: 32, items });
+  plates.push({ id: 'props', title: 'Objets', cw: 44, ch: 46, ax: 22, ay: 40, items });
+  plates.push({
+    id: 'statues',
+    title: 'Statues : bronze (place, parc), anges du cimetière, sculptures du musée',
+    cw: 44,
+    ch: 52,
+    ax: 22,
+    ay: 46,
+    items: [
+      { label: 'statue', entity: mk('statue') },
+      { label: 'statue ←', entity: mk('statue', { facing: 'left' }) },
+      { label: 'angel ×0.6', entity: mk('statue', { variant: 'angel', scale: 0.6, color: 'white' }) },
+      { label: 'angel ×1', entity: mk('statue', { variant: 'angel', color: 'white' }) },
+      ...[0, 1, 2].map((k) => ({ label: `sculpture ${k} ×0.8`, entity: mk('statue', { variant: 'sculpture', scale: 0.8, color: (['white', 'grey', 'brown'] as Color[])[k], id: `g.sculpt.${['a', 'c', 'b'][k]}` }) })),
+      { label: 'sculpture ×0.6', entity: mk('statue', { variant: 'sculpture', scale: 0.6, color: 'brown', id: 'g.sculpt.z' }) },
+    ],
+  });
   plates.push({
     id: 'bigprops',
     title: 'Grands objets',
@@ -872,7 +924,16 @@ function checkEntities(): Entity[] {
   for (const p of PROPS)
     for (const scale of [0.6, 1, 1.7])
       for (const facing of ['left', 'right'] as Facing[])
-        out.push({ id: `c.o.${uid++}`, kind: 'prop', prop: p, x: 0, y: 0, scale, facing, label: 'TEXTE', color: r.pick(COLORS), variant: r.pick(['open', 'broken', 'big', 'small', undefined] as const) });
+        out.push({ id: `c.o.${uid++}`, kind: 'prop', prop: p, x: 0, y: 0, scale, facing, label: 'TEXTE', color: r.pick(COLORS), variant: r.pick(['open', 'broken', 'big', 'small', 'tombstone', 'angel', 'sculpture', 'vegetables', undefined] as const) });
+  // variantes du générateur, couvertes systématiquement
+  for (const scale of [0.6, 1, 1.7])
+    for (const facing of ['left', 'right'] as Facing[]) {
+      const v = (prop: PropKind, variant: string, color: Color, k = 0): PropEntity => ({ id: `c.o.${uid++}.${k}`, kind: 'prop', prop, x: 0, y: 0, scale, facing, variant, color });
+      for (let k = 0; k < 3; k++) out.push(v('rock', 'tombstone', 'grey', k), v('statue', 'sculpture', 'white', k), v('statue', 'angel', 'white', k));
+      for (const c of ['green', 'olive', 'red', 'orange', 'yellow'] as Color[]) out.push(v('flowerbed', 'vegetables', c));
+    }
+  // véhicules sans conducteur (vélos garés…)
+  for (const v of VEHICLES) for (const f of ['left', 'right'] as Facing[]) out.push({ id: `c.v.${uid++}`, kind: 'vehicle', vehicle: v, facing: f, x: 0, y: 0, color: r.pick(COLORS) });
   return out;
 }
 
@@ -1002,10 +1063,21 @@ function runPerf(): HTMLElement {
   const ctx = canvas.getContext('2d')!;
   const zooms: Record<Lod, number> = { 0: 1, 1: 0.5, 2: 0.15 };
   const result: Record<string, Record<string, number>> = { person: {}, building: {} };
-  const measure = (ents: Entity[], lod: Lod): number => {
-    const z = zooms[lod];
+  // Les entités sont réparties sur ~1000 u : au-delà du zoom 1, on rapproche leurs positions pour
+  // qu'elles restent toutes dans le canevas (sinon le rendu hors champ fausse la mesure).
+  const squeeze = (ents: Entity[], z: number): Entity[] =>
+    z <= 1
+      ? ents
+      : ents.map((e) =>
+          e.kind === 'building'
+            ? { ...e, x: e.x / z, y: e.y / z, footprint: { ...e.footprint, x: e.footprint.x / z, y: e.footprint.y / z } }
+            : { ...e, x: e.x / z, y: e.y / z },
+        );
+  const measure = (ents0: Entity[], lod: Lod, zoom?: number): number => {
+    const z = zoom ?? zooms[lod];
+    const ents = squeeze(ents0, z);
     const times: number[] = [];
-    for (let rep = 0; rep < 4; rep++) {
+    for (let rep = 0; rep < 6; rep++) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = PAPER;
       ctx.fillRect(0, 0, 1024, 1024);
@@ -1023,15 +1095,18 @@ function runPerf(): HTMLElement {
     result.person[`lod${lod}`] = Math.round(measure(people, lod) * 10000) / 10000;
     result.building[`lod${lod}`] = Math.round(measure(buildings, lod) * 10000) / 10000;
   }
+  // niveau 0 au zoom 2 (tuiles du zoom de jeu) : 4 fois moins d'entités par tuile qu'au zoom 1
+  result.person.lod0z2 = Math.round(measure(people, 0, 2) * 10000) / 10000;
+  result.building.lod0z2 = Math.round(measure(buildings, 0, 2) * 10000) / 10000;
   const perf = { unit: 'ms par entité', people: N_PEOPLE, buildings: N_BUILDINGS, zooms, ...result, target: { personLod0: 0.05 } };
   window.__artPerf = perf;
   const sec = document.createElement('section');
   sec.id = 'perf';
   const ok = (v: number, lim: number) => `<span class="${v <= lim ? 'ok' : 'bad'}">${v}</span>`;
   sec.innerHTML = `<h2>Performance <small>— ${N_PEOPLE} personnes, ${N_BUILDINGS} bâtiments, canevas 1024², ms par entité (médiane de 4)</small></h2>
-  <table><tr><th></th><th>niveau 0 (zoom 1)</th><th>niveau 1 (zoom 0,5)</th><th>niveau 2 (zoom 0,15)</th></tr>
-  <tr><td>personne</td><td>${ok(result.person.lod0, 0.05)}</td><td>${ok(result.person.lod1, 0.03)}</td><td>${ok(result.person.lod2, 0.005)}</td></tr>
-  <tr><td>bâtiment</td><td>${ok(result.building.lod0, 1)}</td><td>${ok(result.building.lod1, 0.3)}</td><td>${ok(result.building.lod2, 0.05)}</td></tr></table>
+  <table><tr><th></th><th>niveau 0 (zoom 1)</th><th>niveau 0 (zoom 2)</th><th>niveau 1 (zoom 0,5)</th><th>niveau 2 (zoom 0,15)</th></tr>
+  <tr><td>personne</td><td>${ok(result.person.lod0, 0.05)}</td><td>${ok(result.person.lod0z2, 0.2)}</td><td>${ok(result.person.lod1, 0.03)}</td><td>${ok(result.person.lod2, 0.005)}</td></tr>
+  <tr><td>bâtiment</td><td>${ok(result.building.lod0, 1)}</td><td>${ok(result.building.lod0z2, 2)}</td><td>${ok(result.building.lod1, 0.3)}</td><td>${ok(result.building.lod2, 0.05)}</td></tr></table>
   <p>Résultat aussi dans <code>window.__artPerf</code>.</p>`;
   return sec;
 }

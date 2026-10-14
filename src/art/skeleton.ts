@@ -300,24 +300,29 @@ function buildLie(m: Metrics): Skel {
     { x: el[0].x - 2.6 * s, y: el[0].y - 0.1 },
     { x: el[1].x - 2.4 * s, y: el[1].y + 0.9 * s },
   ];
+  // Miroir horizontal (tête vers -x) : le repère du buste devient une rotation pure (déterminant
+  // positif), comme pour les autres poses. Indispensable pour regrouper plusieurs formes de même
+  // couleur dans un seul remplissage (règle non nulle) sans créer de trous.
+  const mx = (p: Pt): Pt => ({ x: -p.x, y: p.y });
+  const mx2 = (a: [Pt, Pt]): [Pt, Pt] => [mx(a[0]), mx(a[1])];
   return finish({
     pose: 'lie',
     m,
     lie: true,
-    N,
-    P,
-    ax,
-    ay,
+    N: mx(N),
+    P: mx(P),
+    ax: { x: -ax.x, y: ax.y },
+    ay: { x: -ay.x, y: ay.y },
     lean: 0,
-    head,
+    head: mx(head),
     headRot: 0,
-    headTop: { x: head.x, y: head.y - r },
-    sh,
-    el,
-    hd,
-    hip,
-    kn,
-    ft,
+    headTop: { x: -head.x, y: head.y - r },
+    sh: mx2(sh),
+    el: mx2(el),
+    hd: mx2(hd),
+    hip: mx2(hip),
+    kn: mx2(kn),
+    ft: mx2(ft),
     farArmOver: false,
     shadow: [0, total / 2 + 0.5, 1.6],
     feetUp: true,

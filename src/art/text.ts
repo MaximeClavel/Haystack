@@ -96,3 +96,8 @@ export function fitTextUpright(
   ctx.restore();
   return s;
 }
+
+/** Le texte ressemble-t-il à une plaque d'immatriculation (« AB-123-CD ») ? */
+export function isPlate(text: string): boolean {
+  return /^[A-Z0-9]{1,4}(-[A-Z0-9]{1,4}){1,2}$/.test(text) && /\d/.test(text);
+}
