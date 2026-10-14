@@ -22,3 +22,21 @@ dans `docs/journal/`. Le plan est dans `docs/PLAN-WEB.md`.
 - Implémentations **provisoires** de `src/art` et `src/world` pour que les modules puissent avancer en parallèle.
 - Outils : `scripts/shot.mjs` (captures d'écran automatisées, testé), `scripts/world-query.ts`.
 - Documentation : `CLAUDE.md` (consignes communes aux agents), `docs/ARCHITECTURE.md`, `docs/PLAN-WEB.md`, ce journal.
+
+### Phase 1 — Fondations (workflow `haystack-fondations`, lancé)
+Neuf sous-agents, deux à la fois au plus (limite de la machine : 4 cœurs) :
+
+| Ordre | Agent | Mission | Périmètre |
+|---|---|---|---|
+| 1 | `world` | Générateur déterministe de Meulebourg : sol, rues, îlots, bâtiments, foule, véhicules, arbres, mobilier, index spatial, zones, règle anti-sosies | `src/world/**`, `dev/overview.html` |
+| 1 | `art` | Illustration en Canvas 2D de tout le vocabulaire visuel, 3 niveaux de détail, galerie de contrôle | `src/art/**`, `dev/gallery.html` |
+| 2 | `engine` | Moteur de carte : caméra, gestes, tuiles progressives, cache, overlays, animations, mesure de performance | `src/engine/**`, `dev/map.html`, `scripts/perf-map.mjs` |
+| 2 | `game` | Règles : désignation, étapes, indices, étoiles, sauvegarde, validation du contenu | `src/game/**` |
+| 3 | `scenario-a` | Bible et enquêtes, angle « rigueur déductive » | `docs/scenario/scenario-a.md` |
+| 3 | `scenario-b` | Bible et enquêtes, angle « variété et humour » | `docs/scenario/scenario-b.md` |
+| 4 | `editeur` | Fusion des deux propositions en une bible définitive avec guides d'implémentation | `docs/CONTENT.md` |
+| 5 | `integration` | Typecheck, tests, cohérence entre modules, performance réelle, contrôle des placements | correctifs ciblés |
+| 6 | `direction-artistique` | Itérations « capture → critique → correction » sur la ville complète | `src/art/**`, réglages `src/world/**` |
+
+Chaque agent vérifie son travail (tests Vitest, captures d'écran lues et critiquées) et rend un compte rendu
+dans `docs/journal/phase1-<agent>.md`.
