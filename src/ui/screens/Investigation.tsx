@@ -42,7 +42,7 @@ const SHOW_ZOOM = 2.4;
 /** Zoom après un tap trop lointain (sous PICK_MIN_ZOOM). */
 const APPROACH_ZOOM = 2;
 /** Durée du vol d'approche (ms) : court, pour qu'un second tap ne tombe pas en plein vol (il l'arrêterait). */
-const APPROACH_MS = 380;
+const APPROACH_MS = 300;
 /**
  * Quand l'indice éclaire la zone de la réponse (projecteur ou anneau), on la désigne dès ce zoom : sur un
  * petit écran, cadrer le projecteur laisse parfois le zoom juste sous PICK_MIN_ZOOM (1,43 pour 1,5).
