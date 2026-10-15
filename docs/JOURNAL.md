@@ -92,3 +92,19 @@ dans `docs/journal/phase1-<agent>.md`.
 | 2 | `e2e` | Tests Playwright, dont la résolution de TOUTES les enquêtes par de vrais taps |
 | 3 | `revue-ux`, `revue-code` | Revues indépendantes (constats avec preuves, sans modifier le code) |
 | 4 | `correcteur` | Vérifie chaque constat, corrige les réels, écarte les autres en expliquant |
+
+## 2026-10-15 — Reprise après la 4e limite d'usage
+- Phase 2 : `ui`, `integration` et `e2e` terminés (278 tests unitaires, 10 tests de bout en bout, 49/49 réponses
+  désignables au doigt, démarrage ≈ 1,5 s à CPU ×4). `revue-ux`, `revue-code` et `correcteur` relancés après la
+  levée de la limite (3 h UTC) via la reprise du workflow `haystack-interface`.
+- Mise en ligne préparée : `.github/workflows/pages.yml` (build + tests + déploiement GitHub Pages sur `main`).
+  Réglage unique à faire dans le dépôt : Settings > Pages > Source = « GitHub Actions ».
+
+## À faire à la toute fin (demande de l'utilisateur)
+- Fournir un **récapitulatif des branches et de l'ordre de fusion**. État connu :
+  - `main` : « Initial commit » (README seul).
+  - `docs/plan-implementation` : 1 commit (plan d'application native, `docs/PLAN.md`) ;
+    **déjà contenue** dans `feat/jeu-web` (celle-ci a été créée à partir d'elle).
+  - `feat/jeu-web` : tout le jeu (13 commits à ce jour).
+  - Ordre recommandé : fusionner `feat/jeu-web` dans `main` (ce qui inclut le plan) ; la branche
+    `docs/plan-implementation` devient alors inutile et peut être supprimée. Pas de conflit attendu.
