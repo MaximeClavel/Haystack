@@ -13,6 +13,14 @@ const GREENS = [
   ['#8cb35c', '#688f40', '#accd7a'],
   ['#74a865', '#55864a', '#98c487'],
 ] as const;
+/** Feuillages d'automne (octobre) : orangé, doré, roux. */
+const AUTUMN = [
+  ['#e08a3a', '#b8602a', '#f2b45a'],
+  ['#e8b83e', '#c08a2a', '#f6d46a'],
+  ['#c9633a', '#9a4528', '#e48a58'],
+] as const;
+/** Peuplier doré. */
+const GOLDEN = ['#d9b43e', '#a9892a', '#efd070'] as const;
 const PINES = [
   ['#3f7650', '#2b5a3a', '#5b9268'],
   ['#457d55', '#305f40', '#62996e'],
@@ -24,7 +32,8 @@ export function drawTree(ctx: Ctx, e: TreeEntity, lod: Lod): void {
   const size = e.size;
   const w = size * TREE_WIDTH_RATIO[e.tree];
   const seed = seedOf(e.id);
-  const g = GREENS[seed % GREENS.length];
+  const variant = foliageVariant(seed);
+  const g = e.tree === 'poplar' && variant >= 4 ? GOLDEN : variant === 1 ? AUTUMN[0] : variant === 2 ? AUTUMN[1] : variant === 3 ? AUTUMN[2] : GREENS[seed % GREENS.length];
   const p = PINES[seed % PINES.length];
 
   if (lod === 2) {
@@ -48,11 +57,12 @@ export function drawTree(ctx: Ctx, e: TreeEntity, lod: Lod): void {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   ctx.lineWidth = ol;
-  groundShadow(ctx, x + w * 0.08, y, Math.max(3, w * 0.42), Math.max(1.2, Math.min(3, size * 0.05)));
+  // ombre portée vers l'est (lumière du nord-ouest), un peu plus ample qu'avant
+  groundShadow(ctx, x + Math.min(w * 0.1, 2.6), y, Math.max(3.4, w * 0.5), Math.max(1.3, Math.min(2.8, size * 0.05)));
 
   switch (e.tree) {
     case 'round':
-      drawRound(ctx, x, y, size, w, g, seed, fine);
+      drawRound(ctx, x, y, size, w, g, seed, fine, variant);
       return;
     case 'pine':
       drawPine(ctx, x, y, size, w, p, fine);
@@ -64,6 +74,35 @@ export function drawTree(ctx: Ctx, e: TreeEntity, lod: Lod): void {
       drawBare(ctx, x, y, size, w, seed, fine, ol);
       return;
   }
+}
+
+/**
+ * Variante de feuillage tirée de la graine : 0 vert (la plupart), 1 orangé, 2 doré, 3 roux, 4 pommier
+ * (vert à fruits rouges). Pour les peupliers, 4 et plus = doré.
+ */
+function foliageVariant(seed: number): number {
+  const v = ((seed >>> 8) % 100) / 100;
+  if (v < 0.58) return 0;
+  if (v < 0.7) return 1;
+  if (v < 0.8) return 2;
+  if (v < 0.86) return 3;
+  if (v < 0.93) return 4;
+  return 0;
+}
+
+/** Feuilles tombées au pied d'un arbre d'automne (dans l'emprise : ±w/2 + 2,5 ; jusqu'à 2,5 u sous le pied). */
+function fallenLeaves(ctx: Ctx, x: number, y: number, w: number, col: string, seed: number): void {
+  const rnd = quickRand(seed ^ 0x51ed);
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const lx = x + (rnd() - 0.5) * (w + 3.5);
+    const ly = y + 0.4 + rnd() * 1.9;
+    const rot = rnd() * Math.PI;
+    ctx.moveTo(lx + 0.95, ly);
+    ctx.ellipse(lx, ly, 0.95, 0.5, rot, 0, TAU);
+  }
+  ctx.fill();
 }
 
 function trunk(ctx: Ctx, x: number, y: number, top: number, tw: number): void {
@@ -93,7 +132,7 @@ function scallop(ctx: Ctx, cx: number, cy: number, rx: number, ry: number, n: nu
   ctx.closePath();
 }
 
-function drawRound(ctx: Ctx, x: number, y: number, size: number, w: number, g: readonly string[], seed: number, fine: boolean): void {
+function drawRound(ctx: Ctx, x: number, y: number, size: number, w: number, g: readonly string[], seed: number, fine: boolean, variant: number): void {
   const outer = w / 2 + 1.2;
   const rb = outer * 0.3;
   const rr = outer - rb;
@@ -133,7 +172,31 @@ function drawRound(ctx: Ctx, x: number, y: number, size: number, w: number, g: r
     ctx.stroke();
     ctx.strokeStyle = INK;
     ctx.lineWidth = 0.6;
+    if (variant === 4) {
+      // pommier : petites pommes rouges dans le feuillage
+      ctx.fillStyle = '#cc4238';
+      ctx.beginPath();
+      for (let i = 0; i < 9; i++) {
+        const a = rnd() * TAU;
+        const d = 0.25 + rnd() * 0.6;
+        const px = x + Math.cos(a) * d * rr;
+        const py = cy + Math.sin(a) * d * rr * 0.9;
+        ctx.moveTo(px + 0.85, py);
+        ctx.arc(px, py, 0.85, 0, TAU);
+      }
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a = rnd() * TAU;
+        const d = 0.3 + rnd() * 0.5;
+        ctx.moveTo(x + Math.cos(a) * d * rr - 0.2, cy + Math.sin(a) * d * rr * 0.9 - 0.3);
+        ctx.arc(x + Math.cos(a) * d * rr - 0.2, cy + Math.sin(a) * d * rr * 0.9 - 0.3, 0.28, 0, TAU);
+      }
+      ctx.fill();
+    }
   }
+  if (variant >= 1 && variant <= 3) fallenLeaves(ctx, x, y, w, mix(g[1], '#7a3f26', 0.45), seed);
 }
 
 function drawPoplar(ctx: Ctx, x: number, y: number, size: number, w: number, g: readonly string[], seed: number, fine: boolean): void {

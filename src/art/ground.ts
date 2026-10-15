@@ -10,6 +10,7 @@
 
 import type { GroundKind, GroundLayer, GroundLine, GroundShape, Rect, Vec2 } from '../types';
 import type { Lod } from './lod';
+import { decorateShape, shapePath } from './groundDecor';
 import { INK } from './palette';
 import {
   type TexDef,
@@ -39,12 +40,12 @@ export const GROUND_STYLE: Record<GroundKind, GroundStyle> = {
   water: { fill: '#a7cad6', tex: () => waterTex('#a7cad6', '#8fb8c6', '#d8ebf0'), edge: '#6f9fb0', edgeW: 1.2 },
   sand: { fill: '#ead9ab', tex: () => speckleTex('#ead9ab', ['#d9c48e', '#f4e7c4'], 0.12, 0.4) },
   plaza: { fill: '#e3d6bc', tex: () => cobbleTex('#e5d9c0', '#cdbd9f', '#f3ead8') },
-  sidewalk: { fill: '#e2d8c5', tex: () => slabTex('#e2d8c5', '#cfc3ad') },
+  sidewalk: { fill: '#e6ddcb', tex: () => slabTex('#e6ddcb', '#d0c4ae') },
   road: { fill: '#bdb7ab', tex: () => speckleTex('#bdb7ab', ['#aea89c', '#cac4b8'], 0.05, 0.5) },
   parking: { fill: '#c5bfb2', tex: () => speckleTex('#c5bfb2', ['#b4aea2', '#d2ccc0'], 0.05, 0.5) },
   dock: { fill: '#cdb592', tex: () => planksTex('#cdb592', '#a88f6a', '#7d6a52', 3, 24), edge: '#8a7255', edgeW: 1.1 },
   garden: { fill: '#c4d79a', tex: () => grassTex('#c4d79a', '#a6c07c', '#d6e5b4', ['#e2463d', '#fbf6ea', '#f0cb3f', '#8d55ad', '#f19bb8']) },
-  courtyard: { fill: '#e2d5bb', tex: () => speckleTex('#e2d5bb', ['#d0c2a4', '#ece2cc'], 0.08, 0.45) },
+  courtyard: { fill: '#dfd0b2', tex: () => speckleTex('#dfd0b2', ['#cdbd9d', '#eadfc6'], 0.08, 0.45) },
   bridge: { fill: '#cbbfa8', tex: () => slabTex('#cbbfa8', '#b2a68f'), edge: '#8f846f', edgeW: 1 },
   railbed: { fill: '#b6ab99', tex: () => speckleTex('#b6ab99', ['#9a8f7e', '#cfc5b4', '#a59a88'], 0.35, 0.55, 24) },
 };
@@ -103,11 +104,13 @@ export function drawGround(ctx: Ctx, ground: GroundLayer, view: Rect, lod: Lod):
     ctx.closePath();
     ctx.fillStyle = material(ctx, s.kind, lod, res);
     ctx.fill();
+    if (lod < 2) decorateShape(ctx, ground, s, view, lod);
     const st = GROUND_STYLE[s.kind];
     if (st.edge && lod < 2) {
       ctx.strokeStyle = st.edge;
       ctx.lineWidth = (st.edgeW ?? 1) * (lod === 0 ? 1 : 1.4);
-      ctx.stroke();
+      ctx.lineJoin = 'round';
+      ctx.stroke(shapePath(s));
     }
   }
   // lignes

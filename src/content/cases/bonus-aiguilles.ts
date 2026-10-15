@@ -19,15 +19,15 @@ export const bonusAiguilles: CaseDef = {
   teaser: 'Dix aiguilles d’or, perdues il y a deux siècles par le fondateur de Meulebourg. La botte de foin, c’est la ville entière.',
   intro:
     'On raconte qu’Hector Meule, fondateur de la ville, cherchait une aiguille d’or dans une botte de foin quand il décida de bâtir Meulebourg autour. Il en perdit dix autres en chemin, et laissa ce testament :\n\n' +
-    '« Là où le temps a deux aiguilles, j’en ai mis une troisième.\n' +
+    '« Là où l’on attend les trains, le temps a deux aiguilles : j’en ai mis une troisième.\n' +
     'Ma main levée en tient une, et ne la lâche pas.\n' +
     'Le boucher a ses crochets ; à sa porte, mon aiguille.\n' +
     'La police perd ses affaires : cherchez entre ses voitures.\n' +
     'À l’école, on apprend à compter : commencez dans la cour.\n' +
-    'Les enfants creusent pour trouver des trésors : en voici un.\n' +
+    'Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un.\n' +
     'Un ange veille sur les morts, et sur une aiguille.\n' +
     'Sur le Pont Central, une aiguille regarde couler la Fenaison.\n' +
-    'Aux jardins ouvriers, elle pousse devant une serre.\n' +
+    'Aux jardins ouvriers, elle pousse devant la serre la plus au sud, un peu à l’écart des autres.\n' +
     'La capitainerie garde tout ce qui entre au port… même une aiguille. »\n\n' +
     'Zoomez bien : une aiguille d’or n’est qu’un petit trait doré.',
   start: { x: 3200, y: 2400, zoom: 0.12 },
@@ -49,8 +49,8 @@ export const bonusAiguilles: CaseDef = {
     aiguille(7, 4890, 3272),
     // 8. La Fenaison : sur le trottoir est du Pont Central, côté nord
     aiguille(8, 2232, 3712),
-    // 9. Jardins ouvriers : devant une serre (rangée sud, colonne est)
-    aiguille(9, 1650, 4520),
+    // 9. Jardins ouvriers : devant la serre la plus au sud (b.jardins.68, un peu à l'écart des autres)
+    aiguille(9, 2029, 4710),
     // 10. Port : devant la porte de la Capitainerie
     aiguille(10, 4600, 4338),
   ],
@@ -61,7 +61,7 @@ export const bonusAiguilles: CaseDef = {
       accept: Array.from({ length: 10 }, (_, i) => `${N}.aiguille.${i + 1}`),
       required: 10,
       hints: [
-        { text: 'Relisez le testament : chaque vers désigne un lieu célèbre de Meulebourg. Une aiguille est un petit trait doré : zoomez au maximum.' },
+        { text: 'Relisez le testament : chaque vers désigne un lieu de Meulebourg. Une aiguille est un petit trait doré : zoomez au maximum.' },
         { text: 'Le projecteur éclaire les environs d’une aiguille encore cachée.' },
       ],
       solved: 'Les dix aiguilles d’or sont réunies sur votre bureau. Elles brillent comme au premier jour.',

@@ -348,21 +348,36 @@ export function planksTex(base: string, joint: string, nail: string, plank = 3, 
  * Toitures et murs (origine = coin du toit ou de la façade)
  * ------------------------------------------------------------------------- */
 
-/** Tuiles : rangées d'écailles décalées. */
+/** Tuiles : rangées d'écailles décalées, avec des tuiles plus claires ou plus sombres (toit « vécu »). */
 export function tilesTex(base: string, dark: string, light: string): TexDef {
+  const P = 12;
   return {
-    w: 6,
-    h: 6,
+    w: P,
+    h: P,
     maxRes: 8,
     paint: (c) => {
       c.fillStyle = base;
-      c.fillRect(0, 0, 6, 6);
+      c.fillRect(0, 0, P, P);
+      const r = quickRand(5151);
+      // variation de ton, une tuile sur deux environ (translucide : le motif d'écailles reste net)
+      for (let row = 0; row < 4; row++) {
+        const y = row * 3;
+        const off = (row % 2) * 1.5;
+        for (let i = -1; i < 4; i++) {
+          const v = r();
+          if (v < 0.38) continue;
+          c.fillStyle = v < 0.7 ? dark : light;
+          c.globalAlpha = v < 0.7 ? 0.13 : 0.2;
+          c.fillRect(off + i * 3, y, 3, 3);
+        }
+      }
+      c.globalAlpha = 1;
       c.strokeStyle = dark;
       c.lineWidth = 0.35;
-      for (let row = 0; row < 2; row++) {
+      for (let row = 0; row < 4; row++) {
         const y = row * 3 + 3;
-        const off = row * 1.5;
-        for (let i = -1; i < 3; i++) {
+        const off = (row % 2) * 1.5;
+        for (let i = -1; i < 4; i++) {
           const x = off + i * 3;
           c.beginPath();
           c.moveTo(x, y - 2.6);
@@ -373,7 +388,7 @@ export function tilesTex(base: string, dark: string, light: string): TexDef {
         }
         c.fillStyle = light;
         c.globalAlpha = 0.45;
-        for (let i = -1; i < 3; i++) c.fillRect(off + i * 3 + 0.6, y - 2.4, 0.5, 1.4);
+        for (let i = -1; i < 4; i++) c.fillRect(off + i * 3 + 0.6, y - 2.4, 0.5, 1.4);
         c.globalAlpha = 1;
       }
     },
@@ -397,20 +412,36 @@ export function seamsTex(base: string, dark: string, light: string, step = 3): T
   };
 }
 
-/** Ardoises : petites plaques décalées. */
+/** Ardoises : plaques décalées, de tons légèrement différents, joints bien marqués. */
 export function slateTex(base: string, dark: string): TexDef {
+  const P = 16;
   return {
-    w: 4,
-    h: 4,
+    w: P,
+    h: P,
     maxRes: 8,
     paint: (c) => {
       c.fillStyle = base;
-      c.fillRect(0, 0, 4, 4);
+      c.fillRect(0, 0, P, P);
+      const r = quickRand(6262);
+      // ton propre à chaque plaque (4 u × 2 u, rangées décalées d'une demi-plaque)
+      for (let row = 0; row < 8; row++) {
+        const y = row * 2;
+        const off = (row % 2) * 2;
+        for (let i = -1; i < 5; i++) {
+          const v = r();
+          c.fillStyle = v < 0.5 ? dark : '#ffffff';
+          c.globalAlpha = v < 0.5 ? 0.1 + v * 0.18 : 0.06 + (v - 0.5) * 0.18;
+          c.fillRect(off + i * 4, y, 4, 2);
+        }
+      }
+      c.globalAlpha = 1;
       c.fillStyle = dark;
-      c.fillRect(0, 1.8, 4, 0.25);
-      c.fillRect(0, 3.8, 4, 0.25);
-      c.fillRect(1, 0, 0.25, 2);
-      c.fillRect(3, 2, 0.25, 2);
+      for (let row = 0; row < 8; row++) {
+        const y = row * 2;
+        const off = (row % 2) * 2;
+        c.fillRect(0, y + 1.65, P, 0.35);
+        for (let i = -1; i < 5; i++) c.fillRect(off + i * 4, y, 0.25, 1.7);
+      }
     },
   };
 }

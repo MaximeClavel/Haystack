@@ -23,6 +23,7 @@
 10. [Récapitulatif de toutes les entités](#10-récapitulatif-de-toutes-les-entités)
 11. [Comment écrire une nouvelle enquête](#11-comment-écrire-une-nouvelle-enquête)
 12. [Limites connues et points d’attention](#12-limites-connues-et-points-dattention)
+13. [Annexe — Revue critique](#13-annexe--revue-critique)
 
 ---
 
@@ -58,7 +59,7 @@ Captures de référence : `tools/content/captures/` (une planche par enquête, a
 - **Polar léger, ambiance Cluedo.** Des crimes de bande dessinée : on vole des caisses, des canes et des
   diamants ; on s’évade en pyjama rayé ; il y a **un seul meurtre** dans tout le jeu (c05), sans une goutte
   de sang : la victime est allongée, yeux en croix (`emote: 'ko'`), et l’on parle de « camomille ».
-- **L’humour naît de l’observation** : le voleur qui fait la queue au cinéma en cagoule, l’épouvantail qui
+- **L’humour naît de l’observation** : le voleur qui fait la queue au cinéma en masque de bandit, l’épouvantail qui
   transpire, le policier qui croque le diamant. Chaque enquête a au moins un gag **visible** sur la carte,
   pas seulement dans le texte.
 - **Les textes sont courts.** Une question tient en une ou deux phrases ; une résolution en deux ; un
@@ -145,7 +146,9 @@ trois attributs saillants : la règle anti-sosie du monde ne repeint donc pas le
   accessoire (ballon et parapluie se voient de loin), objet tenu, pose, émotion, corpulence enfant /
   costaud. **Ce qui ne se voit pas assez** : lunettes, moustache, couleur de peau, cheveux sous un chapeau,
   textes des affiches et des panneaux, plaques d’immatriculation. Ceux-là ne portent jamais seuls une
-  déduction.
+  déduction. Le **masque de bandit** (`face: 'mask'`, une bande noire sur les yeux — ce n’est pas une
+  cagoule) se lit à partir du zoom 2 ; au zoom 1,5, c’est l’objet tenu et la pose qui tranchent. Le texte
+  dit donc « masque de bandit » (ou « masqué »), jamais « cagoule ».
 
 ---
 
@@ -165,7 +168,7 @@ Déblocage : chaque enquête débloque la suivante (`unlockAfter: ['c00']` pour 
 le bonus s’ouvre après le tutoriel.
 
 **Progression de la difficulté** (jamais par un détail invisible) : c00 tient dans un square ; c01 dans
-un rayon de 500 u avec un voleur unique (cagoule + sac d’argent) ; c02 étale cinq scènes sur 800 u et
+un rayon de 500 u avec un voleur unique (masque de bandit + sac d’argent) ; c02 étale cinq scènes sur 800 u et
 ajoute une fausse piste ; c03 court sur 3 000 u, traverse la rivière et repose sur des sosies à un
 attribut ; c04 ouvre deux fils dès le départ dans la foule de la Grand-Place et retourne l’histoire ;
 c05 demande de comparer trois suspects à un déguisement, à travers tout le quartier des Arts, puis de
@@ -191,9 +194,13 @@ traverser la rivière.
 
 | Étape | Geste appris | Comment |
 |---|---|---|
-| s1 | désigner une personne | Picotin est décrit en entier et agite la main ; il est au centre de l’écran de départ |
+| s1 | désigner une personne | Picotin est décrit par ce qui se voit (casquette de police, uniforme bleu, bermuda beige : plus de moustache, invisible au zoom de jeu) et agite la main ; il est au centre de l’écran de départ |
 | s2 | un personnage apparaît plusieurs fois ; suivre son sens de marche | les deux apparitions du livreur sont à 110 u l’une de l’autre, visibles ensemble ; le `nearMiss` sur la première explique le principe |
 | s3 | désigner un animal / un objet ; les fausses pistes | le chien blanc a la tarte sous le museau ; la tarte, les pigeons et le dormeur ont chacun un message dédié |
+
+**Amorce loyale** : le briefing signale que le chien de la commissaire, Croquette, a lui aussi disparu ce
+matin (« je suppose que c’est une coïncidence ») ; la résolution de s3 la reprend. Le coupable n’est donc
+plus un deus ex machina.
 
 Toutes les scènes tiennent dans un rectangle de 130 × 70 u : à la caméra de départ (zoom 1,6), tout
 est à l’écran d’un téléphone. Seul piège : un chien orange tenu en laisse se promène dans le square
@@ -224,23 +231,23 @@ est à l’écran d’un téléphone. Seul piège : un chien orange tenu en lais
 ### La vérité
 
 1. À l’ouverture du marché, Ernest Lafouine — cambrioleur à mi-temps, déguisé en cambrioleur à plein
-   temps (bonnet, pull rayé noir, cagoule) — rafle la caisse de la boulangerie Lemiel.
+   temps (bonnet orange, pull rayé noir, masque de bandit) — rafle la caisse de la boulangerie Lemiel.
 2. Il traverse le marché en courant vers l’est, devant Motus, le mime, qui ne dira rien.
 3. Au coin de la rue des Étals et de la rue du Cinéma, il cache la caisse dans une poubelle.
-4. Il file au Rex se faire un alibi… et fait la queue, toujours cagoulé, pour voir « Le Casse du siècle ».
+4. Il file au Rex se faire un alibi… et fait la queue, toujours masqué, pour voir « Le Casse du siècle ».
 
 ### Déduction et équité
 
 - **s1** est un échauffement : la boulangère est décrite (toque, tablier rose) et la boulangerie est un
   lieu unique.
-- **s2** se joue dans la foule la plus dense de la ville. Le voleur est pourtant unique : cagoule
+- **s2** se joue dans la foule la plus dense de la ville. Le voleur est pourtant unique : masque de bandit
   (0,3 % des passants), pull noir rayé, et surtout **un sac d’argent à la main** (aucun passant n’en
-  tient). **Sosie volontaire** : Motus le mime a exactement la même tenue **sans la cagoule**
-  (1 attribut : `face`), à 135 u du voleur ; son `nearMiss` le dit.
+  tient) : la question le dit comme le dessin le montre. **Sosie volontaire** : Motus le mime a exactement
+  la même tenue **sans le masque** (1 attribut : `face`), à 135 u du voleur ; son `nearMiss` le dit.
 - **s3** : le voleur réapparaît de l’autre côté de la rue des Étals, les mains vides ; la caisse dépasse
   d’une poubelle 50 u derrière lui. On accepte la caisse **et** la poubelle (la caisse est petite).
 - **s4** : la file d’attente compte quatre personnes ; trois figurants très différents, et le voleur,
-  reconnaissable à sa cagoule. Gag : il a gardé sa cagoule pour se faire un alibi.
+  reconnaissable à son masque. Gag : il a gardé son masque de bandit pour se faire un alibi.
 
 <!-- GEN:personnages:c01 -->
 
@@ -276,7 +283,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 3. Le petit Lulu, qui nourrissait les canards et a tout vu, le suit et ouvre la portière : Duchesse
    s’échappe…
 4. … traverse le boulevard et se présente d’elle-même au concours, devant le kiosque à musique.
-5. Démasqué, Barbarie s’enfuit en barque au milieu de l’étang. Les canards l’encerclent.
+5. Démasqué, Barbarie s’enfuit en bateau au milieu de l’étang. Les canards l’encerclent.
 
 ### Déduction et équité
 
@@ -292,8 +299,12 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
   qui saute dehors). Désigner Lulu au bord de l’étang donne un `nearMiss` qui demande le bon moment.
 - **s4** : Duchesse a traversé le boulevard (apparition 3, sur le trottoir sud) ; la suite logique est le
   concours annoncé dans le briefing, au kiosque à musique, 270 u au sud-ouest.
-- **s5** : Barbarie est debout sur le pont de sa barque « LE BARON », bras levés, en sueur, au milieu de
-  l’étang ; on accepte la barque **et** lui.
+- **s5** : Barbarie est debout sur le pont de son bateau « LE BARON » (le bateau à moteur de 90 u du
+  vocabulaire : les textes ne parlent ni de « barque » ni de « ramer »), bras levés, en sueur, au milieu de
+  l’étang ; on accepte le bateau **et** lui. Les autres apparitions de Barbarie et les canards ont leur
+  `nearMiss`.
+- Un personnage qui **pointe** est lu comme un indice : la baronne a donc les bras au ciel (`handsup`) et
+  non plus le doigt tendu vers l’ouest, à l’opposé du ravisseur.
 - La ville possède déjà un bateau ambiant nommé « LE COLVERT » sur l’étang : c’est pourquoi le ravisseur
   ne s’appelle pas Colvert.
 
@@ -350,10 +361,17 @@ chemise** — deux attributs très visibles.
   repérer.
 - **s4** : deux agents gardent le Pont Central (figurants) ; désigner le pont donne un `nearMiss`. Le
   bateau rouge porte **Lola debout sur le pont**, reconnaissable (robe rose à pois, béret, lunettes
-  noires) : la fausse évanouie de la gare. On accepte le bateau et Lola.
+  noires) : la fausse évanouie de la gare. On accepte le bateau et Lola. La rivière porte plusieurs
+  bateaux ambiants (dont un rouge, « LE HÉRON », 185 u plus au nord) : la question demande donc **qui**
+  a aidé Lapince (« Qui, et comment ? ») et l’indice 1 promet « une connaissance » à bord ; l’indice 2
+  précise « tout près du quai Sud ». Le marin du quai Nord, avec sa corde, a son `nearMiss`.
 - **s5–s6** : cinq épouvantails bras levés, répartis dans trois parcelles ; un seul n’a pas de chapeau, un
-  seul a des rayures et une goutte de sueur. L’indice 1 de s6 donne la règle (« un pyjama rayé ne
-  ressemble pas tout à fait à une chemise à carreaux ; un épouvantail ne transpire jamais »).
+  seul a des rayures et une goutte de sueur. La résolution de s4 amène le vol du chapeau (un jardinier
+  téléphone à la brigade) ; la question de s5 dit que les épouvantails ont les bras en l’air ; celle de s6
+  rappelle que Lapince « porte toujours son pyjama » ; l’indice 1 de s6 donne la règle (« un pyjama rayé ne
+  ressemble pas tout à fait à une chemise à carreaux ; un épouvantail ne transpire jamais »). Les carreaux
+  blancs sur blanc se lisent mal au zoom 1,5 : les messages disent « pas de rayures », et la goutte de
+  sueur (une bulle) tranche à coup sûr.
 
 <!-- GEN:personnages:c03 -->
 
@@ -380,8 +398,8 @@ chemise** — deux attributs très visibles.
 ### La vérité
 
 1. Octave Carat, bijoutier **sur la paille**, a remplacé la Grande Paille par un faux pour toucher
-   l’assurance. À l’aube, il sort de sa boutique avec le vrai diamant caché dans une tarte, traverse l’est
-   de la Grand-Place…
+   l’assurance ; il comptait simuler lui-même un cambriolage. À l’aube, il sort de sa boutique avec le
+   vrai diamant caché dans une tarte, traverse l’est de la Grand-Place…
 2. … et confie la tarte à sa sœur, Zita Pistache, à la terrasse du Café du Centre.
 3. Plus tard, les jumeaux Taupin surgissent d’une bouche d’égout devant la bijouterie, brisent la vitrine
    et emportent le diamant exposé — le faux. Ludo (sac à dos) a le diamant en main ; Lino fait le guet.
@@ -399,7 +417,12 @@ chemise** — deux attributs très visibles.
   l’autre ; le briefing mentionne explicitement le témoignage de la tarte.
 - **Jumeaux** (sosies déclarés, 1 attribut) : Ludo et Lino Taupin sont identiques **sauf le sac à dos**.
   Sur la scène du cambriolage, c’est le jumeau au sac à dos qui tient le diamant : c’est l’observation
-  clé de s2 (l’indice 1 la redonne). Lino réapparaît rue des Sabots, sans sac : `nearMiss` explicite.
+  clé de s2 : la résolution de s1 la plante (« l’autre, sac au dos, serre déjà le butin ») et l’indice 1
+  la rappelle. Lino réapparaît rue des Sabots, sans sac : `nearMiss` explicite.
+- **Chronologie** : le briefing dit « ce matin, avant l’ouverture » (et non plus « cette nuit », qui aurait
+  placé le cambriolage avant la sortie d’Octave à l’aube). Trois personnes portent une tarte à l’écran
+  (Octave à l’aube, Zita, Picotin) : chacune a son `nearMiss` dans les étapes où on peut la désigner par
+  erreur (s4, s5, s6).
 - **s3** accepte le faux diamant (posé sur le rebord de la fontaine, agrandi ×1,5) **et** la fontaine
   `lm.fontaine` : un tap sur la fontaine suffit.
 - **s4** : sur la Grand-Place, un homme en haut-de-forme et costume violet, une tarte à la main, se
@@ -462,7 +485,9 @@ visible :
 | Fortuné Cargo, armateur (port) | oui | oui | non (**noir**) | sosie volontaire de Gontran (1 attribut), fausse piste de s7 |
 
 - Le briefing donne les trois noms, leurs mobiles et le fait décisif (« ce matin, la troupe répétait en
-  costume : pantalon orange »). La résolution de s2 dit « retenez bien ces détails ».
+  costume : pantalon orange »). La résolution de s2 dit « retenez bien ces détails ». Chaque question de
+  recherche donne de quoi raisonner sans indice : Pétronille « répète la scène de la mort au calme »
+  (cimetière), Hector se console « au milieu des belles choses » (musée).
 - **Quatre fils parallèles** après s1 : le faux infirmier (s2) et chacun des trois comédiens (s3, s4, s5),
   dans l’ordre que le joueur veut ; s6 (« désignez l’assassin ») n’ouvre qu’une fois les quatre trouvés.
   s6 accepte n’importe quelle apparition de Gontran à visage découvert ; désigner le faux infirmier
@@ -505,15 +530,15 @@ dix lieux couvrent les neuf quartiers :
 
 | # | Vers du testament | Lieu | Quartier |
 |---|---|---|---|
-| 1 | « Là où le temps a deux aiguilles, j’en ai mis une troisième. » | sur le cadran de l’horloge de la gare (en hauteur : `z` 139) | Gare |
+| 1 | « Là où l’on attend les trains, le temps a deux aiguilles : j’en ai mis une troisième. » | sur le cadran de l’horloge de la gare (en hauteur : `z` 139) | Gare |
 | 2 | « Ma main levée en tient une, et ne la lâche pas. » | dans la main levée de la Statue du Fondateur (`z` 36) | Parc |
 | 3 | « Le boucher a ses crochets ; à sa porte, mon aiguille. » | devant la Boucherie Tendron | Halles |
 | 4 | « La police perd ses affaires : cherchez entre ses voitures. » | devant le commissariat, entre deux voitures de police | Vieille Ville |
 | 5 | « À l’école, on apprend à compter : commencez dans la cour. » | cour de l’école Jules-Botte, au pied de la façade | Faubourg |
-| 6 | « Les enfants creusent pour trouver des trésors : en voici un. » | bac à sable de l’aire de jeux | Parc |
+| 6 | « Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un. » | bac à sable de l’aire de jeux | Parc |
 | 7 | « Un ange veille sur les morts, et sur une aiguille. » | au pied de l’ange est du cimetière | Arts |
 | 8 | « Sur le Pont Central, une aiguille regarde couler la Fenaison. » | trottoir est du Pont Central, côté nord | Fenaison |
-| 9 | « Aux jardins ouvriers, elle pousse devant une serre. » | devant la serre de la rangée sud, colonne est | Jardins |
+| 9 | « Aux jardins ouvriers, elle pousse devant la serre la plus au sud, un peu à l’écart des autres. » | devant la serre la plus au sud (`b.jardins.68`, 2029 × 4699), près du chemin des Serres | Jardins |
 | 10 | « La capitainerie garde tout ce qui entre au port… même une aiguille. » | devant la porte de la capitainerie | Port |
 
 **Indice 2 sans zone** (exception documentée à la règle « l’indice 2 a une zone ») : avec dix réponses
@@ -521,9 +546,15 @@ dispersées, une zone fixe montrerait toujours la même aiguille, même trouvée
 (`CaseSession`) calcule le projecteur autour d’une aiguille **non trouvée**, et le recalcule à chaque
 aiguille trouvée.
 
-Les aiguilles n° 1, 2 et 7 dépendent d’éléments de décor : le cadran de la gare et la statue sont des
-lieux remarquables (fixes) ; l’ange du cimetière (`a.o.517`, 4890 × 3246) est ambiant mais stable pour la
-graine de la ville — si le générateur change, revérifier par capture.
+Les aiguilles n° 1, 2, 7 et 9 dépendent d’éléments de décor : le cadran de la gare et la statue sont des
+lieux remarquables (fixes) ; l’ange du cimetière (`a.o.517`, 4890 × 3246) et la serre la plus au sud
+(`b.jardins.68`) sont ambiants mais stables pour la graine de la ville — si le générateur change,
+revérifier par capture.
+
+**Un vers = un seul lieu.** La ville compte trois horloges (gare, Hôtel de Ville, église Saint-Foin) et
+33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre la plus au sud,
+un peu à l’écart des autres ») et l’aiguille 9 déplacée devant cette serre-là (elle était devant l’une des
+33, au hasard). Le vers 6 dit « au parc » (le terrain de jeux de l’école a lui aussi un toboggan).
 
 **Entités**
 
@@ -552,7 +583,7 @@ ne se chevauche.
 
 1. **Une idée de crime et un gag visible.** Varier la nature du crime (vol, enlèvement, évasion,
    escroquerie, meurtre — un seul pour tout le jeu —, sabotage, contrebande, chantage…) et le quartier.
-   Le gag doit se *voir* (un voleur en cagoule dans une file de cinéma, un épouvantail qui transpire).
+   Le gag doit se *voir* (un voleur masqué dans une file de cinéma, un épouvantail qui transpire).
 2. **Écrire la vérité** : la chronologie des faits, scène par scène. Chaque scène est un instant ; un
    personnage peut y figurer plusieurs fois (à des instants différents).
 3. **Choisir les lieux** dans la vraie ville : `npm run world -- landmarks | streets | zones`, vue
@@ -589,11 +620,18 @@ ne se chevauche.
 6. **Une étape, plusieurs bonnes réponses** quand plusieurs taps sont légitimes (la caisse et la
    poubelle ; le bateau et sa capitaine ; deux apparitions du fuyard).
 7. **Chaque tap plausible mais faux a son `nearMiss`** : les autres apparitions du bon personnage
-   (« c’est bien lui, mais plus tôt »), les sosies, les fausses pistes évidentes, Picotin. Un `nearMiss`
-   ne peut pas être à l’intérieur d’une zone ou d’un bâtiment accepté (le validateur le refuse).
+   (« c’est bien lui, mais plus tôt »), les sosies, les fausses pistes évidentes, Picotin, et, sur une
+   question « où ? », le **lieu** cité (`lm.*` ou `z.*` : « le kiosque, oui, mais Duchesse est juste à
+   côté »). Un `nearMiss` ne peut pas être à l’intérieur d’une zone ou d’un bâtiment accepté (le
+   validateur le refuse). Un bâtiment en `nearMiss` capte aussi les taps sur les passants devant sa
+   façade : à éviter sur la première étape d’une enquête testée en e2e (la « mauvaise réponse » du test
+   doit rester une erreur).
 8. **Deux indices par étape** : le premier, texte seul, oriente (quartier, direction, règle de
-   déduction) ; le second ajoute une zone (`area`) qui contient au moins une réponse, de rayon 60 à
-   150 u en général (450 au plus). Exception : le bonus (zone automatique).
+   déduction) ; le second ajoute une zone (`area`) qui contient **toute** la réponse **sans la centrer**,
+   de rayon 60 à 150 u en général (450 au plus). Un projecteur centré sur la réponse vaut une
+   révélation (indice 3) : on décale le centre de la moitié environ du jeu libre
+   (`rayon − demi-diagonale de la réponse`), de préférence vers la scène précédente. Exception : le bonus
+   (zone automatique, déjà décalée par `CaseSession`).
 9. **La difficulté vient** de la distance entre les scènes, de la densité de la foule, des sosies, des
    fils parallèles, des traversées — **jamais** d’un détail invisible (lunettes, moustache, peau, texte
    d’affiche, plaque).
@@ -602,6 +640,21 @@ ne se chevauche.
 11. **Le texte dit ce que le dessin montre.** La couleur d’un chapeau est **fixe par type** (`HAT_HEX` :
     casquette rouge, bonnet **orange**, casque jaune, képi bleu…) : écrire « bonnet orange », jamais
     « bonnet noir ». Le contrôle (`content:check`) refuse une couleur de chapeau citée qui ne correspond pas.
+    Même exigence pour les objets (« sac d’argent à la main », pas « caisse sous le bras »), les masques
+    (« masque de bandit », pas « cagoule »), les bateaux (« bateau », pas « barque »), les poses (un
+    personnage qui pointe désigne quelque chose : ne pas le tourner vers un autre suspect).
+12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
+    landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
+    en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la
+    Fenaison, trois porteurs de tarte à l’écran en c04… Sinon on précise le texte (« là où l’on attend les
+    trains », « la serre la plus au sud »), on déplace l’entité ou on ajoute un `nearMiss`.
+13. **Ce que le texte affirme du décor ambiant se vérifie** (`npm run world -- near x y r`) : « à côté des
+    taxis » alors qu’il n’y en a pas fait chercher un taxi qui n’existe pas. Les références au décor ambiant
+    (bus, ambulances) sont à revérifier si la graine de la ville change.
+14. **Chaque étape donne la prémisse de la suivante** : la question n’affirme pas un fait que le joueur n’a
+    vu nulle part (le vol du chapeau de l’épouvantail, en c03, est annoncé dans la résolution de s4).
+15. **Les étapes ouvertes en parallèle ont un `label`** (1 à 3 mots, deux étapes ouvertes ensemble n’ont
+    pas le même) : c’est le texte de l’onglet.
 
 ### 11.3 Règles de placement
 
@@ -650,8 +703,12 @@ ne se chevauche.
 - **Textes trop petits** : les affiches (`poster`) et les étiquettes de panneaux (`sign`) ne sont pas
   lisibles au zoom de jeu ; elles ne servent que d’ambiance (c01 : « LE CASSE DU SIÈCLE » ; c02 :
   « CONCOURS DE CANES »). Les noms de bateaux et de camionnettes se lisent à partir du zoom 2 environ.
-- **« Barque »** : le seul bateau du vocabulaire est un bateau à moteur de 90 u ; les textes disent
-  « barque » ou « bateau » indifféremment.
+- **« Bateau »** : le seul bateau du vocabulaire est un bateau à moteur de 90 u (cabine, drapeau, bouée) :
+  les textes disent « bateau » et jamais « barque » ni « ramer ». L’id `c02.barque` est resté tel quel
+  (les ids sont stables).
+- **Masque de bandit** : `face: 'mask'` est une bande noire sur les yeux. Les textes de c01 disent « masque
+  de bandit » ; `tools/content/gen.ts` imprime encore « cagoule / masque » dans les listes de signes
+  distinctifs (hors du périmètre de la revue).
 - **Traces de pas** (`footprints`) : couleur fixe et peu contrastée sur les pavés ; aucune enquête ne
   s’en sert pour l’instant.
 - **Passants à exactement 3 attributs** d’un personnage (autorisés par la règle anti-sosie) : `check.ts`
@@ -664,3 +721,88 @@ ne se chevauche.
   arbres disparaissent (vérifié en capture : aucun décor important).
 - **Dépendance au générateur** : les positions ont été choisies pour la graine `20261014` et le
   générateur de la phase 1. Si la ville change, relancer `check.ts` et refaire les captures.
+
+---
+
+## 13. Annexe — Revue critique
+
+Revue **adverse** des sept enquêtes par l’agent « critique » (phase 3, 15/10/2026), suivie de corrections
+directes dans `src/content/cases/*.ts` : les enquêtes n’avaient jamais été relues par un regard extérieur.
+Les ids d’entités et d’étapes sont restés **stables** (aucune sauvegarde ni test cassé). Aucun contrat
+(`types.ts`, `config.ts`…) n’a été modifié.
+
+### 13.1 Méthode
+
+- Lecture intégrale du code de chaque enquête, puis, pour **chaque étape**, une tentative de la casser :
+  captures de la vraie carte (aperçu des scènes aux zooms 1,5 / 2 / 3, page de jeu, projecteur de l’indice 2),
+  requêtes sur le monde (`npm run world -- near | rect | landmarks | streets`), comparaison texte ↔ dessin.
+- Contrôles automatiques écrits pour l’occasion (non conservés) : voisins d’apparence les plus proches de
+  chaque réponse (ambiguïté), position du projecteur de l’indice 2 par rapport à la réponse, pickabilité au
+  centre de chacune des 130 réponses et fausses pistes, recensement des horloges, serres, bateaux,
+  statues, aires de jeux et sables de la ville (unicité des énigmes du bonus), vérification des noms de rues
+  et de lieux cités dans les textes.
+- Preuves visuelles conservées dans `docs/screenshots/` : `critique-c05-elimination.jpg` (le raisonnement de
+  c05 est lisible), `critique-c01-voleur-motus-file.jpg`, `critique-c03-epouvantails-bateau.jpg`,
+  `critique-bonus-aiguilles.jpg` (les dix aiguilles après correction), `critique-indices-decentres-a.jpg`
+  et `-b.jpg` (les projecteurs de l’indice 2 après décalage, réponse cerclée).
+
+### 13.2 Problèmes corrigés
+
+| # | Où | Problème (preuve) | Correction |
+|---|---|---|---|
+| 1 | **Toutes les étapes** (31 zones) | Le projecteur de l’indice 2 était quasi **centré sur la réponse** (distance centre → réponse : 3 à 47 % du rayon, médiane 23 %) : il équivalait à la révélation (indice 3) et ôtait tout intérêt au palier. | Centre décalé de 25 à 64 u (28 à 48 % du rayon, médiane 43 %), de préférence vers la scène précédente ; la réponse reste **entière** dans le cercle (vérifié sur planches). Règle ajoutée (§ 11.2.8). Rayon de c04 s3 porté à 90 (la fontaine est grande). |
+| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud, un peu à l’écart des autres ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. |
+| 3 | Bonus, vers 1 | « Là où le temps a deux aiguilles » : **trois horloges** (gare, Hôtel de Ville, église). | « Là où l’on attend les trains… ». |
+| 4 | Bonus, vers 6 | Le terrain de jeux de l’école a aussi un toboggan. | « … au parc, un bac à sable en cache un. » |
+| 5 | c01 (6 textes) | « Cagoule » : le dessin est un **masque de bandit** (bande noire sur les yeux, avec le bonnet par-dessus). | « Masque de bandit » / « masqué » ; gag conservé. |
+| 6 | c01 s2 | « La caisse sous le bras » alors que le voleur tient un **sac d’argent à la main** (capture zoom 2). | Question et résolution alignées sur le dessin. |
+| 7 | c02 s5, replay | « Barque », « il n’ose plus ramer » : le bateau est un **bateau à moteur** de 90 u. | « Bateau », « il n’ose plus avancer » ; gag ajouté (il a baptisé son bateau comme son canard). |
+| 8 | c02 s1 | La baronne **montrait du doigt l’ouest**, à l’opposé du ravisseur (est), vers une passante ambiante : un faux indice. | Bras au ciel (`handsup`), message de fausse piste adapté. |
+| 9 | c03 s1 | « À côté des taxis » : **aucun taxi** près du fourgon (requête `near`), seulement un bus et des voitures. | « Juste à côté du bus vert ». |
+| 10 | c03 s4 | Quatre bateaux ambiants sur la Fenaison (dont un rouge, « LE HÉRON ») et une question qui ne dit pas qui chercher. | « Qui, et comment ? » ; indice 1 : « une connaissance » ; `nearMiss` du marin du quai Nord. |
+| 11 | c03 s5 | La **prémisse** (un chapeau d’épouvantail volé) n’était amenée nulle part ; « bras en l’air » ne figurait qu’à l’indice 1. | Résolution de s4 : un jardinier signale le vol ; question de s5 : « des épouvantails montent la garde, les bras en l’air ». |
+| 12 | c03 s6 | La question ne donnait aucun discriminant (le seul vrai est le pyjama rayé et la sueur). | « … mais il porte toujours son pyjama » ; messages « pas de rayures ». |
+| 13 | c03, accroche | « Il ne doit pas aller bien loin… si ? » : phrase incorrecte. | « … sauf si quelqu’un l’attend » (amorce de Lola). |
+| 14 | c04, briefing | « **Cette nuit**, la vitrine a volé en éclats » contredit la chronologie (Octave sort **à l’aube, avant** les jumeaux). | « Ce matin, avant l’ouverture ». |
+| 15 | c04 s2 | L’observation clé (quel jumeau tient le diamant) n’était **ni plantée ni rappelée** hors de l’indice 1. | Résolution de s1 : « l’autre, sac au dos, serre déjà le butin » ; indice 1 reformulé en rappel de la scène. |
+| 16 | c04 s4, s5, s6 | **Trois porteurs de tarte** à l’écran (Octave, Zita, Picotin) : désigner l’un d’eux au mauvais moment comptait comme erreur (étoiles). | Sept `nearMiss` explicites (dont « Picotin a une tarte, lui aussi : il en trouve toujours une » et deux lieux : Café du Centre, Hôtel de Ville). Étiquette d’onglet de s4 : « Le voisin » (elle doublait celle de s5). |
+| 17 | c04, épilogue | « Le cambriolage tombait à pic » : coïncidence non motivée. | Octave comptait simuler un cambriolage ; les jumeaux lui ont épargné la peine. |
+| 18 | c00 | Le coupable (Croquette, chien de la commissaire) **tombait du ciel** ; la question de s1 s’appuyait sur la moustache (invisible) ; la légende finale contredisait l’épilogue (Picotin « devait garder » le chien). | Amorce loyale dans le briefing (« je suppose que c’est une coïncidence »), reprise en s3 ; moustache retirée ; légende corrigée. |
+| 19 | c05 s2 | « L’hôpital est **au sud-est** » : il est au sud (dx +160, dy +700). | « Au sud ». |
+| 20 | c05 s3, s4 | Les questions ne donnaient **aucun moyen de déduire le lieu** sans indice (cimetière, musée) : un indice était obligatoire, donc la 3ᵉ étoile perdue d’avance. | « …jure avoir répété « la scène de la mort » au calme… » ; « …se consoler au milieu des belles choses… ». |
+| 21 | c05 s1 | « C’est son premier meurtre **aussi** » : ambigu. | « … à lui aussi ». |
+| 22 | c01 s3-s4, c02 s2, s4 et s5, c03 s1-s4, c04 s1 et s3-s6, c05 s2, s4, s5 et s7 | **34 taps plausibles sans message** (autres apparitions du bon personnage, Lola et Picotin dans la première image de c03, canards autour du bateau de c02, Gontran au théâtre pendant la fuite, et, sur les questions « où ? », le lieu désigné par erreur : vitrine de la bijouterie, Café du Centre, Hôtel de Ville, kiosque, étang, cinéma, hôpital, musée) comptaient comme erreurs et coûtaient des étoiles. | 34 `nearMiss` ajoutés (8 lieux `lm.*` / `z.*`), tous les personnages et objets pickables (130 cibles contrôlées). |
+
+### 13.3 Vérifié et laissé tel quel (pas un problème)
+
+- **c05, l’élimination est lisible au zoom de jeu** (`critique-c05-elimination.jpg`) : haut-de-forme, parapluie
+  ouvert et jambes orange du faux infirmier se voient sous la blouse ; Pétronille se trahit par l’**absence**
+  de parapluie (sa canne, fine, ne suffit pas seule), Hector par son chapeau melon (rond, pas haut).
+- **c04, les jumeaux** se distinguent au zoom 1,5 par le sac à dos (vert, sur le dos de Ludo).
+- **c03 s6** : Lapince est le seul épouvantail dont le haut est rayé **et** qui porte une bulle de sueur ;
+  les carreaux blancs sur blanc des vrais épouvantails ne se lisent pas au zoom 1,5, mais la bulle tranche.
+- **Aucune pose « bras levés » ambiante** dans la ville (comptage) : les épouvantails de c03, Motus et la
+  baronne ne sont jamais confondus avec un passant.
+- **c01 s2** : au zoom 1,5 le masque ne se lit pas ; ce sont le sac d’argent (signe « € ») et la course qui
+  distinguent le voleur de Motus (bras levés). Au zoom 2, le masque se lit.
+- Toutes les distances d’apparence (≥ 3 attributs, sauf sosies déclarés), les placements et les noms de
+  rues citées (`npm run world -- streets`) sont corrects ; les titres sont neutres ; la typographie est
+  propre (apostrophes courbes, aucune espace insécable saisie à la main : l’interface les ajoute).
+
+### 13.4 Problèmes restants et pistes
+
+- **Variété des mécaniques** : aucune enquête ne demande de désigner une **zone** (`z.*`) ni de lire un
+  texte ; tout se joue sur « qui / où / quel objet ». À étudier pour une prochaine enquête (un lieu à
+  désigner, un vers à déchiffrer comme dans le bonus).
+- **c05 est plus longue que difficile** : l’élimination (haut-de-forme, parapluie, pantalon) tient en deux
+  comparaisons. Une version plus corsée ajouterait un second déguisement ou un témoin qui se trompe.
+- **Dépendances au générateur** : les textes citent le bus vert de la gare (c03 s1), les ambulances de
+  l’hôpital (c05 s2), l’ange du cimetière et la serre `b.jardins.68` (bonus). Si la graine change,
+  revérifier (`npm run world -- near …`).
+- **`tools/content/gen.ts`** imprime encore « cagoule / masque » dans les listes de « signes distinctifs »
+  (hors du périmètre de la revue) : libellé à corriger en « masque de bandit ».
+- **Gag de Motus** : « coincé dans une boîte invisible » mais le mime a les bras levés (la pose `handsup` est
+  la plus proche du vocabulaire) ; assumé.
+- **Les ids portent encore d’anciens noms** (`c02.barque`, `c01.caisse`) : volontairement conservés (ids stables).
+- **Interface (hors périmètre)** : dans la barre haute, l’accent de l’« É » majuscule de « La Belle Évasion » est
+  presque rogné (police Special Elite, interligne serré) ; à voir côté `src/ui/styles.css`.

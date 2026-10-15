@@ -483,6 +483,27 @@ personPlate(
   });
 }
 
+// Bâtiments « vécus » : détails d'ambiance (gouttières, lierre, pots, linge, chat, antennes…) selon la graine
+plates.push({
+  id: 'decor',
+  title: "Bâtiments — vie des façades et des toits (24 graines : maisons, immeubles, boutiques)",
+  cw: 220,
+  ch: 190,
+  ax: 110,
+  ay: 170,
+  zoom: BZOOM,
+  items: Array.from({ length: 24 }, (_, i) => {
+    const style = (['house', 'townhouse', 'apartment', 'shop', 'bakery', 'cafe'] as BuildingStyle[])[i % 6];
+    const walls: Color[] = ['beige', 'white', 'pink', 'yellow', 'blue', 'green', 'orange', 'grey'];
+    const roofs: Color[] = ['red', 'brown', 'grey', 'navy', 'black', 'orange'];
+    const w = style === 'apartment' ? 110 : style === 'house' ? 90 : style === 'bakery' || style === 'cafe' ? 96 : 76;
+    const h = style === 'apartment' ? 50 : 44;
+    return {
+      label: `${style} #${i + 1}`,
+      entity: building(style, { seed: 100 + i * 37, wall: walls[(i * 3) % walls.length], roof: roofs[(i * 5) % roofs.length], sign: style === 'shop' ? 'ÉPICERIE' : style === 'bakery' ? 'BOULANGERIE' : style === 'cafe' ? 'CAFÉ' : undefined, height: style === 'apartment' ? 100 : style === 'townhouse' ? 76 : 64 }, w, h),
+    };
+  }),
+});
 // Bâtiments
 plates.push({
   id: 'buildings',
@@ -925,12 +946,21 @@ function checkEntities(): Entity[] {
       out.push(building(s, { seed, height: 28 }, 300, 60));
     }
   }
+  // bâtiments décorés SANS détails d'enquête (gouttières, lierre, pots, linge, chat, antennes, fumée…) :
+  // beaucoup de graines, plusieurs tailles et hauteurs
+  for (const s of ['house', 'townhouse', 'apartment', 'shop', 'cafe', 'bakery', 'jeweler', 'pharmacy', 'bar', 'postoffice'] as BuildingStyle[]) {
+    for (let seed = 1; seed <= 36; seed++) {
+      const roofs: Color[] = ['red', 'brown', 'grey', 'navy', 'black', 'orange'];
+      out.push(building(s, { seed: seed * 977 + 13, roof: roofs[seed % roofs.length], wall: COLORS[seed % COLORS.length] }));
+      if (seed % 3 === 0) out.push(building(s, { seed: seed * 613 + 5, height: 28 + (seed % 5) * 30 }, 36 + (seed % 4) * 40, 28 + (seed % 3) * 20));
+    }
+  }
   // véhicules
   for (const v of VEHICLES)
     for (const f of ['left', 'right'] as Facing[])
       out.push({ id: `c.v.${uid++}`, kind: 'vehicle', vehicle: v, facing: f, x: 0, y: 0, color: r.pick(COLORS), driver: randomAppearance(r), label: 'LABEL TRÈS LONG 123', doorOpen: true });
   // arbres
-  for (const t of TREES) for (const size of [20, 30, 45, 70, 90]) out.push({ id: `c.t.${uid++}.${t}${size}`, kind: 'tree', tree: t, size, x: 0, y: 0 });
+  for (const t of TREES) for (const size of [20, 30, 45, 70, 90]) for (let k = 0; k < 24; k++) out.push({ id: `c.t.${uid++}.${t}${size}.${k}`, kind: 'tree', tree: t, size, x: 0, y: 0 });
   // objets
   for (const p of PROPS)
     for (const scale of [0.6, 1, 1.7])
@@ -962,7 +992,7 @@ function describe(e: Entity): string {
     case 'person':
       return `${e.pose} ${e.facing} ${e.appearance.build} hat=${e.appearance.hat} acc=${e.appearance.accessory} hold=${e.holding} emote=${e.emote}${e.z ? ' z' : ''}`;
     case 'building':
-      return `${e.style} ${e.footprint.w}×${e.footprint.h} h${e.height}`;
+      return `${e.style} ${e.footprint.w}×${e.footprint.h} h${e.height} seed=${e.seed} roof=${e.roof} wall=${e.wall}`;
     case 'vehicle':
       return `${e.vehicle} ${e.facing}`;
     case 'tree':

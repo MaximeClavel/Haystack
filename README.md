@@ -27,6 +27,7 @@ npm run build    # version de production dans dist/
 | `npm run world -- <cmd>` | Interroger la ville générée : `landmarks`, `districts`, `streets`, `zones`, `entity <id>`, `rect`, `near`, `ground`, `free`, `lookalikes`, `stats` |
 | `npm run shot -- "<chemin-url>" sortie.png` | Capture d'écran d'une page (ex. `"/dev/map.html?x=2850&y=2060&zoom=2"`) |
 | `node scripts/perf-map.mjs` | Mesure de fluidité de la carte (`--gestures` : contrôles des gestes ; `--startup` : durée du démarrage) |
+| `node tools/playtest/blind.mjs start <id>` | Joueur test « aveugle » : jouer une enquête au doigt (captures d'écran + commandes), sans voir les solutions (mode d'emploi : [`tools/playtest/README.md`](tools/playtest/README.md)) |
 
 Pages de développement (servies par `npm run dev`, non publiées) : `/dev/map.html` (carte brute),
 `/dev/gallery.html` (catalogue graphique), `/dev/overview.html` (plan de la ville),

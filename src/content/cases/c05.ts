@@ -85,11 +85,11 @@ export const c05: CaseDef = {
       question: 'Trouvez Bérénice Fard, effondrée sur le parvis du théâtre.',
       accept: ['c05.berenice.1'],
       nearMiss: [
-        { id: 'c05.picotin.1', feedback: 'Picotin veille sur le corps. Il est tout pâle : c’est son premier meurtre aussi.' },
+        { id: 'c05.picotin.1', feedback: 'Picotin veille sur le corps. Il est tout pâle : c’est son premier meurtre, à lui aussi.' },
       ],
       hints: [
         { text: 'Sur le parvis, au pied de la façade rouge du théâtre, au milieu des spectateurs de l’entracte.' },
-        { text: 'Une femme en robe rouge, allongée.', area: { x: 5650, y: 2495, radius: 80 } },
+        { text: 'Une femme en robe rouge, allongée.', area: { x: 5670, y: 2470, radius: 80 } },
       ],
       solved: 'Bérénice Fard, la diva de Meulebourg, foudroyée à l’entracte. Elle tient encore sa bouteille de camomille.',
     },
@@ -99,10 +99,13 @@ export const c05: CaseDef = {
       after: ['s1'],
       question: 'Ce matin, un faux infirmier a volé le poison à l’hôpital Sainte-Paille. Trouvez-le.',
       accept: ['c05.faux-infirmier'],
-      nearMiss: [{ id: 'c05.medecin', feedback: 'Une vraie médecin, en vraie blouse. Elle se demande qui était ce nouvel « infirmier »…' }],
+      nearMiss: [
+        { id: 'c05.medecin', feedback: 'Une vraie médecin, en vraie blouse. Elle se demande qui était ce nouvel « infirmier »…' },
+        { id: 'lm.hopital', feedback: 'L’hôpital Sainte-Paille, oui. Mais c’est l’infirmier qu’on cherche, dehors, devant l’entrée.' },
+      ],
       hints: [
-        { text: 'L’hôpital est au sud-est, rue des Brancards. Un infirmier avec un flacon… et un drôle de chapeau.' },
-        { text: 'Devant l’entrée de l’hôpital, près des ambulances.', area: { x: 5790, y: 3190, radius: 90 } },
+        { text: 'L’hôpital est au sud, rue des Brancards. Un infirmier avec un flacon… et un drôle de chapeau.' },
+        { text: 'Devant l’entrée de l’hôpital, près des ambulances.', area: { x: 5810, y: 3150, radius: 90 } },
       ],
       solved:
         'Blouse blanche et masque… mais un haut-de-forme, un parapluie et le pantalon orange de la troupe ! L’assassin est l’un des comédiens. Retenez bien ces détails.',
@@ -111,11 +114,11 @@ export const c05: CaseDef = {
       id: 's3',
       label: 'Pétronille',
       after: ['s1'],
-      question: 'Pétronille Doublure, la doublure de Bérénice, dit avoir répété son texte « au calme » pendant l’entracte. Trouvez-la.',
+      question: 'Pétronille Doublure, la doublure de Bérénice, jure avoir répété « la scène de la mort » au calme pendant l’entracte. Trouvez-la.',
       accept: ['c05.petronille.1'],
       hints: [
-        { text: 'L’endroit le plus calme du quartier des Arts… On y répète très bien les scènes de mort.' },
-        { text: 'Au cimetière, sur l’allée centrale.', area: { x: 4620, y: 3255, radius: 110 } },
+        { text: 'Où répète-t-on le mieux la scène de la mort ? Dans l’endroit le plus calme du quartier des Arts.' },
+        { text: 'Au cimetière, sur l’allée centrale.', area: { x: 4640, y: 3225, radius: 110 } },
       ],
       solved: 'Au cimetière, entre deux tombes, Pétronille déclame la mort de l’héroïne. Haut-de-forme et pantalon orange… mais elle s’appuie sur une canne.',
     },
@@ -123,12 +126,15 @@ export const c05: CaseDef = {
       id: 's4',
       label: 'Hector',
       after: ['s1'],
-      question: 'Hector Plumeau, le jeune premier, s’est éclipsé pendant l’entracte. Trouvez-le.',
+      question: 'Hector Plumeau, le jeune premier, s’est éclipsé pendant l’entracte pour se consoler au milieu des belles choses. Trouvez-le.',
       accept: ['c05.hector.1'],
-      nearMiss: [{ id: 'c05.admiratrice', feedback: 'Une admiratrice, très consolante. Elle n’a jamais mis les pieds au théâtre.' }],
+      nearMiss: [
+        { id: 'c05.admiratrice', feedback: 'Une admiratrice, très consolante. Elle n’a jamais mis les pieds au théâtre.' },
+        { id: 'lm.musee', feedback: 'Le Musée des Beaux-Arts, oui. Mais c’est Hector qu’on cherche, sur le parvis.' },
+      ],
       hints: [
-        { text: 'Un cœur brisé se console volontiers au milieu des belles choses : marbre, colonnes, statues.' },
-        { text: 'Sur le parvis du Musée des Beaux-Arts.', area: { x: 4830, y: 2520, radius: 110 } },
+        { text: 'Quel bâtiment du quartier des Arts abrite le plus de belles choses ? Marbre, colonnes, statues…' },
+        { text: 'Sur le parvis du Musée des Beaux-Arts.', area: { x: 4890, y: 2520, radius: 110 } },
       ],
       solved: 'Devant le musée, Hector se console déjà avec une admiratrice. Pantalon orange et parapluie… mais un chapeau melon.',
     },
@@ -138,9 +144,13 @@ export const c05: CaseDef = {
       after: ['s1'],
       question: 'Gontran Lamèche, le doyen de la troupe, jure qu’il lisait son journal pendant l’entracte. Trouvez-le.',
       accept: ['c05.gontran.1'],
+      nearMiss: [
+        { id: 'c05.berenice.1', feedback: 'Bérénice ne lira plus rien ce soir. Cherchez celui qui lit.' },
+        { id: 'c05.picotin.1', feedback: 'Picotin veille sur la victime. Cherchez plutôt celui qui lit son journal.' },
+      ],
       hints: [
         { text: 'Il n’est pas allé bien loin : il est resté sur le parvis du théâtre.' },
-        { text: 'À l’est du parvis, un monsieur lit son journal sans lever les yeux.', area: { x: 5740, y: 2500, radius: 90 } },
+        { text: 'À l’est du parvis, un monsieur lit son journal sans lever les yeux.', area: { x: 5725, y: 2495, radius: 90 } },
       ],
       solved:
         'Gontran lit tranquillement son journal à quelques pas de la victime, sans un regard pour elle. Haut-de-forme, parapluie, pantalon orange.',
@@ -157,7 +167,7 @@ export const c05: CaseDef = {
       ],
       hints: [
         { text: 'Le faux infirmier avait gardé trois choses : un haut-de-forme, un parapluie et le pantalon orange. Un seul comédien a les trois.' },
-        { text: 'Celui qui lisait son journal sans regarder la victime…', area: { x: 5740, y: 2500, radius: 90 } },
+        { text: 'Celui qui lisait son journal sans regarder la victime…', area: { x: 5790, y: 2470, radius: 90 } },
       ],
       solved:
         'Gontran Lamèche : haut-de-forme, parapluie, pantalon orange. Le doyen a volé le poison ce matin, déguisé en infirmier, et l’a versé dans la camomille de Bérénice. Mais quand Picotin s’est retourné… Gontran avait disparu.',
@@ -174,11 +184,13 @@ export const c05: CaseDef = {
           feedback: 'Monsieur Cargo, l’armateur de « L’Entracte » : haut-de-forme, costume rouge, parapluie… mais un pantalon NOIR. Il attend un passager en retard.',
         },
         { id: 'c05.gontran.2', feedback: 'C’est bien lui, sur le Pont du Parc. Il a traversé la rivière : cherchez-le sur l’autre rive.' },
+        { id: 'c05.gontran.1', feedback: 'C’est bien lui, mais devant le théâtre : il n’y est plus. Il file vers le port.' },
+        { id: 'c05.faux-infirmier', feedback: 'Le faux infirmier, ce matin, à l’hôpital. Depuis, il a retiré sa blouse.' },
         { id: 'c05.bateau', feedback: 'Le bateau « L’Entracte » attend son dernier passager. Il n’est pas encore à bord.' },
       ],
       hints: [
         { text: 'Il a traversé la Fenaison par le Pont du Parc, puis longé les quais vers l’est, jusqu’au bateau « L’Entracte ».' },
-        { text: 'Tout près du bateau, quelqu’un se cache entre deux caisses.', area: { x: 5510, y: 3975, radius: 100 } },
+        { text: 'Tout près du bateau, quelqu’un se cache entre deux caisses.', area: { x: 5480, y: 3940, radius: 100 } },
       ],
       solved: 'Accroupi entre deux caisses, à trois pas de la passerelle, le parapluie à la main. Picotin l’attendait — pour une fois, au bon endroit.',
       thread: [['c05.gontran.1', 'c05.gontran.2'], ['c05.gontran.2', 'c05.gontran.3']],

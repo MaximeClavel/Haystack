@@ -37,7 +37,7 @@ export const c03: CaseDef = {
   title: 'La Belle Évasion',
   unlockAfter: ['c02'],
   difficulty: 3,
-  teaser: 'Un détenu s’est fait la belle devant la gare, en pyjama rayé. Il ne doit pas aller bien loin… si ?',
+  teaser: 'Un détenu s’est fait la belle devant la gare, en pyjama rayé. Il ne devrait pas aller bien loin, sauf si quelqu’un l’attend.',
   intro:
     'Ce matin, Achille Lapince, dit « le Hérisson » — cheveux en épis, pyjama rayé bleu et blanc —, devait être transféré à la prison de la Préfecture. Le fourgon s’est arrêté devant la gare. Deux minutes plus tard, il était vide.\n\n' +
     'Depuis l’alerte, deux agents gardent le Pont Central. Lapince n’a ni argent ni vêtements de rechange, mais il a des amis. Retrouvez-le avant le train de midi.\n\n' +
@@ -84,9 +84,13 @@ export const c03: CaseDef = {
       id: 's1',
       question: 'Trouvez le fourgon de police, portière ouverte, devant la gare.',
       accept: ['c03.fourgon'],
+      nearMiss: [
+        { id: 'c03.lola.1', feedback: 'Il y a de l’agitation sur le parvis, mais on y reviendra : trouvez d’abord le fourgon.' },
+        { id: 'c03.picotin.1', feedback: 'Picotin est très occupé, là-bas. On y reviendra : trouvez d’abord le fourgon.' },
+      ],
       hints: [
-        { text: 'Il est garé rue de la Gare, au sud du parvis, à côté des taxis et du bus.' },
-        { text: 'Un fourgon bleu marine, vide.', area: { x: 1090, y: 1830, radius: 90 } },
+        { text: 'Il est garé rue de la Gare, au sud du parvis, juste à côté du bus vert.' },
+        { text: 'Un fourgon bleu marine, vide.', area: { x: 1080, y: 1820, radius: 90 } },
       ],
       solved: 'Le fourgon est vide, portière grande ouverte. Mais où étaient les agents pendant l’évasion ?',
     },
@@ -94,10 +98,13 @@ export const c03: CaseDef = {
       id: 's2',
       question: 'Au moment de l’évasion, les agents étaient occupés ailleurs. Qui a fait diversion ?',
       accept: ['c03.lola.1'],
-      nearMiss: [{ id: 'c03.picotin.1', feedback: 'Picotin évente la dame évanouie de son képi. Il n’a rien vu partir — il ne voit d’ailleurs pas grand-chose.' }],
+      nearMiss: [
+        { id: 'c03.picotin.1', feedback: 'Picotin évente la dame évanouie de son képi. Il n’a rien vu partir — il ne voit d’ailleurs pas grand-chose.' },
+        { id: 'c03.fourgon', feedback: 'Le fourgon, toujours vide. Qui a détourné l’attention des agents ?' },
+      ],
       hints: [
         { text: 'Quelqu’un a fait un malaise très opportun, tout près du fourgon.' },
-        { text: 'Regardez sur le parvis, juste au-dessus du fourgon.', area: { x: 1080, y: 1800, radius: 70 } },
+        { text: 'Regardez sur le parvis, juste au-dessus du fourgon.', area: { x: 1095, y: 1815, radius: 70 } },
       ],
       solved:
         'Une dame s’est « évanouie » sur le parvis : lunettes noires, béret, robe rose à pois. Tous les agents ont couru à son secours… Un évanouissement bien commode.',
@@ -113,33 +120,36 @@ export const c03: CaseDef = {
           feedback: 'Une marinière, pas un pyjama : ce marin porte un bonnet, et il n’a pas quitté son quai de la matinée.',
         },
         { id: 'c03.client', feedback: 'Un client du Fer à Cheval, très agité. Regardez plutôt ce qu’il montre du doigt.' },
+        { id: 'c03.lola.1', feedback: 'La fausse malade est encore sur le parvis. Lapince, lui, a déjà pris la poudre d’escampette.' },
+        { id: 'c03.lapince.3', feedback: 'C’est bien lui, mais beaucoup plus loin, de l’autre côté de la rivière. Retrouvez d’abord le début de sa fuite.' },
       ],
       hints: [
         { text: 'Il est parti vers le sud, par les petites rues du quartier de la Gare. Un client du bar Le Fer à Cheval l’a vu passer.' },
-        { text: 'Regardez devant la terrasse du Fer à Cheval.', area: { x: 840, y: 2262, radius: 90 } },
+        { text: 'Regardez devant la terrasse du Fer à Cheval.', area: { x: 875, y: 2220, radius: 90 } },
       ],
       solved: 'Le revoilà, qui file vers le sud — devant le Fer à Cheval, puis en se faufilant près du Garage Pistons. Il se dirige vers la rivière.',
       thread: [['c03.fourgon', 'c03.lapince.1'], ['c03.lapince.1', 'c03.lapince.2']],
     },
     {
       id: 's4',
-      question: 'Le Pont Central est gardé, et Lapince a pourtant gagné la rive sud. Comment a-t-il traversé la Fenaison ?',
+      question: 'Le Pont Central est gardé, et Lapince a pourtant gagné la rive sud. Quelqu’un l’a aidé à traverser la Fenaison. Qui, et comment ?',
       accept: ['c03.bateau', 'c03.lola.2'],
       nearMiss: [
         { id: 'z.pont-central', feedback: 'Le Pont Central est gardé par deux agents depuis ce matin. Lapince a trouvé autre chose.' },
         { id: 'c03.lapince.3', feedback: 'C’est bien lui, déjà sur la rive sud ! Mais comment est-il arrivé là ?' },
+        { id: 'c03.marin.1', feedback: 'Ce marin n’a pas bougé de son quai de la matinée : ce n’est pas lui qui a fait traverser Lapince.' },
       ],
       hints: [
-        { text: 'Pas par un pont. Regardez sur l’eau, au sud du Garage Pistons.' },
-        { text: 'Un bateau rouge, tout près du quai Sud.', area: { x: 940, y: 3930, radius: 100 } },
+        { text: 'Pas par un pont. Regardez sur l’eau, au sud du Garage Pistons : vous y croiserez une connaissance.' },
+        { text: 'Un bateau rouge, tout près du quai Sud.', area: { x: 945, y: 3880, radius: 100 } },
       ],
       solved:
-        'En bateau ! Et la capitaine n’est autre que la dame « évanouie » de la gare : Lola Cachou, la fiancée de Lapince. Il escalade déjà le quai Sud.',
+        'En bateau ! La capitaine n’est autre que la dame « évanouie » de la gare : Lola Cachou, la fiancée de Lapince. Pendant qu’il escalade le quai Sud, un jardinier des jardins ouvriers signale à la brigade le vol du chapeau de paille d’un de ses épouvantails.',
       thread: [['c03.lapince.2', 'c03.bateau'], ['c03.lola.1', 'c03.lola.2']],
     },
     {
       id: 's5',
-      question: 'Dans les jardins ouvriers, un épouvantail s’est fait voler son chapeau de paille. Lequel ?',
+      question: 'Aux jardins ouvriers, des épouvantails montent la garde, les bras en l’air. L’un d’eux s’est fait voler son chapeau de paille. Lequel ?',
       accept: ['c03.epouvantail-nu.1'],
       nearMiss: [
         { id: 'c03.epouvantail.1', feedback: 'Cet épouvantail a toujours son chapeau.' },
@@ -148,25 +158,25 @@ export const c03: CaseDef = {
         { id: 'c03.lapince.4', feedback: 'Celui-ci a un chapeau… Gardez-le à l’œil quand même.' },
       ],
       hints: [
-        { text: 'Les épouvantails se dressent au milieu des potagers, les bras en l’air. Comptez les chapeaux.' },
-        { text: 'Cherchez dans la rangée nord des jardins.', area: { x: 1060, y: 4370, radius: 120 } },
+        { text: 'Ils se dressent au milieu des potagers, bras levés. Comptez les chapeaux.' },
+        { text: 'Cherchez dans la rangée nord des jardins.', area: { x: 1085, y: 4320, radius: 120 } },
       ],
       solved: 'Un épouvantail décoiffé, cheveux de paille au vent. Quelqu’un avait besoin d’un chapeau…',
       thread: [['c03.lapince.3', 'c03.epouvantail-nu.1']],
     },
     {
       id: 's6',
-      question: 'Lapince s’est déguisé en épouvantail avec le chapeau volé. Démasquez-le !',
+      question: 'Lapince s’est déguisé en épouvantail avec le chapeau volé, mais il porte toujours son pyjama. Démasquez-le !',
       accept: ['c03.lapince.4'],
       nearMiss: [
-        { id: 'c03.epouvantail.1', feedback: 'Un vrai épouvantail : chemise à carreaux, et il ne transpire pas.' },
-        { id: 'c03.epouvantail.2', feedback: 'Un vrai épouvantail : chemise à carreaux, et il ne transpire pas.' },
-        { id: 'c03.epouvantail.3', feedback: 'Un vrai épouvantail : chemise à carreaux, et il ne transpire pas.' },
+        { id: 'c03.epouvantail.1', feedback: 'Un vrai épouvantail : pas de rayures, et il ne transpire pas.' },
+        { id: 'c03.epouvantail.2', feedback: 'Un vrai épouvantail : pas de rayures, et il ne transpire pas.' },
+        { id: 'c03.epouvantail.3', feedback: 'Un vrai épouvantail : pas de rayures, et il ne transpire pas.' },
         { id: 'c03.epouvantail-nu.1', feedback: 'C’est l’épouvantail volé : il n’a plus de chapeau. L’imposteur, lui, l’a sur la tête.' },
       ],
       hints: [
         { text: 'Un pyjama rayé ne ressemble pas tout à fait à une chemise à carreaux. Et un épouvantail ne transpire jamais.' },
-        { text: 'Regardez la rangée sud des jardins.', area: { x: 980, y: 4610, radius: 110 } },
+        { text: 'Regardez la rangée sud des jardins.', area: { x: 985, y: 4585, radius: 110 } },
       ],
       solved: 'Des rayures sous le chapeau de paille, et une goutte de sueur sur le front : Achille Lapince ! Même les pigeons ne s’y trompent pas.',
       thread: [['c03.epouvantail-nu.1', 'c03.lapince.4']],

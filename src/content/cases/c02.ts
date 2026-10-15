@@ -1,6 +1,6 @@
 // c02 — « Coin-coin ! » (difficulté 2, 5 étapes).
 // Lieux : Parc des Meules — rive sud-est de l'étang, boulevard des Halles (qui traverse le parc),
-// kiosque à musique (concours), étang (fuite en barque).
+// kiosque à musique (concours), étang (fuite en bateau).
 import type { CaseDef, PersonAppearance } from '../../types';
 import { PICOTIN } from '../common';
 
@@ -50,7 +50,7 @@ export const c02: CaseDef = {
   ],
   entities: [
     // Au pied du ponton : la baronne et Picotin
-    { id: 'c02.baronne.1', kind: 'person', x: 5300, y: 1066, pose: 'point', facing: 'left', emote: 'sweat', character: 'c02.baronne', appearance: BARONNE },
+    { id: 'c02.baronne.1', kind: 'person', x: 5300, y: 1066, pose: 'handsup', facing: 'left', emote: 'sweat', character: 'c02.baronne', appearance: BARONNE },
     { id: 'c02.picotin.1', kind: 'person', x: 5322, y: 1069, pose: 'read', facing: 'left', character: 'c02.picotin', appearance: PICOTIN },
     // Rive sud-est : Barbarie attire Duchesse avec du pain
     { id: 'c02.barbarie.1', kind: 'person', x: 5492, y: 1040, pose: 'crouch', facing: 'left', holding: 'baguette', character: 'c02.barbarie', appearance: BARBARIE },
@@ -74,7 +74,7 @@ export const c02: CaseDef = {
     { id: 'c02.duchesse.4', kind: 'prop', prop: 'duck', x: 4946, y: 1503, facing: 'left', color: 'yellow', scale: 1.4 },
     { id: 'c02.canard.3', kind: 'prop', prop: 'duck', x: 4966, y: 1504, facing: 'left' },
     { id: 'c02.concurrente.1', kind: 'person', x: 4984, y: 1503, pose: 'stand', facing: 'left', emote: 'angry', appearance: CONCURRENTE },
-    // Fuite en barque, au milieu de l'étang, encerclé par les canards
+    // Fuite en bateau, au milieu de l'étang, encerclé par les canards
     { id: 'c02.barque', kind: 'vehicle', vehicle: 'boat', x: 5390, y: 660, facing: 'right', color: 'green', label: 'LE BARON' },
     { id: 'c02.barbarie.3', kind: 'person', x: 5360, y: 661, z: 10, sortY: 661, pose: 'handsup', facing: 'right', emote: 'sweat', character: 'c02.barbarie', appearance: BARBARIE },
     { id: 'c02.canard.4', kind: 'prop', prop: 'duck', x: 5322, y: 676, facing: 'right' },
@@ -89,12 +89,12 @@ export const c02: CaseDef = {
       accept: ['c02.barbarie.1'],
       nearMiss: [
         { id: 'c02.lulu.1', feedback: 'Le petit Lulu nourrit des canards ordinaires, sur l’eau. Duchesse, elle, est dorée de la tête à la queue.' },
-        { id: 'c02.baronne.1', feedback: 'La baronne sanglote dans son mouchoir : « Ma Duchesse ! Ma toute belle ! »' },
+        { id: 'c02.baronne.1', feedback: 'La baronne se lamente, les bras au ciel : « Ma Duchesse ! Ma toute belle ! »' },
         { id: 'c02.picotin.1', feedback: 'Picotin prend des notes. Enfin… il dessine des canards dans son carnet.' },
       ],
       hints: [
         { text: 'Cherchez une cane toute dorée hors de l’eau, sur la rive de l’étang.' },
-        { text: 'À l’est du ponton, quelqu’un tend une baguette à ras du sol…', area: { x: 5470, y: 1030, radius: 110 } },
+        { text: 'À l’est du ponton, quelqu’un tend une baguette à ras du sol…', area: { x: 5445, y: 1020, radius: 110 } },
       ],
       solved:
         'Hippolyte Barbarie, éleveur de volailles… et propriétaire du Baron, le grand rival de Duchesse au concours. Il l’attire avec une baguette.',
@@ -106,6 +106,7 @@ export const c02: CaseDef = {
       accept: ['c02.camionnette'],
       nearMiss: [
         { id: 'c02.barbarie.2', feedback: 'C’est bien Barbarie, le carton dans les bras. Suivez-le : où va-t-il ?' },
+        { id: 'c02.barbarie.1', feedback: 'C’est bien Barbarie, mais plus tôt, au bord de l’étang : il n’a pas encore de carton. Suivez-le.' },
         {
           id: 'c02.bigarade.1',
           feedback: 'Le chef Bigarade porte un carton, lui aussi : des oranges. Pour un canard à l’orange ? Il jure que non, la main sur la toque.',
@@ -113,7 +114,7 @@ export const c02: CaseDef = {
       ],
       hints: [
         { text: 'Barbarie a pris l’allée qui descend vers le boulevard des Halles, le boulevard qui traverse le parc.' },
-        { text: 'Un véhicule à son nom est garé sur le boulevard.', area: { x: 5280, y: 1270, radius: 110 } },
+        { text: 'Un véhicule à son nom est garé sur le boulevard.', area: { x: 5325, y: 1250, radius: 110 } },
       ],
       solved: 'Sa camionnette, « VOLAILLES BARBARIE », garée sur le boulevard. Il y enferme le carton et repart chercher son propre canard.',
       thread: [['c02.barbarie.1', 'c02.barbarie.2'], ['c02.barbarie.2', 'c02.camionnette']],
@@ -128,7 +129,7 @@ export const c02: CaseDef = {
       ],
       hints: [
         { text: 'Regardez juste à côté de la camionnette, portière ouverte.' },
-        { text: 'Quelqu’un de petit, avec un ballon, qui a tout vu depuis la rive.', area: { x: 5280, y: 1275, radius: 70 } },
+        { text: 'Quelqu’un de petit, avec un ballon, qui a tout vu depuis la rive.', area: { x: 5295, y: 1280, radius: 70 } },
       ],
       solved: 'Le petit Lulu avait tout vu depuis la rive. Il a suivi Barbarie, ouvert la portière… et Duchesse a filé.',
       thread: [['c02.camionnette', 'c02.lulu.2']],
@@ -144,10 +145,11 @@ export const c02: CaseDef = {
         { id: 'c02.canard.3', feedback: 'Une concurrente honorable, mais blanche comme un drap. Duchesse est dorée.' },
         { id: 'c02.president.1', feedback: 'Le président du jury, très ému. Regardez plutôt ce qu’il montre du doigt.' },
         { id: 'c02.concurrente.1', feedback: 'Mme Cancan fulmine : sa cane vient de perdre toutes ses chances. Pourquoi, à votre avis ?' },
+        { id: 'lm.kiosque', feedback: 'Le kiosque à musique, oui. Mais Duchesse est juste à côté, devant le jury.' },
       ],
       hints: [
         { text: 'Elle a traversé le boulevard vers le sud. Une cane de concours sait où elle doit être cet après-midi.' },
-        { text: 'Regardez près du kiosque à musique.', area: { x: 4930, y: 1480, radius: 110 } },
+        { text: 'Regardez près du kiosque à musique.', area: { x: 4990, y: 1470, radius: 110 } },
       ],
       solved: 'Au concours, devant le jury ! Duchesse s’est présentée toute seule, à l’heure.',
       thread: [['c02.duchesse.2', 'c02.duchesse.3'], ['c02.duchesse.3', 'c02.duchesse.4']],
@@ -156,11 +158,20 @@ export const c02: CaseDef = {
       id: 's5',
       question: 'Démasqué, Barbarie a pris la fuite pour échapper à Picotin. Où s’est-il réfugié ?',
       accept: ['c02.barque', 'c02.barbarie.3'],
+      nearMiss: [
+        { id: 'c02.barbarie.1', feedback: 'C’est bien Barbarie, mais ce matin, sur la rive. Depuis, il a pris le large.' },
+        { id: 'c02.barbarie.2', feedback: 'C’est bien Barbarie, mais avec son carton, à travers le parc. Depuis, il a pris le large.' },
+        { id: 'c02.canard.4', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },
+        { id: 'c02.canard.5', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },
+        { id: 'c02.canard.6', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },
+        { id: 'c02.canard.7', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },
+        { id: 'z.etang', feedback: 'L’étang, oui. Mais où, au juste ? Cherchez ce qui flotte au milieu.' },
+      ],
       hints: [
         { text: 'Il a filé vers le nord, là où les canards font la loi.' },
-        { text: 'Regardez au milieu de l’étang.', area: { x: 5390, y: 670, radius: 120 } },
+        { text: 'Regardez au milieu de l’étang.', area: { x: 5375, y: 675, radius: 120 } },
       ],
-      solved: 'Au milieu de l’étang, dans sa barque « LE BARON », encerclé par des canards furieux. Il n’ose plus ramer.',
+      solved: 'Au milieu de l’étang, à bord de son bateau « LE BARON » — il l’a baptisé comme son canard —, encerclé par des canards furieux. Il n’ose plus avancer.',
       thread: [['c02.camionnette', 'c02.barbarie.3']],
     },
   ],
@@ -174,6 +185,6 @@ export const c02: CaseDef = {
     { id: 'c02.lulu.2', caption: 'Lulu, qui a tout vu, ouvre la portière.' },
     { id: 'c02.duchesse.3', caption: 'Duchesse traverse le boulevard…' },
     { id: 'c02.duchesse.4', caption: '… et se présente au concours, à l’heure.' },
-    { id: 'c02.barbarie.3', caption: 'Démasqué, Barbarie s’enfuit en barque. Les canards l’attendaient.' },
+    { id: 'c02.barbarie.3', caption: 'Démasqué, Barbarie s’enfuit en bateau. Les canards l’attendaient.' },
   ],
 };

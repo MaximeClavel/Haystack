@@ -25,7 +25,7 @@ export const c00: CaseDef = {
   teaser: 'Premier jour à la brigade : une tarte aux fraises s’est volatilisée entre la boulangerie et le commissariat.',
   intro:
     'Bienvenue à Meulebourg, inspecteur. Ici, on cherche des aiguilles dans des bottes de foin… et on les trouve.\n\n' +
-    'Pour fêter votre arrivée, j’avais commandé une tarte aux fraises à la boulangerie. Elle n’est jamais arrivée. Ce n’est pas encore un crime, mais c’est déjà un drame.\n\n' +
+    'Pour fêter votre arrivée, j’avais commandé une tarte aux fraises à la boulangerie. Elle n’est jamais arrivée. Ce n’est pas encore un crime, mais c’est déjà un drame. Mon chien Croquette a lui aussi disparu ce matin : je suppose que c’est une coïncidence.\n\n' +
     'Le brigadier Picotin vous attend au square de la rue Neuve. Pincez pour zoomer, glissez pour vous déplacer, et touchez une personne ou un objet pour le désigner.\n\n' +
     '— Commissaire Odile Fétu',
   start: { x: 1595, y: 1925, zoom: 1.6 },
@@ -45,11 +45,11 @@ export const c00: CaseDef = {
   steps: [
     {
       id: 's1',
-      question: 'Trouvez le brigadier Picotin : casquette de police, uniforme bleu, bermuda et moustache rousse. Il vous fait signe.',
+      question: 'Trouvez le brigadier Picotin : casquette de police, uniforme bleu, bermuda beige. Il vous fait signe.',
       accept: ['c00.picotin.1'],
       hints: [
         { text: 'Il vous attend dans le square, du côté nord, près de l’allée.' },
-        { text: 'Cherchez l’homme en uniforme qui agite la main.', area: { x: 1600, y: 1890, radius: 90 } },
+        { text: 'Cherchez l’homme en uniforme qui agite la main.', area: { x: 1600, y: 1905, radius: 90 } },
       ],
       solved:
         '« Ah, inspecteur ! Le livreur de la boulangerie est passé devant moi avec la tarte : casquette, tablier blanc, short rouge. Il traversait le square vers l’ouest… et je ne l’ai jamais vu ressortir. »',
@@ -68,7 +68,7 @@ export const c00: CaseDef = {
       ],
       hints: [
         { text: 'Il marchait vers l’ouest du square. Un livreur fatigué, ça finit toujours par s’asseoir.' },
-        { text: 'Regardez les bancs, à l’ouest de l’allée centrale.', area: { x: 1560, y: 1925, radius: 80 } },
+        { text: 'Regardez les bancs, à l’ouest de l’allée centrale.', area: { x: 1570, y: 1890, radius: 80 } },
       ],
       solved: 'Le livreur dort à poings fermés sur un banc. Et ses bras sont vides : plus de tarte !',
       thread: [['c00.livreur.1', 'c00.livreur.2']],
@@ -84,9 +84,9 @@ export const c00: CaseDef = {
       ],
       hints: [
         { text: 'Regardez juste devant le banc du livreur.' },
-        { text: 'Un gourmand à quatre pattes, le museau dans la crème…', area: { x: 1555, y: 1935, radius: 70 } },
+        { text: 'Un gourmand à quatre pattes, le museau dans la crème…', area: { x: 1545, y: 1915, radius: 70 } },
       ],
-      solved: 'Croquette ! Le chien de la commissaire Fétu, le museau plein de crème. Affaire classée.',
+      solved: 'Croquette ! Le chien de la commissaire Fétu, le museau plein de crème. Une coïncidence, disiez-vous ? Affaire classée.',
       thread: [['c00.livreur.2', 'c00.croquette']],
     },
   ],
@@ -97,6 +97,6 @@ export const c00: CaseDef = {
     { id: 'c00.livreur.1', caption: 'Le livreur traverse le square, la tarte dans les bras, sous les yeux de Picotin.' },
     { id: 'c00.livreur.2', caption: 'Épuisé par sa tournée, il s’assoit sur un banc… et s’endort.' },
     { id: 'c00.croquette', caption: 'Croquette, échappé du commissariat, flaire les fraises et se sert.' },
-    { id: 'c00.picotin.1', caption: 'Picotin vous attend, sans se douter que le coupable est le chien qu’il devait garder.' },
+    { id: 'c00.picotin.1', caption: 'Picotin vous attend, sans se douter que le coupable est le chien de la commissaire.' },
   ],
 };

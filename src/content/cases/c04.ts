@@ -28,7 +28,7 @@ export const c04: CaseDef = {
   difficulty: 4,
   teaser: 'Le diamant le plus célèbre de Meulebourg a disparu de la bijouterie Carat. Tout le monde a menti, même le diamant.',
   intro:
-    'Cette nuit, la vitrine de la bijouterie Carat a volé en éclats. Disparue : « La Grande Paille », un diamant gros comme une noisette, ainsi nommé à cause du minuscule défaut qui le rend unique.\n\n' +
+    'Ce matin, avant l’ouverture, la vitrine de la bijouterie Carat a volé en éclats. Disparue : « La Grande Paille », un diamant gros comme une noisette, ainsi nommé à cause du minuscule défaut qui le rend unique.\n\n' +
     'Le bijoutier, Octave Carat, est effondré. Son assureur aussi, pour d’autres raisons. Les frères Taupin, deux jumeaux qui passent plus de temps sous la ville que dessus, sont déjà soupçonnés.\n\n' +
     'Autre chose : un voisin insomniaque affirme avoir vu, à l’aube, quelqu’un s’éloigner de la bijouterie avec une tarte. Personne ne l’a cru. Vérifiez quand même.\n\n' +
     '— Commissaire Odile Fétu',
@@ -77,12 +77,14 @@ export const c04: CaseDef = {
         { id: 'c04.octave.3', feedback: 'Le bijoutier se lamente au téléphone avec son assureur. Il a l’air presque… soulagé ?' },
         { id: 'c04.picotin.1', feedback: 'Picotin prend la déposition du bijoutier. Il a faim, ça se voit.' },
         { id: 'c04.lino.1', feedback: 'C’est l’un des jumeaux, en train de sortir de quelque part. Mais d’où, au juste ?' },
+        { id: 'c04.ludo.1', feedback: 'C’est l’autre jumeau, le butin déjà en main. Regardez plutôt d’où ils sont sortis tous les deux.' },
+        { id: 'lm.bijouterie', feedback: 'La vitrine fracassée : c’est par là qu’ils sont repartis. Mais par où sont-ils arrivés ?' },
       ],
       hints: [
         { text: 'Les frères Taupin passent plus de temps sous la ville que dessus.' },
-        { text: 'Regardez par terre, sur le trottoir devant la bijouterie.', area: { x: 2680, y: 2520, radius: 70 } },
+        { text: 'Regardez par terre, sur le trottoir devant la bijouterie.', area: { x: 2675, y: 2515, radius: 70 } },
       ],
-      solved: 'Une plaque d’égout ouverte, juste devant la vitrine. Les jumeaux Taupin sont arrivés par les égouts — l’un d’eux en sort encore.',
+      solved: 'Une plaque d’égout ouverte, juste devant la vitrine : les jumeaux Taupin sont arrivés par les égouts. L’un d’eux en sort encore ; l’autre, sac au dos, serre déjà le butin.',
       thread: [['c04.egout', 'c04.ludo.1']],
     },
     {
@@ -100,8 +102,8 @@ export const c04: CaseDef = {
         },
       ],
       hints: [
-        { text: 'Devant la vitrine, c’est le jumeau au sac à dos qui tient le diamant. Il est parti vers le nord, vers la Grand-Place.' },
-        { text: 'Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule.', area: { x: 2770, y: 2270, radius: 140 } },
+        { text: 'Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant. Il est parti vers le nord, vers la Grand-Place.' },
+        { text: 'Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule.', area: { x: 2735, y: 2330, radius: 140 } },
       ],
       solved: 'Ludo Taupin, sac au dos, fend la foule de la Grand-Place. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.',
       thread: [['c04.ludo.1', 'c04.ludo.2']],
@@ -112,27 +114,32 @@ export const c04: CaseDef = {
       after: ['s2'],
       question: 'Furieux, Ludo s’est débarrassé du diamant. Où est-il ?',
       accept: ['c04.faux', 'lm.fontaine'],
-      nearMiss: [{ id: 'c04.ludo.3', feedback: 'Ludo est furieux. Il vient de jeter quelque chose, juste devant lui.' }],
+      nearMiss: [
+        { id: 'c04.ludo.3', feedback: 'Ludo est furieux. Il vient de jeter quelque chose, juste devant lui.' },
+        { id: 'c04.ludo.2', feedback: 'C’est Ludo, un peu plus tôt : il a encore le diamant. Suivez-le jusqu’à ce qu’il s’en débarrasse.' },
+      ],
       hints: [
         { text: 'Il a examiné son butin au grand jour, au milieu de la Grand-Place… et ne l’a pas aimé.' },
-        { text: 'Regardez la fontaine.', area: { x: 2860, y: 2075, radius: 70 } },
+        { text: 'Regardez la fontaine.', area: { x: 2840, y: 2085, radius: 90 } },
       ],
       solved: 'Dans la fontaine ! À la lumière du jour, Ludo a compris : c’est du verre. Le diamant de la vitrine était un FAUX.',
       thread: [['c04.ludo.2', 'c04.ludo.3'], ['c04.ludo.3', 'c04.faux']],
     },
     {
       id: 's4',
-      label: 'La tarte',
+      label: 'Le voisin',
       after: [],
       question: 'Un voisin a vu quelqu’un s’éloigner de la bijouterie à l’aube, une tarte à la main. Retrouvez cette personne.',
       accept: ['c04.octave.1'],
       nearMiss: [
         { id: 'c04.octave.3', feedback: 'C’est le bijoutier, plus tard dans la matinée. Il n’a plus de tarte… Cherchez-le à l’aube, sur la Grand-Place.' },
         { id: 'c04.picotin.2', feedback: 'Picotin a une tarte, oui. Mais il ne l’avait pas à l’aube : il dormait.' },
+        { id: 'c04.zita.1', feedback: 'Cette dame porte bien une tarte, mais elle est à la terrasse d’un café, bien loin de la bijouterie. Ce n’est pas elle que le voisin a vue.' },
+        { id: 'c04.octave.2', feedback: 'C’est bien le bijoutier, mais les mains vides, plus au nord : la tarte n’est plus là. Cherchez-le à l’aube, près de la Grand-Place.' },
       ],
       hints: [
         { text: 'Haut-de-forme, costume violet, une tarte à la main, l’air de ne pas vouloir être vu… Ça ne vous rappelle personne ?' },
-        { text: 'Il a traversé l’est de la Grand-Place.', area: { x: 3040, y: 2240, radius: 140 } },
+        { text: 'Il a traversé l’est de la Grand-Place.', area: { x: 3010, y: 2280, radius: 140 } },
       ],
       solved: 'Octave Carat en personne, à l’aube, une tarte sous le bras ! Le bijoutier « effondré » avait des choses à cacher.',
       thread: [['c04.octave.3', 'c04.octave.1']],
@@ -143,10 +150,15 @@ export const c04: CaseDef = {
       after: ['s4'],
       question: 'À qui le bijoutier a-t-il confié la tarte ?',
       accept: ['c04.zita.1'],
-      nearMiss: [{ id: 'c04.octave.2', feedback: 'C’est Octave, les mains vides : il vient de donner la tarte. À qui ?' }],
+      nearMiss: [
+        { id: 'c04.octave.2', feedback: 'C’est Octave, les mains vides : il vient de donner la tarte. À qui ?' },
+        { id: 'c04.octave.1', feedback: 'C’est bien Octave, tarte au bras, mais plus tôt. Suivez-le : à qui va-t-il la confier ?' },
+        { id: 'c04.picotin.2', feedback: 'Picotin a une tarte, lui aussi : il en trouve toujours une. Mais ce n’est pas à lui que le bijoutier l’a confiée.' },
+        { id: 'lm.cafe-du-centre', feedback: 'Le Café du Centre, oui. Mais c’est à une personne que le bijoutier a confié la tarte.' },
+      ],
       hints: [
         { text: 'Il a continué vers le nord, jusqu’à une terrasse où l’on sert le café.' },
-        { text: 'Regardez devant le Café du Centre.', area: { x: 3180, y: 1780, radius: 90 } },
+        { text: 'Regardez devant le Café du Centre.', area: { x: 3200, y: 1820, radius: 90 } },
       ],
       solved: 'À sa sœur, Zita Pistache, à la terrasse du Café du Centre. Elle devait quitter la ville avec… la tarte.',
       thread: [['c04.octave.1', 'c04.octave.2'], ['c04.octave.2', 'c04.zita.1']],
@@ -156,17 +168,21 @@ export const c04: CaseDef = {
       after: ['s3', 's5'],
       question: 'Le diamant de la vitrine était un faux : le vrai était caché dans la tarte. Mais Zita ne l’a plus ! Où est la tarte à présent ?',
       accept: ['c04.picotin.2'],
-      nearMiss: [{ id: 'c04.zita.2', feedback: 'Zita, les mains vides. En voyant la police partout, elle s’est débarrassée de la tarte. Juste à côté…' }],
+      nearMiss: [
+        { id: 'c04.zita.2', feedback: 'Zita, les mains vides. En voyant la police partout, elle s’est débarrassée de la tarte. Juste à côté…' },
+        { id: 'c04.zita.1', feedback: 'Zita portait bien la tarte, à la terrasse du café. Mais elle n’a pas gardé cette tarte longtemps…' },
+        { id: 'lm.hotel-de-ville', feedback: 'L’Hôtel de Ville, oui. Mais entre les mains de qui la tarte a-t-elle atterri ?' },
+      ],
       hints: [
         { text: 'Zita a voulu se débarrasser de la tarte au plus vite, en la donnant à la personne la moins soupçonneuse de la ville.' },
-        { text: 'Regardez devant l’Hôtel de Ville.', area: { x: 2715, y: 1795, radius: 90 } },
+        { text: 'Regardez devant l’Hôtel de Ville.', area: { x: 2760, y: 1790, radius: 90 } },
       ],
       solved: 'Dans les mains de Picotin, qui la trouve « délicieuse, un peu croquante au milieu ». Le vrai diamant était dedans, comme une fève dans la galette.',
       thread: [['c04.zita.1', 'c04.zita.2'], ['c04.zita.2', 'c04.picotin.2']],
     },
   ],
   epilogue:
-    'Octave Carat, ruiné, avait remplacé la Grande Paille par un faux pour toucher l’assurance, et confié le vrai diamant à sa sœur, caché dans une tarte. Le cambriolage des jumeaux Taupin tombait à pic : personne n’aurait soupçonné le bijoutier.\n\n' +
+    'Octave Carat, ruiné, avait remplacé la Grande Paille par un faux pour toucher l’assurance, et confié le vrai diamant à sa sœur, caché dans une tarte. Il comptait simuler un cambriolage ; les jumeaux Taupin, qui n’ont jamais su ce qu’ils volaient, lui ont épargné la peine.\n\n' +
     'Picotin a retrouvé le diamant avec une molaire. La commissaire lui a offert un dentiste et une médaille, dans cet ordre.',
   replay: [
     { id: 'c04.octave.1', caption: 'À l’aube, Octave Carat sort de sa bijouterie avec le vrai diamant, caché dans une tarte.' },

@@ -3,7 +3,7 @@
 //
 // Modules Node purs (aucune dépendance autre que la bibliothèque standard).
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 export const ROOT = resolve(import.meta.dirname, '..', '..');
@@ -15,7 +15,7 @@ export const COMMAND_TIMEOUT_MS = 30_000;
 export const START_TIMEOUT_MS = 90_000;
 
 /** Options qui prennent une valeur ; toutes les autres options `--x` sont des interrupteurs. */
-export const VALUE_FLAGS = new Set(['case', 'player', 'port', 'device', 'width', 'height', 'dpr', 'nth', 'crop', 'duration']);
+export const VALUE_FLAGS = new Set(['case', 'player', 'port', 'device', 'width', 'height', 'dpr', 'crop', 'duration']);
 
 /** Découpe argv en { positional, flags }. `--x=valeur` et `--x valeur` sont acceptés. */
 export function parseArgs(argv) {
@@ -45,8 +45,9 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const PLAYER_RE = /^[a-z0-9][a-z0-9_-]{0,30}$/;
 
 export function checkCaseId(id) {
-  if (!id || !ID_RE.test(id)) throw new UsageError(`identifiant d'enquête invalide : « ${id ?? ''} » (attendu : c00, c01…)`);
-  return id;
+  const v = typeof id === 'string' ? id.toLowerCase() : '';
+  if (!v || !ID_RE.test(v)) throw new UsageError(`identifiant d'enquête invalide : « ${id ?? ''} » (attendu : c00, c01…)`);
+  return v;
 }
 
 export function checkPlayer(name) {
@@ -149,10 +150,6 @@ export async function callDaemon(session, cmd, args, timeoutMs = COMMAND_TIMEOUT
     return { ok: false, error: `réponse illisible du démon (HTTP ${res.status})` };
   }
   return body;
-}
-
-export function ensureDir(dir) {
-  mkdirSync(dir, { recursive: true });
 }
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

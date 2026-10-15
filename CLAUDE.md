@@ -22,6 +22,7 @@ Vite 7 · TypeScript 5.9 strict · Preact 10 (interface) · Canvas 2D (carte) ·
 | `npm run content:doc` | Régénère `docs/CONTENT.md` à partir du code des enquêtes (`src/content/cases`) |
 | `node scripts/perf-map.mjs` | Fluidité de la carte à CPU ×1 et ×4 ; `--gestures` : contrôles des gestes ; `--startup` : durée du démarrage (`buildWorld` + premier rendu) |
 | `npm run build` | Build de production dans `dist/` |
+| `node tools/playtest/blind.mjs start <id>` | Joueur test aveugle : joue une enquête au doigt (captures + commandes `tap`, `press`, `text`…), sans accès aux solutions. Mode d'emploi du joueur : `tools/playtest/README.md` ; `node tools/playtest/selftest.mjs` vérifie l'outil (~1 min) ; `blind.mjs stop --all` arrête toutes les parties |
 
 ## Règles communes
 

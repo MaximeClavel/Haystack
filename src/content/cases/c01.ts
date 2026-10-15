@@ -7,12 +7,12 @@ const ROSE: PersonAppearance = {
   skin: 'pale', hair: 'bun', hairColor: 'blond', hat: 'chef', top: 'apron', topColor: 'pink', topPattern: 'plain',
   bottom: 'skirt', bottomColor: 'white', face: 'none', accessory: 'none', build: 'large',
 };
-/** Le voleur : bonnet orange (couleur fixe du bonnet à l’écran), pull noir rayé, cagoule. */
+/** Le voleur : bonnet orange (couleur fixe du bonnet à l’écran), pull noir rayé, masque de bandit sur les yeux. */
 const LAFOUINE: PersonAppearance = {
   skin: 'light', hair: 'short', hairColor: 'brown', hat: 'beanie', top: 'sweater', topColor: 'black', topPattern: 'stripes',
   bottom: 'trousers', bottomColor: 'black', face: 'mask', accessory: 'none', build: 'slim',
 };
-/** Sosie volontaire du voleur : identique SAUF la cagoule (face: 'none'). */
+/** Sosie volontaire du voleur : identique SAUF le masque (face: 'none'). */
 const MOTUS: PersonAppearance = { ...LAFOUINE, face: 'none' };
 const SPECTATRICE: PersonAppearance = {
   skin: 'dark', hair: 'long', hairColor: 'black', hat: 'none', top: 'dress', topColor: 'yellow', topPattern: 'dots',
@@ -70,25 +70,25 @@ export const c01: CaseDef = {
       nearMiss: [{ id: 'c01.picotin.1', feedback: 'Picotin a acheté sa baguette. Il vous montre la boulangère du menton, la bouche pleine.' }],
       hints: [
         { text: 'La boulangerie Lemiel est au nord de la place des Halles, rue du Marché.' },
-        { text: 'Elle crie et montre le marché du doigt.', area: { x: 2625, y: 375, radius: 80 } },
+        { text: 'Elle crie et montre le marché du doigt.', area: { x: 2625, y: 390, radius: 80 } },
       ],
-      solved: '« Au voleur ! Un grand maigre en pull rayé noir, avec une cagoule ! Il est parti dans le marché avec ma caisse ! »',
+      solved: '« Au voleur ! Un grand maigre en pull rayé noir, avec un masque de bandit ! Il est parti dans le marché avec ma caisse ! »',
     },
     {
       id: 's2',
-      question: 'Trouvez le voleur dans la foule du marché : bonnet orange, pull rayé noir, cagoule… et la caisse sous le bras.',
+      question: 'Trouvez le voleur dans la foule du marché : bonnet orange, pull rayé noir, masque de bandit… et un sac d’argent à la main.',
       accept: ['c01.lafouine.1'],
       nearMiss: [
         {
           id: 'c01.motus.1',
-          feedback: 'C’est Motus, le mime du marché : même bonnet, même pull rayé… mais pas de cagoule. Et il est coincé dans une boîte invisible depuis ce matin.',
+          feedback: 'C’est Motus, le mime du marché : même bonnet, même pull rayé… mais pas de masque, et les mains vides. Il est coincé dans une boîte invisible depuis ce matin.',
         },
       ],
       hints: [
         { text: 'Il fonce vers l’est, dans l’allée entre les deux premières rangées d’étals.' },
-        { text: 'Cherchez quelqu’un qui court, un sac d’argent à la main.', area: { x: 2830, y: 520, radius: 120 } },
+        { text: 'Cherchez quelqu’un qui court, un sac d’argent à la main.', area: { x: 2805, y: 490, radius: 120 } },
       ],
-      solved: 'Le voici, la caisse sous le bras, qui fend la foule en direction de la rue des Étals.',
+      solved: 'Le voici, le sac de la recette à la main, qui fend la foule en direction de la rue des Étals.',
       thread: [['c01.rose.1', 'c01.lafouine.1']],
     },
     {
@@ -97,12 +97,13 @@ export const c01: CaseDef = {
       accept: ['c01.caisse', 'c01.poubelle'],
       nearMiss: [
         { id: 'c01.lafouine.2', feedback: 'Le voleur, les mains vides : il vient de se débarrasser de la caisse, quelque part derrière lui.' },
+        { id: 'c01.lafouine.1', feedback: 'C’est bien lui, mais plus tôt : il tenait encore le sac. Où l’a-t-il laissé en chemin ?' },
       ],
       hints: [
         { text: 'Il a traversé la rue des Étals, à la sortie est du marché.' },
-        { text: 'Regardez au coin de la rue des Étals et de la rue du Cinéma.', area: { x: 3270, y: 615, radius: 80 } },
+        { text: 'Regardez au coin de la rue des Étals et de la rue du Cinéma.', area: { x: 3215, y: 595, radius: 80 } },
       ],
-      solved: 'La caisse dépasse d’une poubelle, au coin de la rue. Il comptait revenir la chercher après la séance.',
+      solved: 'La recette dépasse d’une poubelle, au coin de la rue. Il comptait venir la rechercher après la séance.',
       thread: [['c01.lafouine.1', 'c01.caisse'], ['c01.caisse', 'c01.lafouine.2']],
     },
     {
@@ -113,12 +114,14 @@ export const c01: CaseDef = {
         { id: 'c01.spectatrice.1', feedback: 'Une cinéphile qui attend son film. Le voleur, lui, a oublié un petit détail en entrant dans la file.' },
         { id: 'c01.spectateur.1', feedback: 'Ce monsieur lit le programme. Rien à se reprocher, à part son chapeau.' },
         { id: 'c01.gamine.1', feedback: 'Une gamine et sa glace. Ce n’est pas elle.' },
+        { id: 'c01.lafouine.2', feedback: 'Le voleur marche vers le cinéma, les mains vides. Suivez-le jusqu’à la file d’attente.' },
+        { id: 'lm.cinema', feedback: 'Le cinéma Le Rex, oui. Mais c’est dans la file d’attente, devant la porte, qu’on cherche.' },
       ],
       hints: [
         { text: 'Le Rex est juste à l’est, rue du Cinéma. Le voleur n’a pas pensé à se changer.' },
-        { text: 'Regardez la file d’attente devant la porte du cinéma.', area: { x: 3525, y: 625, radius: 70 } },
+        { text: 'Regardez la file d’attente devant la porte du cinéma.', area: { x: 3505, y: 620, radius: 70 } },
       ],
-      solved: 'Le seul spectateur cagoulé de toute l’histoire du Rex. Picotin, sa baguette à la main, lui tapote l’épaule.',
+      solved: 'Le seul spectateur masqué de toute l’histoire du Rex. Picotin arrive, sa baguette à la main, et lui tapote l’épaule.',
       thread: [['c01.lafouine.2', 'c01.lafouine.3']],
     },
   ],
@@ -131,6 +134,6 @@ export const c01: CaseDef = {
     { id: 'c01.motus.1', caption: 'Il passe devant Motus, le mime, qui ne dira rien — évidemment.' },
     { id: 'c01.caisse', caption: 'Au coin de la rue, il cache la caisse dans une poubelle.' },
     { id: 'c01.lafouine.2', caption: 'Puis il file vers le cinéma, les mains vides, l’air innocent.' },
-    { id: 'c01.lafouine.3', caption: 'Dans la file du Rex, il attend son alibi… en cagoule.' },
+    { id: 'c01.lafouine.3', caption: 'Dans la file du Rex, il attend son alibi… en masque de bandit.' },
   ],
 };

@@ -14,8 +14,9 @@ import type { BuildingEntity, BuildingFeature, BuildingStyle, Color } from '../t
 import { BUILDING_TOP_EXTRA } from './bounds';
 import { type Goods, type Win, type WinStyle, drawAwning, drawChimney, drawDoor, drawShopfront, drawSign, drawWindows } from './buildingParts';
 import { STYLE_HOOKS } from './buildingStyles';
+import { type DecorPlan, drawFacadeDecor, drawRoofDecor, drawWallDecor, planDecor } from './decor';
 import type { Lod } from './lod';
-import { COLOR_HEX, INK, MAT, ROOF_DARK, ROOF_HEX, ROOF_LIGHT, SHADOW_LIGHT, WALL_DARK, WALL_HEX, WALL_LIGHT, mix } from './palette';
+import { COLOR_HEX, INK, MAT, ROOF_DARK, ROOF_HEX, ROOF_LIGHT, SHADOW, SHADOW_LIGHT, WALL_DARK, WALL_HEX, WALL_LIGHT, mix } from './palette';
 import {
   brickTex,
   getPattern,
@@ -85,6 +86,8 @@ export interface Layout {
   rnd: () => number;
   /** Données libres des styles spéciaux. */
   extra: Record<string, number>;
+  /** Détails d'ambiance (gouttières, lierre, antennes…), voir decor.ts. */
+  decor?: DecorPlan;
 }
 
 const cache = new WeakMap<BuildingEntity, Layout>();
@@ -333,6 +336,7 @@ function computeLayout(e: BuildingEntity): Layout {
 
   hook?.layout?.(L);
   applyFeatures(L, e.features ?? []);
+  L.decor = planDecor(L);
   return L;
 }
 
@@ -448,24 +452,32 @@ export function drawBuilding(ctx: Ctx, e: BuildingEntity, lod: Lod): void {
   ctx.lineWidth = lw;
   const hook = STYLE_HOOKS[e.style];
 
-  // ombre portée (est) et au pied
-  ctx.fillStyle = SHADOW_LIGHT;
+  // ombre portée (lumière du nord-ouest : l'ombre tombe à l'est et au sud, dans l'emprise) :
+  // une ombre diffuse, plus un liseré sombre au pied du mur (le bâtiment « s'assoit » au sol)
+  ctx.fillStyle = SHADOW;
   ctx.beginPath();
-  ctx.moveTo(L.x1, L.facadeTop + 2);
-  ctx.lineTo(L.x1 + 5, L.facadeTop + 6);
-  ctx.lineTo(L.x1 + 5, L.yS + 3);
-  ctx.lineTo(L.x0 + 2, L.yS + 3);
+  ctx.moveTo(L.x1, L.facadeTop + 3);
+  ctx.lineTo(L.x1 + 5.6, L.facadeTop + 7.5);
+  ctx.lineTo(L.x1 + 5.6, L.yS + 3.6);
+  ctx.lineTo(L.x0 + 3, L.yS + 3.6);
   ctx.lineTo(L.x0, L.yS);
   ctx.lineTo(L.x1, L.yS);
   ctx.closePath();
   ctx.fill();
+  if (lod === 0) {
+    ctx.fillStyle = SHADOW_LIGHT;
+    ctx.fillRect(L.x0 - 1.5, L.yS, L.W + 3, 1.8);
+  }
 
   drawRoof(ctx, L, lod, lw);
   hook?.roof?.(ctx, L, lod);
+  drawRoofDecor(ctx, L, lod, lw);
   drawFacadeWall(ctx, L, lod, lw);
+  drawWallDecor(ctx, L, lod);
   hook?.pre?.(ctx, L, lod);
   drawFacadeContent(ctx, L, lod, lw);
   hook?.post?.(ctx, L, lod);
+  drawFacadeDecor(ctx, L, lod);
   // contour de la façade (par-dessus)
   ctx.lineWidth = lw;
   ctx.strokeStyle = INK;
@@ -474,6 +486,11 @@ export function drawBuilding(ctx: Ctx, e: BuildingEntity, lod: Lod): void {
 }
 
 function drawLod2(ctx: Ctx, L: Layout): void {
+  // contour encré + ombre portée vers le sud-est : un seul rectangle sombre un peu plus grand, dont
+  // l'épaisseur suit l'échelle (≈ 0,6 px écran) pour que le contour reste fin à tous les zooms
+  const pad = Math.max(0.6, Math.min(2.1, 0.6 / deviceScale(ctx)));
+  ctx.fillStyle = 'rgba(58, 42, 32, 0.62)';
+  ctx.fillRect(L.x0 - pad, L.roofTop - pad, L.W + pad * 2.8, L.H + L.D + pad * 2.8);
   ctx.fillStyle = L.roofC;
   ctx.fillRect(L.x0, L.roofTop, L.W, L.D);
   ctx.fillStyle = L.wall;
@@ -634,7 +651,22 @@ function drawRoof(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
       ctx.lineWidth = lw * 0.6;
       ctx.strokeRect(x0 + p, yt + p, W - 2 * p, D - 2 * p);
       ctx.lineWidth = lw;
+      if (lod < 2) {
+        // l'acrotère jette une ombre sur le toit (lumière du nord-ouest)
+        ctx.fillStyle = SHADOW_LIGHT;
+        ctx.fillRect(x0 + p, yt + p, W - 2 * p, Math.min(2.2, D * 0.06));
+        ctx.fillRect(x0 + p, yt + p, Math.min(1.8, W * 0.05), D - 2 * p);
+      }
+      if (lod === 0 && W * D > 1800) flatRoofDetails(ctx, L, p);
       drawRoofKit(ctx, L, lod, lw, p);
+      break;
+    }
+    case 'corrugated': {
+      ctx.beginPath();
+      ctx.rect(x0, yt, W, D);
+      fillWith(ctx, mat);
+      ctx.stroke();
+      corrugatedDetails(ctx, L, lod, lw);
       break;
     }
     case 'glass': {
@@ -689,6 +721,18 @@ function drawRoof(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
       ctx.stroke();
     }
   }
+  // lumière du nord-ouest : fin liseré clair sur les arêtes nord et ouest du toit
+  if (lod === 0 && L.roof !== 'glass' && L.roof !== 'sheds') {
+    ctx.strokeStyle = 'rgba(255, 250, 235, 0.38)';
+    ctx.lineWidth = 0.55;
+    ctx.beginPath();
+    ctx.moveTo(x0 + 0.7, yb - 0.6);
+    ctx.lineTo(x0 + 0.7, yt + 0.7);
+    ctx.lineTo(x1 - 0.7, yt + 0.7);
+    ctx.stroke();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = lw;
+  }
   // avant-toit : bande sombre au bord sud
   if (L.roof !== 'flat' && L.roof !== 'glass') {
     ctx.fillStyle = L.roofDark;
@@ -714,6 +758,102 @@ function drawRoof(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
     }
   }
   for (const c of L.chimneys) drawChimney(ctx, c.x, c.y, c.w, c.h, c.y > yt + D * 0.5 ? L.wall : mix(L.wall, '#b5603f', 0.5), lod);
+}
+
+/** Toit plat vaste : lés d'étanchéité, plaques de réparation et taches d'humidité (niveau 0). */
+function flatRoofDetails(ctx: Ctx, L: Layout, p: number): void {
+  const ix0 = L.x0 + p;
+  const ix1 = L.x1 - p;
+  const iy0 = L.roofTop + p;
+  const iy1 = L.roofTop + L.D - p;
+  // lés : bandes verticales régulières
+  ctx.strokeStyle = 'rgba(40, 30, 24, 0.17)';
+  ctx.lineWidth = 0.32;
+  ctx.beginPath();
+  const step = L.W > 160 ? 16 : 11;
+  for (let x = ix0 + step; x < ix1 - 3; x += step) {
+    ctx.moveTo(x, iy0 + 1);
+    ctx.lineTo(x, iy1 - 1);
+  }
+  ctx.stroke();
+  // plaques de réparation et taches, tirées de la graine du bâtiment
+  const r = quickRand(L.seed * 31 + 7);
+  const n = Math.min(5, 1 + Math.floor((L.W * L.D) / 5000));
+  for (let i = 0; i < n; i++) {
+    const w = 8 + r() * 14;
+    const h = 5 + r() * 9;
+    const x = ix0 + 3 + r() * Math.max(1, ix1 - ix0 - w - 6);
+    const y = iy0 + 3 + r() * Math.max(1, iy1 - iy0 - h - 6);
+    if (r() < 0.55) {
+      ctx.fillStyle = 'rgba(40, 30, 24, 0.12)';
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = 'rgba(40, 30, 24, 0.22)';
+      ctx.lineWidth = 0.3;
+      ctx.strokeRect(x, y, w, h);
+    } else {
+      ctx.fillStyle = 'rgba(70, 90, 70, 0.1)';
+      ctx.beginPath();
+      ctx.ellipse(x + w / 2, y + h / 2, w * 0.5, h * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 0.8;
+}
+
+/** Toit en tôle à deux pans : faîtage, pan nord ombré, bandes de plaques translucides. */
+function corrugatedDetails(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
+  const { x0, x1, W, roofTop: yt, facadeTop: yb, D } = L;
+  const ry = yt + D * 0.5;
+  // pan nord un peu plus sombre (il tourne le dos à la lumière)
+  ctx.fillStyle = 'rgba(40, 25, 20, 0.14)';
+  ctx.fillRect(x0, yt, W, ry - yt);
+  if (W > 54 && D > 22) {
+    // plaques translucides : une bande sur chaque pan, à intervalle régulier
+    const n = Math.max(1, Math.floor(W / 46));
+    const pw = Math.min(9, W / (n * 3));
+    ctx.fillStyle = 'rgba(190, 222, 232, 0.9)';
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const cx = x0 + (W * (i + 0.5)) / n;
+      ctx.rect(cx - pw / 2, yt + D * 0.1, pw, D * 0.3);
+      ctx.rect(cx - pw / 2, ry + D * 0.1, pw, D * 0.3);
+    }
+    ctx.fill();
+    ctx.lineWidth = lw * 0.5;
+    ctx.stroke();
+    if (lod === 0) {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = 0.3;
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const cx = x0 + (W * (i + 0.5)) / n;
+        for (const y0 of [yt + D * 0.1, ry + D * 0.1]) {
+          ctx.moveTo(cx - pw * 0.2, y0 + D * 0.27);
+          ctx.lineTo(cx + pw * 0.1, y0 + D * 0.03);
+        }
+      }
+      ctx.stroke();
+    }
+    ctx.strokeStyle = INK;
+  }
+  // faîtage
+  ctx.lineWidth = lw * 1.5;
+  ctx.beginPath();
+  ctx.moveTo(x0, ry);
+  ctx.lineTo(x1, ry);
+  ctx.stroke();
+  if (lod === 0) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    ctx.moveTo(x0 + 0.5, ry + lw * 1.2);
+    ctx.lineTo(x1 - 0.5, ry + lw * 1.2);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = lw;
+  void yb;
 }
 
 /* ---------- Équipements des toits plats ---------- */
@@ -759,7 +899,7 @@ function roofKitOf(L: Layout, p: number): KitItem[] {
     const r = Math.min(L.D * 0.32, 22) + 2;
     busy.push({ x: L.x0 + L.W * 0.72 - r, y: L.roofTop + L.D / 2 - r, w: 2 * r, h: 2 * r });
   }
-  const n = Math.max(1, Math.min(6, Math.floor(((ix1 - ix0) * (iy1 - iy0)) / 2600)));
+  const n = Math.max(1, Math.min(12, Math.floor(((ix1 - ix0) * (iy1 - iy0)) / 2600)));
   const r = quickRand(L.seed * 7 + 13);
   const start = Math.floor(r() * KIT_ORDER.length);
   for (let i = 0; i < n; i++) {
@@ -888,7 +1028,13 @@ function drawFacadeContent(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
   // balcons : dalle derrière, garde-corps devant les fenêtres
   drawWindows(ctx, L.windows, L.winStyle, lod, lw);
   for (const b of L.balconies) drawBalcony(ctx, b, lod);
-  for (const d of L.doors) drawDoor(ctx, d.x, L.yS - 0.4, d.w, d.h, d.color, d.open, lod, { arched: d.arched, double: d.double, glass: d.glass, transom: true });
+  for (const d of L.doors) {
+    if (fine && !L.shop && d.w < 12) {
+      // marche de seuil en pierre
+      boxFS(ctx, d.x - 1.4, L.yS - 0.3, d.w + 2.8, 1.5, MAT.stoneLight);
+    }
+    drawDoor(ctx, d.x, L.yS - 0.4, d.w, d.h, d.color, d.open, lod, { arched: d.arched, double: d.double, glass: d.glass, transom: true });
+  }
   if (L.shop) {
     const s = L.shop;
     drawShopfront(ctx, s.x0, s.x1, s.yTop, s.yBottom, s.paint, s.goods, lod, { broken: s.broken, lit: s.lit, doorOpen: s.doorOpen, doorAt: s.doorAt }, L.seed);
@@ -897,7 +1043,14 @@ function drawFacadeContent(ctx: Ctx, L: Layout, lod: Lod, lw: number): void {
     const s = L.sign;
     drawSign(ctx, s.text, s.cx, s.cy, s.w, s.h, s.bg, s.fg, lod, { border: s.border, serif: s.serif });
   }
-  for (const a of L.awnings) drawAwning(ctx, a.x0, a.x1, a.y, a.d, a.color, lod);
+  for (const a of L.awnings) {
+    if (fine) {
+      // ombre du store sur la vitrine ou la fenêtre qu'il abrite
+      ctx.fillStyle = 'rgba(40, 25, 20, 0.2)';
+      ctx.fillRect(a.x0 + 0.3, a.y + a.d, a.x1 - a.x0 - 0.6, Math.min(a.d * 1.25, L.yS - 1 - (a.y + a.d)));
+    }
+    drawAwning(ctx, a.x0, a.x1, a.y, a.d, a.color, lod);
+  }
   for (const p of L.posters) {
     const pw = 6;
     const ph = 8;

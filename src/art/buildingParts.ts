@@ -107,6 +107,22 @@ export function drawWindows(ctx: Ctx, wins: readonly Win[], st: WinStyle, lod: L
     ctx.fillStyle = MAT.litGlass;
     glassPath((w) => w.state === 'lit');
     ctx.fill();
+    if (fine) {
+      // lueur de la lampe : bas de la vitre plus chaud, halo clair au centre (petit, même sur une
+      // très grande baie) ; dessinée avant les petits bois pour qu'ils restent visibles
+      ctx.fillStyle = 'rgba(238, 160, 58, 0.34)';
+      ctx.beginPath();
+      for (const w of wins) if (w.state === 'lit') ctx.rect(w.x + g, w.y + w.h * 0.58, w.w - 2 * g, w.h * 0.42 - g);
+      ctx.fill();
+      ctx.fillStyle = MAT.litGlassLight;
+      ctx.beginPath();
+      for (const w of wins) {
+        if (w.state !== 'lit') continue;
+        ctx.moveTo(w.x + w.w / 2 + Math.min(w.w * 0.24, 3.4), w.y + w.h * 0.5);
+        ctx.ellipse(w.x + w.w / 2, w.y + w.h * 0.5, Math.min(w.w * 0.24, 3.4), Math.min(w.h * 0.2, 4.2), 0, 0, TAU);
+      }
+      ctx.fill();
+    }
   }
   if (wins.some((w) => w.state === 'open')) {
     ctx.fillStyle = MAT.interior;
@@ -193,12 +209,6 @@ export function drawWindows(ctx: Ctx, wins: readonly Win[], st: WinStyle, lod: L
   for (const w of wins) {
     if (w.state === 'open') openCasements(ctx, w, st.frame);
     else if (w.state === 'broken') cracks(ctx, w.x + g, w.y + g, w.w - 2 * g, w.h - 2 * g, fine);
-    else if (w.state === 'lit' && fine) {
-      ctx.fillStyle = MAT.litGlassLight;
-      ctx.beginPath();
-      ctx.ellipse(w.x + w.w / 2, w.y + w.h * 0.55, w.w * 0.25, w.h * 0.22, 0, 0, TAU);
-      ctx.fill();
-    }
     if (w.flowers && fine) flowerBox(ctx, w.x - 0.4, w.y + w.h + 0.8, w.w + 0.8);
   }
   ctx.lineWidth = lw;
