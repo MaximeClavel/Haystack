@@ -125,7 +125,7 @@ test('M4 / R3 : le bouton Retour du système remonte d’un écran au lieu de qu
   await expect(page.getByTestId('screen-cases')).toBeVisible();
   await page.goBack();
   await expect(page.getByTestId('screen-home')).toBeVisible();
-  expect(page.url()).toContain('localhost:5179');
+  expect(page.url()).toContain(`localhost:${process.env.E2E_PORT ?? 5179}`);
   // Le bouton ‹ de l'interface continue de fonctionner, puis Retour système.
   await tapUi(page.getByTestId('menu-settings'));
   await tapUi(page.getByTestId('back'));

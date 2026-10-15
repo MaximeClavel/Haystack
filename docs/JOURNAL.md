@@ -108,3 +108,23 @@ dans `docs/journal/phase1-<agent>.md`.
   - `feat/jeu-web` : tout le jeu (13 commits à ce jour).
   - Ordre recommandé : fusionner `feat/jeu-web` dans `main` (ce qui inclut le plan) ; la branche
     `docs/plan-implementation` devient alors inutile et peut être supprimée. Pas de conflit attendu.
+
+### Phase 2 — terminée (15/10/2026)
+- Les 6 agents ont terminé après reprise. **Revues** : 33 constats (14 de code, 19 d'expérience), dont 10 majeurs
+  (« Recommencer » qui re-verrouillait des enquêtes, bonne réponse à une autre question comptée comme erreur,
+  bouton Retour du système qui quittait le jeu, nom du lieu absent en enquête, reprise qui revenait au départ,
+  indice 2 passant sous le zoom de désignation sur petit écran, testament du bonus, bonnet noir/orange…).
+  **Correcteur** : tous reproduits puis traités (voir `docs/journal/phase2-correcteur.md`) ; 2 écartés, 6 reportés
+  (piège à focus, bouton « Où ? », latence de sélection de 226 ms = fenêtre de double tap…).
+- Vérifié par l'orchestrateur : `tsc` OK, 299 tests unitaires, `content:check` OK, build OK, **23/23 tests de bout en bout**.
+- Changements de contrat (rétro-compatibles) : `CaseProgress.bestStars?`, `StepDef.label?`.
+- `E2E_PORT` : plusieurs suites e2e peuvent tourner en même temps (un port par agent).
+
+### Phase 3 — Enquêtes et finition (workflow `haystack-enquetes`, lancé)
+| Agent | Mission |
+|---|---|
+| `critique` | Revue adverse des 7 enquêtes (ambiguïté, visibilité réelle, logique, difficulté, textes, plaisir) puis corrections directes |
+| `outil-playtest` | `tools/playtest/blind.mjs` : permet à un joueur test de jouer en pixels écran, SANS accès aux solutions |
+| `direction-artistique` | Finition graphique (src/art uniquement) : lisibilité à toutes les échelles, charme, perf inchangée |
+| `joueur:<enquête>` ×7 | Un joueur test par enquête, qui ne connaît pas les réponses : résout-il l'enquête à partir de ce qu'il voit ? |
+| `correcteur-2` | Traite les constats des joueurs test et de la critique |

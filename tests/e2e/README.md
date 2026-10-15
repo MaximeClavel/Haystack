@@ -1,7 +1,7 @@
 # Tests de bout en bout (Playwright, téléphone émulé)
 
 Le jeu complet, joué **au doigt** sur un Pixel 7 émulé (Chromium préinstallé, `playwright.config.ts`).
-Un seul serveur Vite (port 5179, réutilisé s'il tourne déjà), tests exécutés l'un après l'autre.
+Un seul serveur Vite (port 5179 par défaut, modifiable avec la variable `E2E_PORT` pour lancer plusieurs suites en même temps ; réutilisé s'il tourne déjà), tests exécutés l'un après l'autre.
 
 ```bash
 npm run e2e                                    # toute la suite (≈ 2 min)
