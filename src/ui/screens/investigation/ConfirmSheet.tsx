@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'preact/hooks';
 import type { Entity, Pick, Rect } from '../../../types';
 import { getHitRect } from '../../../art';
 import type { MapHost } from '../../mapHost';
-import { targetLabel } from '../../format';
+import { fr, targetLabel } from '../../format';
 import { thumbRect } from './overlays';
 
 const THUMB_W = 132;
@@ -45,10 +45,12 @@ export function ConfirmSheet(props: {
   host: MapHost;
   pick: Pick;
   questionLabel: string;
+  /** Question en cours, rappelée (2 lignes) : on compare la vignette à ses indices visuels. */
+  question: string;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
-  const { host, pick, questionLabel, onConfirm, onCancel } = props;
+  const { host, pick, questionLabel, question, onConfirm, onCancel } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const entity = pick.entityId ? (host.world.byId.get(pick.entityId) ?? null) : null;
@@ -83,6 +85,9 @@ export function ConfirmSheet(props: {
         if (e.key === 'Escape') onCancel();
       }}
     >
+      <p class="confirm-question" data-testid="confirm-question">
+        {fr(question)}
+      </p>
       <div class="confirm-main">
         <canvas
           ref={canvasRef}

@@ -95,6 +95,7 @@ export const c05: CaseDef = {
     },
     {
       id: 's2',
+      label: 'Infirmier',
       after: ['s1'],
       question: 'Ce matin, un faux infirmier a volé le poison à l’hôpital Sainte-Paille. Trouvez-le.',
       accept: ['c05.faux-infirmier'],
@@ -108,6 +109,7 @@ export const c05: CaseDef = {
     },
     {
       id: 's3',
+      label: 'Pétronille',
       after: ['s1'],
       question: 'Pétronille Doublure, la doublure de Bérénice, dit avoir répété son texte « au calme » pendant l’entracte. Trouvez-la.',
       accept: ['c05.petronille.1'],
@@ -119,6 +121,7 @@ export const c05: CaseDef = {
     },
     {
       id: 's4',
+      label: 'Hector',
       after: ['s1'],
       question: 'Hector Plumeau, le jeune premier, s’est éclipsé pendant l’entracte. Trouvez-le.',
       accept: ['c05.hector.1'],
@@ -131,6 +134,7 @@ export const c05: CaseDef = {
     },
     {
       id: 's5',
+      label: 'Gontran',
       after: ['s1'],
       question: 'Gontran Lamèche, le doyen de la troupe, jure qu’il lisait son journal pendant l’entracte. Trouvez-le.',
       accept: ['c05.gontran.1'],

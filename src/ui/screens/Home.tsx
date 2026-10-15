@@ -2,6 +2,7 @@
 import { useEffect } from 'preact/hooks';
 import { useServices } from '../context';
 import { useSave } from '../store';
+import { solvedCount } from '../format';
 import { Icon } from '../icons';
 import type { ScreenName } from '../params';
 import { overviewCamera, startDrift } from '../views';
@@ -29,7 +30,7 @@ export function Home({ onNavigate, entry }: { onNavigate: (s: ScreenName) => voi
     };
   }, []);
 
-  const solved = cases.filter((c) => !c.bonus && save.cases[c.id]?.status === 'solved').length;
+  const solved = solvedCount(cases, save);
   const total = cases.filter((c) => !c.bonus).length;
   const started = Object.values(save.cases).some((p) => p.status !== 'new');
 
@@ -69,7 +70,11 @@ export function Home({ onNavigate, entry }: { onNavigate: (s: ScreenName) => voi
             </button>
           </div>
         </nav>
-        <p class="home-foot">Un jeu d'observation · progression gardée dans ce navigateur</p>
+        <p class="home-foot">
+          {store.isPersistent()
+            ? 'Un jeu d’observation · progression gardée dans ce navigateur'
+            : 'Navigation privée ? Ce navigateur ne garde pas la progression.'}
+        </p>
       </div>
     </div>
   );

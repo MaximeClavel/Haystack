@@ -599,6 +599,9 @@ ne se chevauche.
    d’affiche, plaque).
 10. **Pas d’identifiant ambiant** (`a.*`) en réponse ni en fausse piste : ils peuvent changer ou être
     retirés. Utiliser `lm.*`, `z.*` ou ses propres entités.
+11. **Le texte dit ce que le dessin montre.** La couleur d’un chapeau est **fixe par type** (`HAT_HEX` :
+    casquette rouge, bonnet **orange**, casque jaune, képi bleu…) : écrire « bonnet orange », jamais
+    « bonnet noir ». Le contrôle (`content:check`) refuse une couleur de chapeau citée qui ne correspond pas.
 
 ### 11.3 Règles de placement
 

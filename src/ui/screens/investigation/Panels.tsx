@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { CaseDef } from '../../../types';
 import { Difficulty, Stars } from '../../components/bits';
 import { Icon } from '../../icons';
-import { caseNumber, paragraphs, plural } from '../../format';
+import { caseNumber, fr, paragraphs } from '../../format';
 
 export function Briefing(props: { def: CaseDef; panelRef: Ref<HTMLElement>; onStart: () => void }) {
   const { def } = props;
@@ -31,7 +31,7 @@ export function Briefing(props: { def: CaseDef; panelRef: Ref<HTMLElement>; onSt
       </div>
       <button type="button" class="btn btn-primary btn-big" onClick={props.onStart} data-testid="brief-start">
         <Icon name="magnifier" />
-        <span>Commencer l'enquête</span>
+        <span>Commencer l’enquête</span>
       </button>
     </section>
   );
@@ -58,11 +58,12 @@ export function ResultSheet(props: { card: ResultCard; onContinue: () => void })
         aria-describedby="res-t"
         data-testid="result-near"
       >
+        {/* Titre neutre : la carte dit parfois « c'est bien lui, mais plus tôt » (la bonne personne, au mauvais moment). */}
         <p id="res-k" class="result-kicker">
-          Fausse piste
+          Pas tout à fait…
         </p>
         <p id="res-t" class="result-text">
-          {card.text}
+          {fr(card.text)}
         </p>
         <button type="button" class="btn btn-paper" onClick={props.onContinue} data-testid="result-continue">
           Compris
@@ -84,10 +85,10 @@ export function ResultSheet(props: { card: ResultCard; onContinue: () => void })
         <Icon name="check" size={18} /> {card.title}
       </p>
       <p id="res-t" class="result-text">
-        {card.text}
+        {fr(card.text)}
       </p>
       <button type="button" class="btn btn-primary" onClick={props.onContinue} data-testid="result-continue">
-        {card.caseSolved ? "Conclure l'enquête" : 'Continuer'}
+        {card.caseSolved ? 'Conclure l’enquête' : 'Continuer'}
       </button>
     </div>
   );
@@ -127,8 +128,8 @@ export function CaseEnd(props: {
         ))}
         <dl class="totals">
           <div>
-            <dt>Indices</dt>
-            <dd>{props.hints === 0 ? 'aucun' : plural(props.hints, 'niveau', 'niveaux')}</dd>
+            <dt>Indices utilisés</dt>
+            <dd>{props.hints === 0 ? 'aucun' : props.hints}</dd>
           </div>
           <div>
             <dt>Erreurs</dt>
@@ -140,20 +141,20 @@ export function CaseEnd(props: {
         {def.replay.length > 0 && (
           <button type="button" class="btn btn-primary" onClick={props.onReplay} data-testid="end-replay">
             <Icon name="play" />
-            <span>Revoir l'histoire</span>
+            <span>Revoir l’histoire</span>
           </button>
         )}
         <button type="button" class="btn btn-paper" onClick={props.onExit} data-testid="end-exit">
           <Icon name="cases" />
-          <span>Retour aux dossiers</span>
+          <span>Retour aux enquêtes</span>
         </button>
         <div class="end-links">
           <button type="button" class="link-btn" onClick={props.onLook} data-testid="end-look">
             Regarder la carte
           </button>
           {askRestart ? (
-            <span class="inline-confirm" role="group" aria-label="Recommencer l'enquête ?">
-              Tout effacer ?
+            <span class="inline-confirm" role="group" aria-label="Recommencer l’enquête depuis le début ?">
+              Rejouer ? Votre meilleure note est gardée.
               <button type="button" class="link-btn danger" onClick={props.onRestart}>
                 Oui
               </button>
@@ -200,7 +201,7 @@ export function ReplayBar(props: {
         </button>
       </div>
       <p class="replay-caption" aria-live="polite">
-        {item?.caption}
+        {item ? fr(item.caption) : ''}
       </p>
       <div class="replay-progress" aria-hidden="true">
         {def.replay.map((_, i) => (

@@ -2,7 +2,7 @@
 // Le rectangle est redessiné directement sur un canevas à chaque changement de caméra (pas de
 // re-rendu Preact). Un tap y emmène la caméra.
 import { useEffect, useRef } from 'preact/hooks';
-import type { Vec2 } from '../../types';
+import type { Vec2, World } from '../../types';
 import { visibleWorldRect } from '../../engine';
 import type { MapHost } from '../mapHost';
 
@@ -24,6 +24,53 @@ function citySnapshot(host: MapHost): HTMLCanvasElement {
 /** Prépare la vignette à l'avance (appelé quand le navigateur est inactif). */
 export function warmMinimap(host: MapHost): void {
   citySnapshot(host);
+}
+
+/**
+ * Noms des quartiers écrits sur la vignette (petites capitales sur halo clair) : les enquêtes citent
+ * « le Faubourg », « les Jardins »… et la minicarte doit permettre de s'y repérer.
+ */
+function drawDistrictNames(ctx: CanvasRenderingContext2D, world: World, cw: number, ch: number, dpr: number): void {
+  const sx = cw / world.width;
+  const sy = ch / world.height;
+  const size = 9.5 * dpr;
+  ctx.save();
+  ctx.font = `700 ${size}px "Inter Variable", Inter, system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  for (const d of world.districts) {
+    // Nom long sur deux lignes si le quartier est étroit.
+    const maxW = Math.max(d.rect.w * sx * 0.95, 56 * dpr);
+    let lines = [d.name];
+    if (ctx.measureText(d.name).width > maxW) {
+      const words = d.name.split(' ');
+      let best = 1;
+      let gap = Infinity;
+      for (let i = 1; i < words.length; i++) {
+        const a = ctx.measureText(words.slice(0, i).join(' ')).width;
+        const b = ctx.measureText(words.slice(i).join(' ')).width;
+        if (Math.abs(a - b) < gap) {
+          gap = Math.abs(a - b);
+          best = i;
+        }
+      }
+      if (words.length > 1) lines = [words.slice(0, best).join(' '), words.slice(best).join(' ')];
+    }
+    const w = Math.max(...lines.map((l) => ctx.measureText(l).width));
+    const h = lines.length * size * 1.1;
+    const cx = Math.min(cw - w / 2 - 2 * dpr, Math.max(w / 2 + 2 * dpr, (d.rect.x + d.rect.w / 2) * sx));
+    const cy = Math.min(ch - h / 2 - 1 * dpr, Math.max(h / 2 + 1 * dpr, (d.rect.y + d.rect.h / 2) * sy));
+    lines.forEach((l, i) => {
+      const y = cy + (i - (lines.length - 1) / 2) * size * 1.1;
+      ctx.lineWidth = 3 * dpr;
+      ctx.strokeStyle = 'rgba(251, 246, 234, 0.92)';
+      ctx.strokeText(l, cx, y);
+      ctx.fillStyle = '#2f2622';
+      ctx.fillText(l, cx, y);
+    });
+  }
+  ctx.restore();
 }
 
 export interface MinimapMark {
@@ -55,6 +102,7 @@ export function Minimap(props: { host: MapHost; marks?: MinimapMark[]; side?: 'l
     if (bctx) {
       bctx.imageSmoothingQuality = 'high';
       bctx.drawImage(citySnapshot(host), 0, 0, base.width, base.height);
+      drawDistrictNames(bctx, world, base.width, base.height, dpr);
     }
     const vctx = view.getContext('2d');
     const sx = view.width / world.width;
@@ -121,19 +169,23 @@ export function Minimap(props: { host: MapHost; marks?: MinimapMark[]; side?: 'l
   }
 
   return (
-    <div class={`minimap ${side}`} data-testid="minimap">
+    <div
+      class={`minimap ${side}`}
+      data-testid="minimap"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
+    >
       <div class="minimap-frame">
         <canvas ref={baseRef} class="minimap-base" aria-hidden="true" />
+        {/* Surface de pointage (toucher/souris) : au clavier, la carte se déplace avec les flèches et +/−,
+            et le bouton « Fermer la minicarte » reste atteignable. */}
         <canvas
           ref={viewRef}
           class="minimap-view"
-          role="button"
-          tabIndex={0}
+          role="img"
           aria-label="Minicarte de Meulebourg : touchez un endroit pour vous y rendre"
           onClick={onClick}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') onClose();
-          }}
         />
       </div>
       <button type="button" class="minimap-close" aria-label="Fermer la minicarte" onClick={onClose}>

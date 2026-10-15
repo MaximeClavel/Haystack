@@ -40,13 +40,34 @@ export interface MapHost {
   /** Rectangle monde réellement visible (hors barres d'interface). */
   freeWorldRect(): Rect;
   /** Amène le point p au centre de la zone libre (entre les barres), au zoom donné. */
-  focus(p: Vec2, zoom?: number, opts?: { instant?: boolean }): Promise<void>;
+  focus(p: Vec2, zoom?: number, opts?: { instant?: boolean; duration?: number }): Promise<void>;
   /** Cadre un rectangle monde dans la zone libre. */
   focusRect(rect: Rect, opts?: { maxZoom?: number; padding?: number; instant?: boolean }): Promise<void>;
   /** Caméra qui centre p dans la zone libre (sans bouger). */
   cameraFor(p: Vec2, zoom: number): CameraState;
   /** Le point écran est-il dans la zone libre (pas sous une barre) ? */
   isFree(screen: Vec2): boolean;
+}
+
+/**
+ * Rectangle d'un élément sans l'effet de son éventuelle animation d'entrée (translation CSS) :
+ * une feuille qui glisse de 26 px fausserait sinon les marges de cadrage, mesurées une seule fois.
+ */
+function layoutRect(el: Element): { top: number; bottom: number; left: number; width: number } {
+  const r = el.getBoundingClientRect();
+  let dx = 0;
+  let dy = 0;
+  try {
+    const t = getComputedStyle(el).transform;
+    if (t && t !== 'none') {
+      const m = new DOMMatrixReadOnly(t);
+      dx = m.m41;
+      dy = m.m42;
+    }
+  } catch {
+    // transformation illisible : on garde le rectangle tel quel
+  }
+  return { top: r.top - dy, bottom: r.bottom - dy, left: r.left - dx, width: r.width };
 }
 
 export function createMapHost(world: World, canvas: HTMLCanvasElement, initial?: Partial<CameraState>): MapHost {
@@ -117,12 +138,12 @@ export function createMapHost(world: World, canvas: HTMLCanvasElement, initial?:
     getInsets: () => ({ ...insets }),
     measureInsets(topEl, bottomEl) {
       const vp = viewport();
-      const top = topEl ? topEl.getBoundingClientRect().bottom : 0;
+      const top = topEl ? layoutRect(topEl).bottom : 0;
       if (!bottomEl) {
         host.setInsets(top, 0);
         return;
       }
-      const r = bottomEl.getBoundingClientRect();
+      const r = layoutRect(bottomEl);
       // Feuille latérale (paysage) : elle masque le bord droit, pas le bas.
       if (r.width < vp.width * 0.7 && r.left > vp.width * 0.3) host.setInsets(top, 0, 0, vp.width - r.left);
       else host.setInsets(top, Math.max(0, vp.height - r.top));
@@ -147,7 +168,7 @@ export function createMapHost(world: World, canvas: HTMLCanvasElement, initial?:
         map.setCamera(cam);
         return Promise.resolve();
       }
-      return map.flyTo(cam);
+      return map.flyTo(cam, opts?.duration !== undefined ? { duration: opts.duration } : undefined);
     },
     focusRect(rect, opts) {
       const vp = viewport();

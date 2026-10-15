@@ -1,6 +1,6 @@
 // Petits textes et calculs d'affichage (français), partagés par les écrans.
 import type { CaseDef, CaseProgress, Entity, SaveData, World } from '../types';
-import { requiredOf } from '../game';
+import { bestStarsOf, hasSolved, requiredOf } from '../game';
 
 /** Numéro de dossier affiché : « 00 », « 01 »… ; « ★ » pour un bonus. */
 export function caseNumber(def: CaseDef): string {
@@ -31,14 +31,21 @@ export function caseStatus(def: CaseDef, save: SaveData): CaseStatus {
   const p = save.cases[def.id];
   const totalSteps = def.steps.length;
   const solvedSteps = countSolvedSteps(def, p);
-  if (p?.status === 'solved') return { kind: 'solved', solvedSteps: totalSteps, totalSteps, stars: p.stars };
-  if (p && p.status === 'active') return { kind: 'active', solvedSteps, totalSteps };
+  // Meilleur résultat déjà obtenu : gardé même si l'enquête est recommencée.
+  const stars = bestStarsOf(p);
+  if (p?.status === 'solved') return { kind: 'solved', solvedSteps: totalSteps, totalSteps, stars };
+  if (p && (p.status === 'active' || stars !== undefined)) return { kind: 'active', solvedSteps, totalSteps, stars };
   return { kind: 'new', solvedSteps, totalSteps };
+}
+
+/** Nombre d'enquêtes (hors bonus) résolues au moins une fois. */
+export function solvedCount(cases: CaseDef[], save: SaveData): number {
+  return cases.filter((c) => !c.bonus && hasSolved(save.cases[c.id])).length;
 }
 
 /** Raison du verrouillage : « Terminez « … » pour débloquer ». */
 export function lockReason(def: CaseDef, save: SaveData, cases: CaseDef[]): string {
-  const missing = (def.unlockAfter ?? []).filter((id) => save.cases[id]?.status !== 'solved');
+  const missing = (def.unlockAfter ?? []).filter((id) => !hasSolved(save.cases[id]));
   const titles = missing.map((id) => cases.find((c) => c.id === id)?.title ?? id);
   if (titles.length === 0) return '';
   const list = titles.map((t) => `« ${t} »`);
@@ -86,11 +93,19 @@ export function districtName(world: World, x: number, y: number): string {
   return d?.name ?? 'Meulebourg';
 }
 
-/** Découpe un texte en paragraphes (lignes vides). */
+/**
+ * Typographie française à l'affichage : espace insécable avant « : ; ? ! » » et après « « »
+ * (évite un « ? » seul en début de ligne). U+00A0 partout : toutes les polices du jeu l'ont.
+ */
+export function fr(text: string): string {
+  return text.replace(/ +([:;?!»])/g, '\u00A0$1').replace(/(«) +/g, '$1\u00A0');
+}
+
+/** Découpe un texte en paragraphes (lignes vides) ; ponctuation française appliquée. */
 export function paragraphs(text: string): string[] {
   return text
     .split(/\n\s*\n/)
-    .map((p) => p.trim())
+    .map((p) => fr(p.trim()))
     .filter((p) => p.length > 0);
 }
 

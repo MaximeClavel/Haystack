@@ -216,7 +216,7 @@ export async function solveOpenCase(page: Page, caseId: string, testInfo: TestIn
     }
   }
   expect(done, `${caseId} : toutes les questions sont résolues`).toBe(true);
-  await expect(page.getByTestId('result-continue')).toHaveText("Conclure l'enquête");
+  await expect(page.getByTestId('result-continue')).toHaveText('Conclure l’enquête');
   await tapUi(page.getByTestId('result-continue'));
   const end = page.getByTestId('case-end');
   await expect(end).toBeVisible();

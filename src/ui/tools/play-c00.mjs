@@ -74,6 +74,8 @@ try {
     return pos;
   };
   const designate = async (target) => {
+    // Le voile anti double tap avale les appuis pendant 320 ms après un changement de feuille.
+    await page.waitForTimeout(400);
     await tapWorld(target);
     await page.waitForSelector('[data-testid=confirm-sheet]', { timeout: 5000 });
   };

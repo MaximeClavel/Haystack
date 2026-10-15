@@ -3,9 +3,11 @@
 export { pickAt, pickTolerance } from './pick';
 export {
   CaseSession,
+  bestStarsOf,
   computeStars,
   matchTargets,
   newCaseProgress,
+  restartCaseProgress,
   requiredOf,
   stepDependencies,
   AUTO_HINT_RADIUS,
@@ -24,6 +26,7 @@ export { entityCenter, targetCenter, targetExists, targetRect } from './geometry
 export {
   createSaveStore,
   defaultSave,
+  hasSolved,
   isUnlocked,
   sanitizeCaseProgress,
   sanitizeSave,
@@ -32,4 +35,5 @@ export {
   type KeyValueStorage,
   type SaveStore,
 } from './save';
+export { reconcileSave } from './reconcile';
 export { validateAllCases, validateCase } from './validate';

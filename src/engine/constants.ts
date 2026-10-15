@@ -13,6 +13,13 @@ export const MAP_SHADOW = 'rgba(0, 0, 0, 0.35)';
  */
 export const EDGE_MARGIN = 0.2;
 
+/**
+ * Durée (ms) pendant laquelle un overlay « reveal » pulse après chaque `setOverlays` ; ensuite il
+ * est figé (dernier état de l'onde) et la boucle d'images s'arrête : un indice peut rester affiché
+ * longtemps sans vider la batterie.
+ */
+export const REVEAL_PULSE_MS = 6000;
+
 /* ----------------------------------------------------------------------------
  * Gestes
  * ------------------------------------------------------------------------- */

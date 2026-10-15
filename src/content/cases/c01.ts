@@ -7,7 +7,7 @@ const ROSE: PersonAppearance = {
   skin: 'pale', hair: 'bun', hairColor: 'blond', hat: 'chef', top: 'apron', topColor: 'pink', topPattern: 'plain',
   bottom: 'skirt', bottomColor: 'white', face: 'none', accessory: 'none', build: 'large',
 };
-/** Le voleur : bonnet noir, pull noir rayé, cagoule. */
+/** Le voleur : bonnet orange (couleur fixe du bonnet à l’écran), pull noir rayé, cagoule. */
 const LAFOUINE: PersonAppearance = {
   skin: 'light', hair: 'short', hairColor: 'brown', hat: 'beanie', top: 'sweater', topColor: 'black', topPattern: 'stripes',
   bottom: 'trousers', bottomColor: 'black', face: 'mask', accessory: 'none', build: 'slim',
@@ -76,7 +76,7 @@ export const c01: CaseDef = {
     },
     {
       id: 's2',
-      question: 'Trouvez le voleur dans la foule du marché : bonnet et pull rayé noirs, cagoule… et la caisse sous le bras.',
+      question: 'Trouvez le voleur dans la foule du marché : bonnet orange, pull rayé noir, cagoule… et la caisse sous le bras.',
       accept: ['c01.lafouine.1'],
       nearMiss: [
         {

@@ -22,7 +22,14 @@ export interface AppServices {
   reducedMotion: () => boolean;
   navigate(route: Route): void;
   openCase(caseId: string, opts?: { restart?: boolean }): void;
-  toast(text: string, tone?: ToastTone): void;
+  /** `ms` : durée d'affichage (défaut : 1,8 s pour une erreur, 2,6 s sinon). */
+  toast(text: string, tone?: ToastTone, ms?: number): void;
+  /**
+   * Gestionnaire du bouton « Retour » du système (Android, geste iOS, touche du navigateur) pour
+   * l'écran affiché : il ferme d'abord ce qui est ouvert (carnet, feuille, minicarte…) et renvoie
+   * vrai s'il a agi ; sinon l'application remonte d'un écran (enquête → enquêtes → accueil).
+   */
+  setBackHandler(fn: (() => boolean) | null): void;
   /** Session d'enquête active (debug, tests). */
   setActiveSession(s: CaseSession | null): void;
 }

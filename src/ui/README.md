@@ -24,8 +24,19 @@ Point d'entrée : `src/main.tsx` (polices Special Elite et Inter, styles, `boot(
   **zone libre** (au-dessus du panneau de question ; à gauche de la feuille en paysage).
 - **Navigation par état interne** (`App.tsx`) : `home`, `cases`, `case`, `explore`, `howto`,
   `settings`. Pas de routeur. L'enquête garde ses sous-états (briefing, jeu, fin, reconstitution).
+  **Bouton Retour du système** : l'historique ne garde que deux entrées (« base », « cur ») ; un Retour appelle
+  d'abord le gestionnaire de l'écran (`svc.setBackHandler` : l'enquête ferme carnet, feuille de confirmation,
+  carte de résultat, demande d'indice, mode punaise, minicarte, reconstitution), sinon remonte d'un écran
+  (enquête → enquêtes → accueil) ; depuis l'accueil, le navigateur quitte.
+- **Garde-fous** : une exception de rendu affiche un écran de secours (`useErrorBoundary`, `error-fallback`) ;
+  un voile transparent (`tap-guard`, 320 ms) avale les appuis qui suivent l'apparition ou la disparition d'une
+  feuille (double tap involontaire) ; les notes du carnet sont enregistrées à `pagehide` ; un toast prévient
+  si la sauvegarde est impossible.
 - **Sauvegarde** : `createSaveStore()` du module game, enveloppé par `store.ts` (`AppStore`) :
   chargée au démarrage, enregistrée à **chaque** changement (réponse, indice, punaise, note, réglage).
+  Chaque modification repart de ce qui est enregistré (lire-modifier-écrire : un onglet périmé n'écrase rien) ;
+  au démarrage, `reconcileSave` recale les statuts sur les enquêtes publiées. « Recommencer » garde le meilleur
+  résultat (`bestStars`) : les enquêtes suivantes restent débloquées.
 
 ## Fichiers
 
@@ -44,7 +55,7 @@ Point d'entrée : `src/main.tsx` (polices Special Elite et Inter, styles, `boot(
 | `debug.ts` | `window.__haystack` et HUD des coordonnées (`?debug`) |
 | `icons.tsx` | Icônes SVG (trait) |
 | `styles.css` | Identité visuelle, mise en page mobile, paysage, mouvement réduit |
-| `components/` | `bits.tsx` (étoiles, loupes de difficulté, interrupteur, barre haute), `Minimap.tsx`, `Portrait.tsx` |
+| `components/` | `bits.tsx` (étoiles, loupes de difficulté, interrupteur, barre haute), `Minimap.tsx` (noms des quartiers sur la vignette), `PlaceChip.tsx` (nom du lieu sous la caméra, exploration et enquête), `Portrait.tsx` |
 | `screens/` | `Home`, `Cases` (dossiers), `Investigation` (+ `investigation/` : panneau de question, feuille de confirmation, carnet, briefing, résultat, fin, reconstitution, overlays), `Explore`, `HowTo`, `Settings` |
 | `tools/` | Scripts Node de vérification (non publiés) : `play-c00.mjs`, `states.mjs`, `make-icons.mjs` |
 
@@ -54,15 +65,15 @@ Point d'entrée : `src/main.tsx` (polices Special Elite et Inter, styles, `boot(
 |---|---|
 | Chargement | « Meulebourg se réveille… » ; la loupe s'anime (animation CSS, fluide même pendant le calcul) pendant que le monde se construit |
 | Accueil | Étiquette « Haystack — Enquêtes à Meulebourg » punaisée, la ville en vue d'ensemble derrière un voile, lente dérive de caméra (sauf mouvement réduit) ; Enquêtes (avec compteur), Explorer la ville, Comment jouer (pastille tant qu'il n'a pas été lu), Réglages |
-| Dossiers | Chemises kraft : onglet « N° 00 », titre, difficulté en loupes, accroche sur une fiche, tampon Nouveau / En cours x/y / Résolu + étoiles ; verrouillées : « Terminez « … » pour débloquer » ; section « Hors série » pour le bonus |
-| Enquête | Barre haute (retour, titre, carnet) ; panneau de question repliable (progression, onglets si plusieurs questions ouvertes, indices obtenus, actions Minicarte / Punaise / Indice) ; briefing au premier lancement puis vol vers `def.start` |
-| Désignation | Tap → sous `PICK_MIN_ZOOM`, vol à zoom 2 et « Rapprochez-vous pour désigner » ; sinon `pickAt` → cadre `select` (ou anneau) + feuille avec **vignette** (`renderSnapshot` serré sur la cible, marquée) et Désigner / Annuler |
-| Résultats | Correct : cadre `found`, carte « Bien vu ! » avec `step.solved`, vibration, fils rouges, question suivante (« Conclure l'enquête » à la fin) ; fausse piste : anneau `near` + carte dédiée ; erreur : anneau `wrong` bref + « Ce n'est pas ça… » ; déjà trouvé : « Déjà trouvé » |
-| Indices | Confirmation intégrée (« Utiliser un indice ? Vous perdrez des étoiles. » + ce que donne le niveau) ; 1 : texte ; 2 : texte + projecteur + vol ; 3 : anneaux `reveal` + vol ; textes obtenus consultables, « Voir la zone », projecteur masquable |
-| Carnet | Feuille : briefing, questions résolues (texte + « Voir »), personnages identifiés (portraits), notes, punaises (poser, voir, retirer) |
-| Fin | Tampon « Affaire classée », étoiles, épilogue, indices et erreurs ; Revoir l'histoire (reconstitution : vols successifs, légende, précédent / suivant / fermer, avance auto ~4 s sauf mouvement réduit), Retour aux dossiers, Regarder la carte, Recommencer |
+| Enquêtes (liste) | Chemises kraft : onglet « N° 00 », titre, difficulté en loupes, accroche sur une fiche, tampon Nouveau / En cours x/y / Résolu + meilleures étoiles (gardées si l'enquête est recommencée) ; verrouillées : « Terminez « … » pour débloquer » ; section « Hors série » pour le bonus |
+| Enquête | Barre haute (retour, titre, carnet) + **pastille du lieu** sous elle (sous la minicarte quand celle-ci est ouverte) ; panneau de question repliable (progression, onglets nommés par `step.label` si plusieurs questions ouvertes, indices obtenus, actions Minicarte / Punaise / Indice ; bonus : « Relire le testament ») ; briefing au premier lancement puis vol vers `def.start` (une vue d'ensemble, comme le bonus, reprend celle de l'accueil) ; **reprise : la caméra revient sur la dernière trouvaille** (`lastFoundId`) |
+| Désignation | Tap → sous `PICK_MIN_ZOOM` (1,5), vol court (380 ms) à zoom 2 et « Rapprochez-vous pour désigner » — sauf dans la zone éclairée par un indice, désignable dès 80 % du seuil ; sinon `pickAt` → cadre `select` (ou anneau) + feuille avec rappel de la **question** (3 lignes), **vignette** (`renderSnapshot` serré sur la cible, marquée) et Désigner / Annuler. La cible est soumise à la question active, ou à une AUTRE question ouverte dont elle est la bonne réponse (c04, c05) : jamais une erreur injuste |
+| Résultats | Correct : cadre `found`, carte « Bien vu ! » avec `step.solved`, vibration, fils rouges, question suivante (« Conclure l'enquête » à la fin) ; fausse piste : anneau `near` + carte « Pas tout à fait… » (titre neutre : « c'est bien lui, mais plus tôt ») ; erreur : anneau `wrong` (2 s) + toast « Ce n'est pas ça… » posé au-dessus du panneau ; déjà trouvé : « Déjà trouvé » |
+| Indices | Confirmation intégrée (« Utiliser un indice ? » + ce que donne le niveau + **ce que ça coûte** : « Votre note passera de 3 à 2 étoiles au plus ») ; 1 : texte ; 2 : texte + projecteur + vol ; 3 : anneaux `reveal` (pulsent 6 s puis se figent) + vol ; texte d'indice **repliable** (replié dès que le joueur touche la carte), « Voir la zone », projecteur masquable |
+| Carnet | Feuille : briefing (bonus : le testament en liste de 10 vers, cochés quand l'aiguille est trouvée, avec « Voir »), questions résolues (texte + « Voir »), personnages identifiés (portraits), notes, punaises (poser, voir, retirer) |
+| Fin | Tampon « Affaire classée », étoiles, épilogue, indices et erreurs ; Revoir l'histoire (reconstitution : vols successifs, légende, précédent / suivant / fermer, avance auto ~4 s sauf mouvement réduit), Retour aux enquêtes, Regarder la carte, Recommencer (garde la meilleure note) |
 | Explorer | Carte libre, minicarte, nom du lieu (lieu remarquable · quartier) au centre de la zone libre ; un tap sur un lieu remarquable affiche son nom |
-| Minicarte | Vignette de toute la ville rendue une fois (préparée au repos) + rectangle de la vue + repères (réponses, punaises) ; tap pour s'y rendre |
+| Minicarte | Vignette de toute la ville rendue une fois (préparée au repos) **avec les noms des quartiers** + rectangle de la vue + repères (réponses, punaises) ; tap pour s'y rendre (surface de pointage : pas de focus clavier, le bouton ✕ reste atteignable) |
 | Comment jouer | 4 étapes illustrées (zoomer, suivre un personnage, désigner, indices et carnet), glisser ou boutons |
 | Réglages | Vibrations, mode gaucher (barre d'actions et minicarte en miroir), mouvement réduit (aussi `map.setReducedMotion`, et la préférence système est respectée), réinitialisation avec confirmation intégrée |
 
@@ -92,7 +103,8 @@ active (ou `null`).
 `result-continue`, `toast`, `pin-banner`, `open-notebook`, `notebook`, `notebook-close`, `notes`,
 `nb-pin-mode`, `nb-show-<stepId>`, `case-end`, `end-replay`, `end-exit`, `end-look`, `replay`,
 `replay-next`, `replay-close`, `replay-done`, `minimap`, `explore-minimap`, `place`, `howto-next`,
-`howto-done`, `reset`, `reset-confirm`, `loading`. L'écran d'enquête porte `data-phase`
+`howto-done`, `reset`, `reset-confirm`, `loading`, `hint-toggle`, `hint-cost`, `open-briefing`,
+`confirm-question`, `error-fallback`. L'écran d'enquête porte `data-phase`
 (`brief`, `play`, `end`, `replay`).
 
 ## Accessibilité et mobile

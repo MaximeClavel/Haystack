@@ -47,7 +47,7 @@ test('c01 : erreur, fausse piste et indices 1 → 3 (projecteur, révélation)',
   await tapUi(page.getByTestId('confirm-designate'));
   const nearCard = page.getByTestId('result-near');
   await expect(nearCard).toBeVisible();
-  await expect(nearCard).toContainText('Fausse piste');
+  await expect(nearCard).toContainText('Pas tout à fait');
   await expect(nearCard).toContainText(near.feedback);
   await tapUi(page.getByTestId('result-continue'));
   await expect(nearCard).toHaveCount(0);
@@ -61,7 +61,7 @@ test('c01 : erreur, fausse piste et indices 1 → 3 (projecteur, révélation)',
   /* ---------------------------------------------------------------- indices */
   // Demander puis renoncer : rien n'est compté.
   await tapUi(page.getByTestId('action-hint'));
-  await expect(page.getByTestId('hint-ask')).toContainText('Vous perdrez des étoiles');
+  await expect(page.getByTestId('hint-ask')).toContainText('Votre note passera de 3 à 2 étoiles au plus');
   await expect(page.getByTestId('hint-ask')).toContainText('Indice 1 sur 3');
   await tapUi(page.getByTestId('hint-cancel'));
   await expect(page.getByTestId('hint-ask')).toHaveCount(0);

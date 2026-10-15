@@ -174,7 +174,10 @@ Les ids d'enquête sont **stables** : la sauvegarde s'appuie dessus.
 
 ## 6. Interface, URL et débogage
 
-- Navigation par état interne (pas de routeur d'URL) ; paramètres lus au démarrage :
+- Navigation par état interne (pas de routeur d'URL), mais **le bouton Retour du système fonctionne** :
+  l'historique du navigateur ne garde que deux entrées (« base » puis « cur ») ; un Retour est traité comme le
+  bouton ‹ de l'interface (fermer le carnet / la feuille / la minicarte, sinon remonter d'un écran), puis « cur »
+  est reposée ; depuis l'accueil, on laisse le navigateur quitter (`src/ui/App.tsx`). Paramètres lus au démarrage :
   `?debug`, `?ui=0`, `?x=&y=&zoom=`, `?case=<id>`.
 - `?debug` expose `window.__haystack = { world, map, cases, session }` et affiche les coordonnées monde.
 - Chaque page signale `window.__haystackReady = true` une fois le premier rendu terminé (`map.whenIdle()`).
@@ -185,7 +188,17 @@ Les ids d'enquête sont **stables** : la sauvegarde s'appuie dessus.
 ## 7. Sauvegarde
 
 `SaveData` (voir `src/types.ts`) en JSON dans `localStorage['haystack:v1']`. En navigation privée ou si le
-stockage est indisponible, repli en mémoire (la partie fonctionne, sans persistance).
+stockage est indisponible, repli en mémoire (la partie fonctionne, sans persistance ; l'interface le signale
+une fois par un toast et sur l'accueil).
+
+- **Lire-modifier-écrire** : chaque modification repart du contenu réellement enregistré (`AppStore.update`) :
+  un second onglet périmé n'écrase pas la progression de l'autre.
+- **Réconciliation au démarrage** (`reconcileSave`, module game) : chaque progression est recalculée par
+  `CaseSession` d'après les enquêtes publiées (étapes ajoutées, réponses retirées…), pour que la liste des
+  dossiers, le déblocage et l'enquête ouverte disent la même chose.
+- **« Résolue au moins une fois »** : `CaseProgress.bestStars` (meilleur résultat) est conservé quand on
+  recommence une enquête ou qu'elle redevient active ; `hasSolved` / `isUnlocked` en tiennent compte, donc
+  recommencer ne reverrouille pas les enquêtes suivantes.
 
 ## 8. Journal des changements de contrat
 
@@ -193,6 +206,8 @@ stockage est indisponible, repli en mémoire (la partie fonctionne, sans persist
 |---|---|---|---|
 | 2026-10-14 | tous | Version initiale | orchestrateur |
 | 2026-10-14 | — | Phases 1 et 2 (intégration) : **aucun changement**. Contrôlé par `git log` : `src/types.ts`, `src/config.ts`, `src/art/bounds.ts`, `src/world/layoutSpec.ts` sont identiques depuis la phase 0. Les ajouts d'API (`EngineMapView.debugStats/invalidateTiles`, option `opts` de `CaseSession`, utilitaires du monde) sont propres aux modules, hors contrat. | integration |
+| 2026-10-15 | `src/types.ts` | **Ajouts facultatifs (rétro-compatibles), aucun champ modifié ni retiré** : `CaseProgress.bestStars?: 1 \| 2 \| 3` (meilleur résultat des parties terminées ; sa présence = « résolue au moins une fois », pour que recommencer ne reverrouille pas les enquêtes suivantes) ; `StepDef.label?: string` (libellé court de l'onglet quand plusieurs questions sont ouvertes en parallèle). Les sauvegardes existantes restent valides (`bestStars` est déduit de `stars` d'une partie résolue). Côté code : `src/game` exporte `bestStarsOf`, `restartCaseProgress`, `hasSolved`, `reconcileSave` ; `validateCase` contrôle `label` (non vide, 24 caractères au plus). | correcteur |
+| 2026-10-15 | `src/config.ts`, `src/art/bounds.ts`, `src/world/layoutSpec.ts` | **Aucun changement.** (Le moteur gagne une constante interne `REVEAL_PULSE_MS` dans `src/engine/constants.ts`, non contractuelle.) | correcteur |
 
 ## 9. Performance (mesures de référence)
 

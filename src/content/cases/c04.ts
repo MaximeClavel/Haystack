@@ -69,6 +69,7 @@ export const c04: CaseDef = {
   steps: [
     {
       id: 's1',
+      label: 'La bijouterie',
       after: [],
       question: 'La vitrine de la bijouterie Carat a été fracassée. Par où les cambrioleurs sont-ils arrivés ?',
       accept: ['c04.egout'],
@@ -86,6 +87,7 @@ export const c04: CaseDef = {
     },
     {
       id: 's2',
+      label: 'Les jumeaux',
       after: ['s1'],
       question: 'Les jumeaux se sont séparés en repartant. Retrouvez celui qui a emporté le diamant.',
       accept: ['c04.ludo.2', 'c04.ludo.3'],
@@ -99,13 +101,14 @@ export const c04: CaseDef = {
       ],
       hints: [
         { text: 'Devant la vitrine, c’est le jumeau au sac à dos qui tient le diamant. Il est parti vers le nord, vers la Grand-Place.' },
-        { text: 'Un costaud en sweat gris, bonnet et lunettes noires, avec un sac à dos, dans la foule.', area: { x: 2770, y: 2270, radius: 140 } },
+        { text: 'Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule.', area: { x: 2770, y: 2270, radius: 140 } },
       ],
       solved: 'Ludo Taupin, sac au dos, fend la foule de la Grand-Place. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.',
       thread: [['c04.ludo.1', 'c04.ludo.2']],
     },
     {
       id: 's3',
+      label: 'Le diamant',
       after: ['s2'],
       question: 'Furieux, Ludo s’est débarrassé du diamant. Où est-il ?',
       accept: ['c04.faux', 'lm.fontaine'],
@@ -119,6 +122,7 @@ export const c04: CaseDef = {
     },
     {
       id: 's4',
+      label: 'La tarte',
       after: [],
       question: 'Un voisin a vu quelqu’un s’éloigner de la bijouterie à l’aube, une tarte à la main. Retrouvez cette personne.',
       accept: ['c04.octave.1'],
@@ -135,6 +139,7 @@ export const c04: CaseDef = {
     },
     {
       id: 's5',
+      label: 'La tarte',
       after: ['s4'],
       question: 'À qui le bijoutier a-t-il confié la tarte ?',
       accept: ['c04.zita.1'],

@@ -29,7 +29,10 @@ store.save(save);
 | `targetCenter`, `targetRect`, `targetExists` | Variantes tolérantes (renvoient `undefined` / `false`). |
 | `createSaveStore(storage?, key?)` | `{ load(), save(data), reset(), isPersistent() }`. `storage` : défaut `localStorage` ; `null` = mémoire seule. |
 | `defaultSave()`, `DEFAULT_SETTINGS` | Partie vierge (objets neufs à chaque appel). |
-| `isUnlocked(def, save)` | Toutes les enquêtes de `unlockAfter` sont résolues. |
+| `isUnlocked(def, save)` | Toutes les enquêtes de `unlockAfter` ont été résolues **au moins une fois** (`hasSolved`). |
+| `hasSolved(progress)`, `bestStarsOf(progress)` | Résolue au moins une fois (statut `solved` **ou** `bestStars` présent) ; meilleur nombre d'étoiles connu. |
+| `restartCaseProgress(def, previous?)` | Progression d'un recommencement : vierge, mais `bestStars` conservé (les enquêtes suivantes ne se reverrouillent pas). |
+| `reconcileSave(save, cases, world)` | Recalcule chaque progression d'une enquête connue via `CaseSession` (même référence si rien ne change) : à appeler au démarrage, après une mise à jour du contenu. |
 | `withCaseProgress(save, progress)` | Copie de la sauvegarde avec la progression d'une enquête remplacée. |
 | `sanitizeSave(raw)`, `sanitizeCaseProgress(raw, id)` | Nettoyage d'un JSON lu du stockage (`null` si inexploitable). |
 | `validateCase(def, world): string[]` | Problèmes d'une enquête (messages en français, préfixés `[<id>]`). |
@@ -83,6 +86,9 @@ Candidats : `world.index.query` autour du point, élargi de la tolérance `t = P
   - 3 : aucun indice et au plus 2 erreurs ;
   - 2 : aucune révélation, niveaux d'indice cumulés ≤ nombre d'étapes, au plus 6 erreurs ;
   - 1 : sinon. Chaque appel à `hint()` coûte un niveau (une révélation complète en coûte 3).
+- **Meilleur résultat** — `bestStars` (facultatif) : à la résolution, `max(ancien bestStars, étoiles)` ; il est
+  conservé quand l'enquête redevient `active` (étape ajoutée) ou est recommencée (`restartCaseProgress`).
+  Une ancienne sauvegarde sans `bestStars` mais résolue est lue comme `bestStars = stars`.
 - **Progression** — `progress()` renvoie une copie JSON. Statut `new` → `active` (première action :
   réponse, indice, punaise ou note ; `startedAt`) → `solved` (`solvedAt`, `stars`). À la reprise, la
   progression est copiée et **nettoyée** : réponses hors `accept` et doublons retirés, compteurs
@@ -115,7 +121,7 @@ Le monde doit être construit **avec** les enquêtes (`buildWorld({ cases })`). 
   `buildingAt`) et **pas cachées par un toit** (`isHiddenByRoof`) ;
 - zones : id préfixé, unicité, libellé, ≥ 3 sommets dans le monde, présentes, pas d'id d'entité ;
 - `landmarkOverrides` : lieu bâti existant (`banque` ou `lm.banque`), enseigne non vide ;
-- étapes : au moins une, ids uniques, question et texte de résolution, `after` valides, sans cycle,
+- étapes : au moins une, ids uniques, question et texte de résolution, `label` (facultatif) non vide et de 24 caractères au plus, `after` valides, sans cycle,
   toutes atteignables ; `accept` non vide, sans doublon, cibles existantes (entité ou zone), pas
   d'id ambiant `a.*` (instable) ; `required` entier dans `[1, accept.length]` ; `nearMiss` existants,
   non ambiants, uniques, disjoints de `accept`, avec message, et **non masqués** (une fausse piste

@@ -21,6 +21,7 @@ import {
 import {
   BACKDROP,
   DOUBLE_TAP_ZOOM_MS,
+  REVEAL_PULSE_MS,
   DRAG_ZOOM_PX_PER_DOUBLING,
   FRAME_BUDGET_BUSY_MS,
   FRAME_BUDGET_MS,
@@ -128,6 +129,8 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
   /** Sans zoom initial : « ville entière » dès que la taille réelle est connue. */
   let fitOnFirstSize = init.zoom === undefined;
   let overlays: Overlay[] = [];
+  /** Instant du dernier setOverlays (la pulsation des overlays « reveal » dure REVEAL_PULSE_MS). */
+  let overlaysSince = 0;
   let reducedMotion = false;
   let destroyed = false;
   /** Faux pendant createMapView : aucun rappel (onCameraChange…) n'est émis avant le retour. */
@@ -333,7 +336,7 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
     // Reste-t-il du travail ?
     const after = buildPlan(level, visible, !interacting && !moving());
     pendingVisible = after.missingVisible;
-    const animated = hasAnimatedOverlay(overlays, reducedMotion);
+    const animated = hasAnimatedOverlay(overlays, reducedMotion) && performance.now() - overlaysSince < REVEAL_PULSE_MS;
     idle = !moving() && pendingVisible === 0;
     const more = moving() || animated || after.plan.length > 0;
 
@@ -447,7 +450,8 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
       overlayView.zoom = camera.zoom;
       overlayView.width = vp.width;
       overlayView.height = vp.height;
-      drawOverlays(ctx, overlays, overlayView, performance.now(), reducedMotion);
+      // Passé REVEAL_PULSE_MS, l'onde est figée (même phase à chaque image) : plus de redessin continu.
+      drawOverlays(ctx, overlays, overlayView, Math.min(performance.now(), overlaysSince + REVEAL_PULSE_MS), reducedMotion);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
   }
@@ -732,6 +736,7 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
     worldToScreen: (p: Vec2) => worldToScreen(camera, vp, p),
     setOverlays(list: Overlay[]): void {
       overlays = list.slice();
+      overlaysSince = performance.now();
       requestFrame();
     },
     renderSnapshot(target: HTMLCanvasElement, rect: Rect): void {

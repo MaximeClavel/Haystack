@@ -159,6 +159,30 @@ for (const c of DRAFT_CASES) {
   }
 }
 
+// Couleur d'un chapeau citée dans un texte : la couleur de chaque type de chapeau est fixe à l'écran
+// (HAT_HEX), « bonnet noir » devant un bonnet orange fait chercher le mauvais personnage.
+const HAT_WORDS: Record<string, { color: string; words: string[] }> = {
+  cap: { color: 'rouge', words: ['casquette'] },
+  beanie: { color: 'orange', words: ['bonnet'] },
+  helmet: { color: 'jaune', words: ['casque'] },
+  police: { color: 'bleu', words: ['képi'] },
+  straw: { color: 'jaune', words: ['chapeau de paille'] },
+};
+const ANY_COLOR = '(rouge|orange|jaune|rose|violet|bleu|vert|kaki|marron|beige|noir|blanc|gris)';
+for (const c of DRAFT_CASES) {
+  const texts: string[] = [c.intro, c.epilogue, ...c.replay.map((r) => r.caption)];
+  for (const s of c.steps) texts.push(s.question, s.solved, ...s.hints.map((h) => h.text), ...(s.nearMiss ?? []).map((n) => n.feedback));
+  for (const t of texts) {
+    for (const [hat, { color, words }] of Object.entries(HAT_WORDS)) {
+      for (const w of words) {
+        for (const m of t.matchAll(new RegExp(`\\b${w}s?\\s+${ANY_COLOR}s?\\b`, 'gi'))) {
+          if (m[1].toLowerCase() !== color) problems.push(`[${c.id}] « ${m[0]} » : un ${hat} est ${color} à l'écran`);
+        }
+      }
+    }
+  }
+}
+
 // Ambiants retirés autour des scènes (information)
 if (verbose) {
   for (const c of DRAFT_CASES) {

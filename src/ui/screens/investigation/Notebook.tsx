@@ -5,12 +5,14 @@ import type { CaseDef, CharacterDef, Vec2, World } from '../../../types';
 import type { CaseSession } from '../../../game';
 import { Icon } from '../../icons';
 import { Portrait } from '../../components/Portrait';
-import { districtName, paragraphs } from '../../format';
+import { districtName, fr, paragraphs } from '../../format';
 
 export interface NotebookProps {
   def: CaseDef;
   session: CaseSession;
   world: World;
+  /** Ouvre le briefing replié d'emblée (bouton « Relire le testament » du bonus). */
+  openBrief?: boolean;
   onClose: () => void;
   /** Montre une réponse trouvée (vol vers elle, carnet fermé). */
   onShow: (id: string) => void;
@@ -18,6 +20,23 @@ export interface NotebookProps {
   onRemovePin: (i: number) => void;
   onNotes: (text: string) => void;
   onPinMode: () => void;
+}
+
+/**
+ * Vers du « testament » d'une enquête à réponses multiples (bonus) : un vers par réponse, dans l'ordre
+ * de `accept`. `null` si le briefing n'a pas cette forme (le texte est alors affiché tel quel).
+ */
+export function testamentVerses(def: CaseDef): { paragraph: string; verses: string[] } | null {
+  const accept = def.steps[0]?.accept ?? [];
+  if (!def.bonus || accept.length < 3) return null;
+  for (const para of def.intro.split(/\n\s*\n/)) {
+    const lines = para
+      .split('\n')
+      .map((l) => l.replace(/^\s*«\s*/, '').replace(/\s*»\s*$/, '').trim())
+      .filter((l) => l.length > 0);
+    if (lines.length === accept.length) return { paragraph: para, verses: lines };
+  }
+  return null;
 }
 
 /** Personnages dont au moins une apparition a été trouvée. */
@@ -38,16 +57,35 @@ export function Notebook(p: NotebookProps) {
   const pending = useRef<string | null>(null);
 
   useEffect(() => {
+    // Le focus revient au bouton qui a ouvert le carnet quand on le ferme.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialogRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') p.onClose();
     };
+    // Notes en attente : enregistrées tout de suite si la page part en arrière-plan ou se ferme
+    // (les minuteries sont suspendues, voire la page tuée, avant les 500 ms de la frappe).
+    const flush = (): void => {
+      window.clearTimeout(timer.current);
+      if (pending.current !== null) {
+        const text = pending.current;
+        pending.current = null;
+        p.onNotes(text);
+      }
+    };
+    const onHide = (): void => {
+      if (document.visibilityState === 'hidden') flush();
+    };
     window.addEventListener('keydown', onKey);
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onHide);
     return () => {
       window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onHide);
       // Notes en attente : enregistrées à la fermeture.
-      window.clearTimeout(timer.current);
-      if (pending.current !== null) p.onNotes(pending.current);
+      flush();
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
 
@@ -62,6 +100,8 @@ export function Notebook(p: NotebookProps) {
   }
 
   const solved = session.solvedSteps();
+  const testament = testamentVerses(def);
+  const foundIds = new Set(def.steps[0] ? session.stepProgress(def.steps[0].id).found : []);
   const people = identifiedCharacters(def, session, world);
   const pins = session.pins();
 
@@ -85,18 +125,42 @@ export function Notebook(p: NotebookProps) {
         <div class="scroll nb-scroll">
           <section class="nb-section">
             <h3>Briefing</h3>
-            <details class="nb-brief">
+            <details class="nb-brief" open={p.openBrief}>
               <summary>Relire le briefing</summary>
-              {paragraphs(def.intro).map((t, i) => (
-                <p key={i}>{t}</p>
-              ))}
+              {paragraphs(def.intro).map((t, i) => {
+                if (testament && t === fr(testament.paragraph.trim())) {
+                  const ids = def.steps[0].accept;
+                  return (
+                    <ol key={i} class="nb-verses" aria-label="Vers du testament">
+                      {testament.verses.map((v, k) => {
+                        const done = foundIds.has(ids[k]);
+                        return (
+                          <li key={k} class={done ? 'done' : ''}>
+                            <span class="nb-tick" aria-hidden="true">
+                              {done ? '✓' : ''}
+                            </span>
+                            <span class="nb-verse">{fr(v)}</span>
+                            {done && <span class="sr-only"> (aiguille trouvée)</span>}
+                            {done && (
+                              <button type="button" class="link-btn" onClick={() => p.onShow(ids[k])}>
+                                Voir
+                              </button>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  );
+                }
+                return <p key={i}>{t}</p>;
+              })}
             </details>
           </section>
 
           <section class="nb-section">
             <h3>Questions résolues</h3>
             {solved.length === 0 ? (
-              <p class="nb-empty">Aucune pour l'instant. Observez, puis désignez.</p>
+              <p class="nb-empty">Aucune pour l’instant. Observez, puis désignez.</p>
             ) : (
               <ol class="nb-solved">
                 {solved.map((s) => {
@@ -105,9 +169,9 @@ export function Notebook(p: NotebookProps) {
                   return (
                     <li key={s.id}>
                       <p class="nb-q">
-                        <span class="nb-num">Q{i + 1}</span> {s.question}
+                        <span class="nb-num">Q{i + 1}</span> {fr(s.question)}
                       </p>
-                      <p class="nb-a">{s.solved}</p>
+                      <p class="nb-a">{fr(s.solved)}</p>
                       {found.length > 0 && (
                         <button type="button" class="link-btn" onClick={() => p.onShow(found[0])} data-testid={`nb-show-${s.id}`}>
                           <Icon name="eye" size={16} /> Voir
@@ -123,7 +187,7 @@ export function Notebook(p: NotebookProps) {
           <section class="nb-section">
             <h3>Personnages identifiés</h3>
             {people.length === 0 ? (
-              <p class="nb-empty">Personne n'est encore identifié.</p>
+              <p class="nb-empty">Personne n’est encore identifié.</p>
             ) : (
               <ul class="nb-people">
                 {people.map((c) => (

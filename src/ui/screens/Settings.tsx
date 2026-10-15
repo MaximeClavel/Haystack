@@ -15,7 +15,7 @@ export function SettingsScreen({ onBack, systemReduced }: { onBack: () => void; 
 
   return (
     <div class="screen sheet-screen settings" data-testid="screen-settings">
-      <TopBar title="Réglages" onBack={onBack} backLabel="Retour à l'accueil" />
+      <TopBar title="Réglages" onBack={onBack} backLabel="Retour à l’accueil" />
       <div class="scroll">
         <div class="card-list">
           <Switch

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { useServices } from '../context';
 import { TopBar } from '../components/bits';
 import { Icon } from '../icons';
+import { fr } from '../format';
 import type { MapHost } from '../mapHost';
 import { drawExploreIllustration, drawFollowIllustration, drawHintIllustration, drawPickIllustration } from '../illustrations';
 
@@ -71,7 +72,7 @@ export function HowTo({ onBack, onDone }: { onBack: () => void; onDone: () => vo
         title="Comment jouer"
         subtitle={`Étape ${i + 1} sur ${STEPS.length}`}
         onBack={onBack}
-        backLabel="Retour à l'accueil"
+        backLabel="Retour à l’accueil"
       />
       <div class="scroll">
         <article
@@ -96,7 +97,7 @@ export function HowTo({ onBack, onDone }: { onBack: () => void; onDone: () => vo
           <h2 ref={titleRef} tabIndex={-1} class="howto-title">
             {step.title}
           </h2>
-          <p class="howto-text">{step.text}</p>
+          <p class="howto-text">{fr(step.text)}</p>
         </article>
         <div class="howto-dots" role="tablist" aria-label="Étapes">
           {STEPS.map((s, k) => (
@@ -118,7 +119,7 @@ export function HowTo({ onBack, onDone }: { onBack: () => void; onDone: () => vo
           </button>
           {last ? (
             <button type="button" class="btn btn-primary" onClick={onDone} data-testid="howto-done">
-              <span>C'est parti !</span>
+              <span>C’est parti !</span>
             </button>
           ) : (
             <button type="button" class="btn btn-primary" onClick={() => go(1)} data-testid="howto-next">

@@ -333,7 +333,7 @@ button {
 .topbar-sub {
   margin: 1px 0 0;
   color: var(--ink-2);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
@@ -367,6 +367,45 @@ button {
   align-self: center;
 }
 
+/* Barre haute + pastille du lieu (superposée à la carte, sans agrandir la marge haute). */
+.top-main {
+  position: relative;
+}
+
+.place-chip.place-chip-top {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  max-width: calc(100% - 8px);
+  min-height: 32px;
+  padding: 3px 12px 3px 10px;
+  gap: 6px;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(20, 12, 6, 0.28);
+  pointer-events: none;
+}
+
+[data-hand='left'] .place-chip.place-chip-top {
+  left: auto;
+  right: 0;
+}
+
+/* Minicarte ouverte : la pastille passe dessous, du même côté (elle ne doit pas la recouvrir). */
+.place-chip.place-chip-below {
+  align-self: flex-end;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 3px 12px 3px 10px;
+  gap: 6px;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(20, 12, 6, 0.28);
+  pointer-events: none;
+}
+
+[data-hand='left'] .place-chip.place-chip-below {
+  align-self: flex-start;
+}
+
 .banner {
   pointer-events: auto;
   align-self: center;
@@ -384,6 +423,28 @@ button {
 
 .banner .link-btn {
   color: var(--hay);
+}
+
+/* Voile transparent qui avale les appuis juste après un changement de feuille (double tap involontaire). */
+.tap-guard {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: auto;
+  background: transparent;
+}
+
+/* Texte réservé aux lecteurs d'écran. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---------------------------------------------------------------- toasts */
@@ -574,9 +635,9 @@ button {
 .home-kicker {
   margin: 0 0 2px;
   color: var(--red);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
@@ -634,9 +695,10 @@ button {
 
 .home-foot {
   margin: 0;
-  color: rgba(243, 236, 220, 0.72);
-  font-size: 12px;
+  color: rgba(251, 246, 234, 0.95);
+  font-size: 14px;
   text-align: center;
+  text-shadow: 0 1px 3px rgba(20, 12, 6, 0.7);
 }
 
 /* ---------------------------------------------------------------- écrans « feuille » */
@@ -744,7 +806,7 @@ button {
   border-radius: 999px;
   background: var(--ink);
   color: var(--kraft);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -963,7 +1025,7 @@ button {
 .tab {
   flex: none;
   min-height: 44px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border: 2px solid var(--ink);
   border-radius: 999px;
   background: var(--paper);
@@ -1011,10 +1073,29 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 2px;
+  width: 100%;
+  min-height: 40px;
+  margin: -6px 0 0;
+  padding: 0;
+  border: none;
+  background: none;
   font-family: var(--font-title);
   font-size: 14px;
   color: #7a5608;
+  text-align: left;
+}
+
+.hint-title span {
+  flex: 1;
+}
+
+/* Indice replié : seul l'en-tête reste (la carte a besoin de la place). */
+.hint-box.folded {
+  padding-bottom: 0;
+}
+
+.hint-box.folded .hint-title {
+  margin-bottom: 0;
 }
 
 .hint-text {
@@ -1047,9 +1128,23 @@ button {
 }
 
 .hint-ask-sub {
-  margin: 2px 0 10px;
+  margin: 2px 0 4px;
   font-size: 14px;
   color: var(--ink-2);
+}
+
+.hint-ask-stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 650;
+  color: #7a5608;
+}
+
+.briefing-link {
+  margin: -8px 0 0 -6px;
 }
 
 .actions {
@@ -1063,17 +1158,20 @@ button {
 
 .action {
   flex: 1;
+  /* Sans min-width: 0, trois boutons à contenu fixe débordent de l'écran sous 360 px. */
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   min-height: 48px;
-  padding: 6px 8px;
+  padding: 6px 4px;
   border: 2px solid var(--ink);
   border-radius: 14px;
   background: var(--paper);
   font-weight: 650;
-  font-size: 15px;
+  font-size: 14.5px;
+  white-space: nowrap;
   box-shadow: 0 3px 0 rgba(47, 38, 34, 0.85);
 }
 
@@ -1096,6 +1194,20 @@ button {
 
 .confirm {
   z-index: 6;
+}
+
+.confirm-question {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0 0 10px;
+  padding-left: 10px;
+  border-left: 3px solid var(--hay);
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink-2);
 }
 
 .confirm-main {
@@ -1210,15 +1322,23 @@ button {
 
 .brief-text {
   flex: 1;
-  min-height: 60px;
+  min-height: 90px;
   margin: 0 -4px 14px;
   padding: 0 4px;
+  /* Ombres de défilement : un bord s'estompe quand il reste du texte au-dessus ou au-dessous. */
+  background:
+    linear-gradient(var(--card) 30%, rgba(251, 246, 234, 0)) 0 0 / 100% 22px no-repeat local,
+    linear-gradient(rgba(251, 246, 234, 0), var(--card) 70%) 0 100% / 100% 22px no-repeat local,
+    linear-gradient(rgba(47, 38, 34, 0.22), rgba(47, 38, 34, 0)) 0 0 / 100% 10px no-repeat scroll,
+    linear-gradient(rgba(47, 38, 34, 0), rgba(47, 38, 34, 0.22)) 0 100% / 100% 10px no-repeat scroll;
 }
 
 .brief-text p {
   margin: 0 0 10px;
   font-size: 15.5px;
   line-height: 1.5;
+  /* Les vers du testament (bonus) sont séparés par de simples retours à la ligne. */
+  white-space: pre-line;
 }
 
 .brief-text p.signature {
@@ -1277,7 +1397,7 @@ button {
 
 .totals dt {
   font-family: var(--font-title);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 
@@ -1432,6 +1552,59 @@ button {
 .nb-brief p {
   margin: 0 0 8px;
   font-size: 15px;
+  white-space: pre-line;
+}
+
+/* Testament du bonus : un vers par ligne, coché quand l'aiguille est trouvée. */
+.nb-verses {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  counter-reset: verse;
+}
+
+.nb-verses li {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--paper-3);
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.nb-tick {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--ink-3);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  align-self: flex-start;
+  margin-top: 1px;
+}
+
+.nb-verses li.done .nb-tick {
+  background: var(--green-2);
+  border-color: var(--green);
+}
+
+.nb-verse {
+  flex: 1;
+  min-width: 0;
+}
+
+.nb-verses li.done .nb-verse {
+  color: var(--ink-2);
+}
+
+.nb-verses .link-btn {
+  min-height: 32px;
+  font-size: 14px;
 }
 
 .nb-solved {
@@ -1503,7 +1676,7 @@ button {
 }
 
 .nb-role {
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink-2);
   line-height: 1.2;
 }
@@ -1811,37 +1984,42 @@ button {
 
 .setting-note {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--orange);
 }
 
 .switch {
   position: relative;
   flex: none;
+  /* Zone tactile 66 × 46 px (≥ 44) ; la pastille visible (58 × 34) est dessinée par ::before. */
+  width: 66px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.switch::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 6px;
   width: 58px;
   height: 34px;
-  padding: 0;
   border: 2px solid var(--ink);
   border-radius: 999px;
   background: #cdbfa6;
   transition: background-color 0.15s;
 }
 
-/* Zone tactile agrandie à 44 px de haut. */
-.switch::after {
-  content: '';
-  position: absolute;
-  inset: -7px -4px;
-}
-
-.switch.on {
+.switch.on::before {
   background: var(--green-2);
 }
 
 .switch-knob {
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 11px;
+  left: 9px;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -1901,6 +2079,28 @@ button {
     monospace;
   white-space: pre;
   pointer-events: none;
+}
+
+/* Très petits écrans (≤ 350 px) : les trois actions ne tiennent qu'avec leur libellé seul. */
+@media (max-width: 350px) {
+  .action .icon {
+    display: none;
+  }
+
+  /* En-tête du panneau : « Question 2 sur 7 » et ses points tiennent sur une ligne. */
+  .qpanel-label {
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+
+  .progress-dots {
+    gap: 4px;
+  }
+
+  .progress-dots .dot {
+    width: 8px;
+    height: 8px;
+  }
 }
 
 /* ---------------------------------------------------------------- paysage, tablette */

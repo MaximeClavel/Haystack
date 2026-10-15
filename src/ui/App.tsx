@@ -1,6 +1,7 @@
 // Racine de l'interface : navigation par état interne, services partagés, toasts, réglages appliqués.
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useErrorBoundary, useMemo, useRef, useState } from 'preact/hooks';
 import type { CaseDef, World } from '../types';
+import { restartCaseProgress } from '../game';
 import type { CaseSession } from '../game';
 import type { MapHost } from './mapHost';
 import type { AppStore } from './store';
@@ -38,6 +39,28 @@ interface ToastState {
   id: number;
   text: string;
   tone: ToastTone;
+  /** Distance (px) au bord bas de l'écran quand un panneau occupe le bas : le toast se pose juste au-dessus. */
+  bottom: number | null;
+}
+
+/** Écran affiché quand on remonte d'un cran avec le bouton Retour du système ; null = quitter le jeu. */
+function parentRoute(r: Route): Route | null {
+  if (r.screen === 'home') return null;
+  return r.screen === 'case' ? { screen: 'cases' } : { screen: 'home' };
+}
+
+type HistoryMark = { haystack?: 'base' | 'cur' } | null;
+
+/**
+ * Si un Retour a ramené l'historique sur « base » sans quitter la page (accueil, rien avant) et que le joueur
+ * navigue ensuite dans le jeu, on repose « cur » : le prochain Retour sera encore traité par l'application.
+ */
+function ensureCurrentEntry(): void {
+  try {
+    if ((history.state as HistoryMark)?.haystack === 'base') history.pushState({ haystack: 'cur' }, '');
+  } catch {
+    // History API indisponible
+  }
 }
 
 const systemReduced = (): boolean => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -58,8 +81,16 @@ export function App(props: AppProps) {
   const entryRef = useRef<Entry>(params.camera ? 'url' : 'boot');
   const setRoute = (r: Route): void => {
     entryRef.current = 'nav';
+    ensureCurrentEntry();
     setRouteState(r);
   };
+  // Une exception de rendu ne doit pas figer l'écran sans issue : message + sortie.
+  const [renderError, resetRenderError] = useErrorBoundary((e) => {
+    console.error('[haystack] erreur d’affichage', e);
+  });
+  const routeRef = useRef(route);
+  routeRef.current = route;
+  const backHandler = useRef<(() => boolean) | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastTimer = useRef(0);
   const runCounter = useRef(1);
@@ -97,23 +128,35 @@ export function App(props: AppProps) {
       reducedMotion: () => reducedRef.current,
       navigate(r) {
         entryRef.current = 'nav';
+        ensureCurrentEntry();
         setRouteState(r);
       },
       openCase(caseId, opts) {
         if (opts?.restart) {
+          // Partie vierge, mais le meilleur résultat passé est gardé : recommencer ne doit pas
+          // reverrouiller les enquêtes suivantes (déblocage = résolue au moins une fois).
+          const def = cases.find((c) => c.id === caseId);
           store.update((sv) => {
             const casesCopy = { ...sv.cases };
-            delete casesCopy[caseId];
+            if (def) casesCopy[caseId] = restartCaseProgress(def, sv.cases[caseId]);
+            else delete casesCopy[caseId];
             return { ...sv, cases: casesCopy };
           });
         }
         entryRef.current = 'nav';
+        ensureCurrentEntry();
         setRouteState({ screen: 'case', caseId, runId: runCounter.current++ });
       },
-      toast(text, tone = 'info') {
+      toast(text, tone = 'info', ms) {
         window.clearTimeout(toastTimer.current);
-        setToast({ id: Date.now(), text, tone });
-        toastTimer.current = window.setTimeout(() => setToast(null), tone === 'bad' ? 1800 : 2600);
+        // Un panneau en bas (question, exploration) : le toast se pose juste au-dessus de lui, près du
+        // pouce et de la zone de jeu ; sinon (écrans sans panneau, feuille latérale) il reste en haut.
+        const bottom = host.getInsets().bottom;
+        setToast({ id: Date.now(), text, tone, bottom: bottom > 0 ? bottom + 12 : null });
+        toastTimer.current = window.setTimeout(() => setToast(null), ms ?? (tone === 'bad' ? 1800 : 2600));
+      },
+      setBackHandler(fn) {
+        backHandler.current = fn;
       },
       setActiveSession(sess) {
         bridge.session = sess;
@@ -121,6 +164,56 @@ export function App(props: AppProps) {
     };
     return s;
   }, [world, host, store, cases, params.debug, bridge]);
+
+  // Sauvegarde impossible (navigation privée, quota) : on prévient une fois, dès que ça compte.
+  useEffect(() => {
+    let warned = false;
+    return store.subscribe(() => {
+      if (warned || store.isPersistent()) return;
+      warned = true;
+      services.toast('La sauvegarde est impossible dans ce navigateur : la progression sera perdue en fermant la page.', 'warn', 6000);
+    });
+  }, [store, services]);
+
+  // Bouton Retour du système. L'historique ne garde que deux entrées, « base » puis « cur » (où l'on
+  // est) : un Retour ramène sur « base », on le traite comme le bouton ‹ de l'interface (fermer ce qui
+  // est ouvert, sinon remonter d'un écran) puis on repose « cur ». Depuis l'accueil, on laisse sortir.
+  useEffect(() => {
+    if (!params.ui) return;
+    const mark = (haystack: 'base' | 'cur'): void => {
+      try {
+        history.pushState({ haystack }, '');
+      } catch {
+        // History API indisponible : le jeu reste jouable, Retour quitte simplement la page.
+      }
+    };
+    try {
+      const st = history.state as HistoryMark;
+      if (st?.haystack !== 'cur') {
+        if (st?.haystack !== 'base') history.replaceState({ haystack: 'base' }, '');
+        mark('cur');
+      }
+    } catch {
+      return;
+    }
+    const onPop = (e: PopStateEvent): void => {
+      if ((e.state as HistoryMark)?.haystack !== 'base') return;
+      if (backHandler.current?.()) {
+        mark('cur');
+        return;
+      }
+      const parent = parentRoute(routeRef.current);
+      if (parent) {
+        entryRef.current = 'nav';
+        setRouteState(parent);
+        mark('cur');
+      } else {
+        history.back();
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   // Pont pour le mode debug et les tests.
   useEffect(() => {
@@ -138,39 +231,64 @@ export function App(props: AppProps) {
 
   const entry = entryRef.current;
   let screen;
-  switch (route.screen) {
-    case 'home':
-      screen = <Home onNavigate={(s) => setRoute({ screen: s })} entry={entry} />;
-      break;
-    case 'cases':
-      screen = <Cases onBack={go('home')} />;
-      break;
-    case 'case':
-      screen = (
-        <Investigation
-          key={`${route.caseId}#${route.runId}`}
-          caseId={route.caseId}
-          entry={entry}
-          onExit={() => setRoute({ screen: 'cases' })}
-        />
-      );
-      break;
-    case 'explore':
-      screen = <Explore onBack={go('home')} entry={entry} />;
-      break;
-    case 'howto':
-      screen = <HowTo onBack={go('home')} onDone={() => setRoute({ screen: 'cases' })} />;
-      break;
-    case 'settings':
-      screen = <SettingsScreen onBack={go('home')} systemReduced={sysReduced} />;
-      break;
+  if (renderError) {
+    screen = (
+      <div class="screen loading" role="alert" data-testid="error-fallback">
+        <div class="loading-box">
+          <div class="loading-mark" aria-hidden="true">
+            <span class="loading-lens" />
+          </div>
+          <p class="loading-text">Quelque chose s’est mal passé…</p>
+          <p class="loading-sub">Votre progression est gardée. Revenez aux enquêtes, ou rechargez la page.</p>
+          <div class="btn-row">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onClick={() => {
+                resetRenderError();
+                setRoute({ screen: 'cases' });
+              }}
+            >
+              Retour aux enquêtes
+            </button>
+            <button type="button" class="btn btn-paper" onClick={() => location.reload()}>
+              Recharger
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  } else if (route.screen === 'home') {
+    screen = <Home onNavigate={(s) => setRoute({ screen: s })} entry={entry} />;
+  } else if (route.screen === 'cases') {
+    screen = <Cases onBack={go('home')} />;
+  } else if (route.screen === 'case') {
+    screen = (
+      <Investigation
+        key={`${route.caseId}#${route.runId}`}
+        caseId={route.caseId}
+        entry={entry}
+        onExit={() => setRoute({ screen: 'cases' })}
+      />
+    );
+  } else if (route.screen === 'explore') {
+    screen = <Explore onBack={go('home')} entry={entry} />;
+  } else if (route.screen === 'howto') {
+    screen = <HowTo onBack={go('home')} onDone={() => setRoute({ screen: 'cases' })} />;
+  } else {
+    screen = <SettingsScreen onBack={go('home')} systemReduced={sysReduced} />;
   }
 
   return (
     <ServicesContext.Provider value={services}>
       <div class="ui-root">
         {screen}
-        <div class="toast-zone" aria-live="polite" aria-atomic="true">
+        <div
+          class="toast-zone"
+          aria-live="polite"
+          aria-atomic="true"
+          style={toast?.bottom != null ? { top: 'auto', bottom: `${toast.bottom}px` } : undefined}
+        >
           {toast && (
             <div key={toast.id} class={`toast ${toast.tone}`} role="status" data-testid="toast">
               {toast.text}

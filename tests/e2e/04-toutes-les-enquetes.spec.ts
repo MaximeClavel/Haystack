@@ -52,7 +52,7 @@ test('toutes les enquêtes résolues au doigt, dans l’ordre de déblocage', as
   }
 
   // Tout est résolu : compteur des dossiers et de l'accueil.
-  await expect(page.getByTestId('screen-cases')).toContainText('6 affaires classées sur 6');
+  await expect(page.getByTestId('screen-cases')).toContainText('6 enquêtes résolues sur 6');
   await tapUi(page.getByTestId('back'));
   await expect(page.getByTestId('menu-cases')).toContainText('6/6');
   // Relu après rechargement.

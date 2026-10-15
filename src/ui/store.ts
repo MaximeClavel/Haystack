@@ -24,7 +24,10 @@ export function createAppStore(saveStore: SaveStore): AppStore {
   const store: AppStore = {
     get: () => save,
     update(fn) {
-      save = fn(save);
+      // Lire-modifier-écrire : on repart de ce qui est RÉELLEMENT enregistré, pas de la copie gardée
+      // en mémoire depuis le démarrage. Sinon un second onglet (ou une PWA) ouvert plus tôt, donc
+      // périmé, écraserait en entier la progression écrite entre-temps par l'autre.
+      save = fn(saveStore.load());
       saveStore.save(save);
       notify();
     },

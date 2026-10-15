@@ -5,7 +5,7 @@ import { useServices } from '../context';
 import { useSave } from '../store';
 import { Difficulty, Stars, TopBar } from '../components/bits';
 import { Icon } from '../icons';
-import { caseNumber, caseStatus, lockReason } from '../format';
+import { caseNumber, caseStatus, fr, lockReason, solvedCount } from '../format';
 import type { SaveData } from '../../types';
 
 function Folder({ def, save, cases, onOpen }: { def: CaseDef; save: SaveData; cases: CaseDef[]; onOpen: () => void }) {
@@ -55,9 +55,9 @@ function Folder({ def, save, cases, onOpen }: { def: CaseDef; save: SaveData; ca
           <span class="folder-meta">
             <Difficulty level={def.difficulty} />
             {tutorial && <span class="folder-tag">Tutoriel</span>}
-            {st.kind === 'solved' && st.stars && <Stars count={st.stars} size={16} />}
+            {st.stars && <Stars count={st.stars} size={16} />}
           </span>
-          <span class="folder-teaser">{unlocked ? def.teaser : lockReason(def, save, cases)}</span>
+          <span class="folder-teaser">{fr(unlocked ? def.teaser : lockReason(def, save, cases))}</span>
         </span>
       </button>
     </li>
@@ -69,14 +69,14 @@ export function Cases({ onBack }: { onBack: () => void }) {
   const save = useSave(store);
   const main = cases.filter((c) => !c.bonus);
   const bonus = cases.filter((c) => c.bonus);
-  const solved = main.filter((c) => save.cases[c.id]?.status === 'solved').length;
+  const solved = solvedCount(cases, save);
   return (
     <div class="screen sheet-screen cases" data-testid="screen-cases">
       <TopBar
-        title="Dossiers"
-        subtitle={`${solved} affaire${solved > 1 ? 's' : ''} classée${solved > 1 ? 's' : ''} sur ${main.length}`}
+        title="Enquêtes"
+        subtitle={`${solved} enquête${solved > 1 ? 's' : ''} résolue${solved > 1 ? 's' : ''} sur ${main.length}`}
         onBack={onBack}
-        backLabel="Retour à l'accueil"
+        backLabel="Retour à l’accueil"
       />
       <div class="scroll">
         <ul class="folders" aria-label="Enquêtes">

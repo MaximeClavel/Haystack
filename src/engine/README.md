@@ -141,7 +141,7 @@ Un changement de densité vide le cache ; un changement de taille recalcule raci
 | `thread` | fil rouge incurvé (il « pend » de 10 % de sa longueur, 60 px au plus), ombre, punaises dorées aux deux bouts |
 | `pin` | punaise rouge de profil dont la pointe désigne le point ; étiquette facultative |
 
-Seul `reveal` est animé : la boucle d'images ne tourne en continu que s'il est présent.
+Seul `reveal` est animé : la boucle d'images ne tourne en continu que s'il est présent, et seulement pendant `REVEAL_PULSE_MS` (6 s) après chaque `setOverlays` ; ensuite l'onde est figée et le moteur redevient au repos (batterie).
 
 ## `renderSnapshot(target, rect)`
 

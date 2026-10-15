@@ -219,6 +219,7 @@ function checkStep(s: StepDef, world: World, stepSet: ReadonlySet<string>, err: 
   const where = `étape « ${s.id} »`;
   if (blank(s.id)) err('étape sans id');
   if (blank(s.question)) err(`${where} : question vide`);
+  if (s.label !== undefined && (blank(s.label) || s.label.length > 24)) err(`${where} : libellé d'onglet vide ou trop long (24 caractères au plus)`);
   if (blank(s.solved)) err(`${where} : texte de résolution (solved) vide`);
 
   for (const a of s.after ?? []) {

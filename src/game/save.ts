@@ -75,6 +75,7 @@ export function sanitizeCaseProgress(v: unknown, caseId: string): CaseProgress |
   const solvedAt = finiteOrUndefined(v.solvedAt);
   if (solvedAt !== undefined) p.solvedAt = solvedAt;
   if (v.stars === 1 || v.stars === 2 || v.stars === 3) p.stars = v.stars;
+  if (v.bestStars === 1 || v.bestStars === 2 || v.bestStars === 3) p.bestStars = v.bestStars;
   return p;
 }
 
@@ -178,9 +179,18 @@ export function createSaveStore(storage?: KeyValueStorage | null, key: string = 
   };
 }
 
-/** Une enquête est débloquée quand toutes celles de `unlockAfter` sont résolues. */
+/**
+ * Une enquête a-t-elle été résolue au moins une fois ? Vrai pour une partie résolue, et aussi pour
+ * une enquête recommencée ou revenue « active » (`bestStars` conservé) : recommencer ne verrouille
+ * pas les enquêtes suivantes.
+ */
+export function hasSolved(p: CaseProgress | undefined | null): boolean {
+  return !!p && (p.status === 'solved' || p.bestStars !== undefined);
+}
+
+/** Une enquête est débloquée quand toutes celles de `unlockAfter` ont été résolues. */
 export function isUnlocked(def: CaseDef, save: SaveData): boolean {
-  return (def.unlockAfter ?? []).every((id) => save.cases[id]?.status === 'solved');
+  return (def.unlockAfter ?? []).every((id) => hasSolved(save.cases[id]));
 }
 
 /** Copie de la sauvegarde où la progression d'une enquête est remplacée. */

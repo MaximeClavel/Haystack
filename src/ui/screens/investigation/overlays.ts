@@ -91,3 +91,20 @@ export function foundBounds(session: CaseSession, world: World): Rect | null {
   }
   return r;
 }
+
+/**
+ * Dernière réponse trouvée, dans l'ordre chronologique (étapes résolues par `solvedAt` croissant ;
+ * une étape en cours, par exemple 3 aiguilles sur 10, passe après les résolues). Sert à reprendre
+ * une enquête là où le joueur s'est arrêté. `null` si rien n'a été trouvé.
+ */
+export function lastFoundId(session: CaseSession): string | null {
+  let best: { id: string; at: number } | null = null;
+  for (const step of session.def.steps) {
+    const p = session.stepProgress(step.id);
+    if (p.found.length === 0) continue;
+    const at = p.solvedAt ?? Number.MAX_SAFE_INTEGER;
+    // Égalité : l'étape la plus loin dans le tableau (la suite de l'histoire) l'emporte.
+    if (!best || at >= best.at) best = { id: p.found[p.found.length - 1], at };
+  }
+  return best?.id ?? null;
+}

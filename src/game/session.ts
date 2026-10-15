@@ -142,7 +142,12 @@ function copyProgress(p: CaseProgress): CaseProgress {
   if (p.startedAt !== undefined) c.startedAt = p.startedAt;
   if (p.solvedAt !== undefined) c.solvedAt = p.solvedAt;
   if (p.stars !== undefined) c.stars = p.stars;
+  if (p.bestStars !== undefined) c.bestStars = p.bestStars;
   return c;
+}
+
+function validStars(v: unknown): 1 | 2 | 3 | undefined {
+  return v === 1 || v === 2 || v === 3 ? v : undefined;
 }
 
 function clampInt(v: unknown, min: number, max: number): number {
@@ -155,6 +160,27 @@ export function newCaseProgress(def: CaseDef): CaseProgress {
   const steps: Record<string, StepProgress> = {};
   for (const s of def.steps) steps[s.id] = { found: [], hints: 0, mistakes: 0 };
   return { caseId: def.id, status: 'new', steps, pins: [], notes: '' };
+}
+
+/**
+ * Meilleur résultat connu d'une progression : `bestStars` (parties terminées avant celle-ci) et,
+ * si elle est résolue, ses propres étoiles. `undefined` si l'enquête n'a jamais été résolue.
+ */
+export function bestStarsOf(p: CaseProgress | undefined | null): 1 | 2 | 3 | undefined {
+  if (!p) return undefined;
+  const best = Math.max(validStars(p.bestStars) ?? 0, p.status === 'solved' ? (validStars(p.stars) ?? 0) : 0);
+  return best >= 1 ? (best as 1 | 2 | 3) : undefined;
+}
+
+/**
+ * Progression d'un recommencement : partie vierge, mais le meilleur résultat passé est gardé
+ * (`bestStars`), si bien que les enquêtes suivantes ne se reverrouillent pas.
+ */
+export function restartCaseProgress(def: CaseDef, previous?: CaseProgress | null): CaseProgress {
+  const fresh = newCaseProgress(def);
+  const best = bestStarsOf(previous);
+  if (best !== undefined) fresh.bestStars = best;
+  return fresh;
 }
 
 /**
@@ -217,12 +243,16 @@ export class CaseSession {
       s.pins.length > 0 ||
       s.notes !== '' ||
       Object.values(s.steps).some((sp) => sp.found.length > 0 || sp.hints > 0 || sp.mistakes > 0);
+    // Meilleur résultat déjà obtenu (ancienne sauvegarde : les étoiles d'une partie résolue).
+    const previousBest = bestStarsOf(p);
     if (this.allStepsSolved(s)) {
       s.status = 'solved';
       s.solvedAt = typeof p.solvedAt === 'number' ? p.solvedAt : this.now();
-      s.stars = p.stars === 1 || p.stars === 2 || p.stars === 3 ? p.stars : this.computeStarsOf(s);
+      s.stars = validStars(p.stars) ?? this.computeStarsOf(s);
+      s.bestStars = Math.max(previousBest ?? 0, s.stars) as 1 | 2 | 3;
     } else {
       s.status = touched ? 'active' : 'new';
+      if (previousBest !== undefined) s.bestStars = previousBest;
     }
     return s;
   }
@@ -334,6 +364,7 @@ export class CaseSession {
           this.state.status = 'solved';
           this.state.solvedAt = sp.solvedAt;
           this.state.stars = this.computeStarsOf(this.state);
+          this.state.bestStars = Math.max(this.state.bestStars ?? 0, this.state.stars) as 1 | 2 | 3;
         }
       }
       return { kind: 'correct', stepId, foundId: fresh, found: sp.found.length, required, stepSolved, caseSolved };

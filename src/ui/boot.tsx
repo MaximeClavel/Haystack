@@ -3,7 +3,7 @@ import { render } from 'preact';
 import type { CameraState } from '../types';
 import { buildWorld } from '../world';
 import { CASES } from '../content';
-import { createSaveStore } from '../game';
+import { createSaveStore, reconcileSave } from '../game';
 import { createMapHost } from './mapHost';
 import { createAppStore } from './store';
 import { readParams } from './params';
@@ -64,6 +64,9 @@ export async function boot(): Promise<void> {
   try {
     const world = buildWorld({ cases: CASES });
     const store = createAppStore(createSaveStore());
+    // Statuts sauvegardés recalculés d'après les enquêtes publiées (étapes ajoutées, réponses retirées…).
+    const reconciled = reconcileSave(store.get(), CASES, world);
+    if (reconciled !== store.get()) store.update(() => reconciled);
 
     let initial: Partial<CameraState> | undefined;
     if (params.camera) initial = params.camera;

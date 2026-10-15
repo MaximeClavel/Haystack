@@ -403,7 +403,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 
 ##### Étape `s2` — après : `s1` (`after` omis)
 
-- **Question** : Trouvez le voleur dans la foule du marché : bonnet et pull rayé noirs, cagoule… et la caisse sous le bras.
+- **Question** : Trouvez le voleur dans la foule du marché : bonnet orange, pull rayé noir, cagoule… et la caisse sous le bras.
 - **Réponses** (`accept`) : `c01.lafouine.1`
 - **Fausses pistes** (`nearMiss`) :
   - `c01.motus.1` → « C’est Motus, le mime du marché : même bonnet, même pull rayé… mais pas de cagoule. Et il est coincé dans une boîte invisible depuis ce matin. »
@@ -975,7 +975,7 @@ chemise** — deux attributs très visibles.
   - `c04.lino.1` → « Lino sort de l’égout : il n’a rien en main. Regardez lequel des deux tient le diamant devant la vitrine. »
   - `c04.lino.2` → « C’est Lino, le jumeau sans sac à dos. Devant la vitrine, c’est celui au sac à dos qui tenait le diamant. »
 - **Indice 1** : Devant la vitrine, c’est le jumeau au sac à dos qui tient le diamant. Il est parti vers le nord, vers la Grand-Place.
-- **Indice 2** : Un costaud en sweat gris, bonnet et lunettes noires, avec un sac à dos, dans la foule. — zone `{ x: 2770, y: 2270, radius: 140 }`
+- **Indice 2** : Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule. — zone `{ x: 2770, y: 2270, radius: 140 }`
 - **Résolution** (`solved`) : Ludo Taupin, sac au dos, fend la foule de la Grand-Place. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.
 - **Fils rouges** (`thread`) : `c04.ludo.1` → `c04.ludo.2`
 
@@ -1509,6 +1509,9 @@ ne se chevauche.
    d’affiche, plaque).
 10. **Pas d’identifiant ambiant** (`a.*`) en réponse ni en fausse piste : ils peuvent changer ou être
     retirés. Utiliser `lm.*`, `z.*` ou ses propres entités.
+11. **Le texte dit ce que le dessin montre.** La couleur d’un chapeau est **fixe par type** (`HAT_HEX` :
+    casquette rouge, bonnet **orange**, casque jaune, képi bleu…) : écrire « bonnet orange », jamais
+    « bonnet noir ». Le contrôle (`content:check`) refuse une couleur de chapeau citée qui ne correspond pas.
 
 ### 11.3 Règles de placement
 

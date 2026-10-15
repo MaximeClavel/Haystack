@@ -506,6 +506,11 @@ export interface StepDef {
   question: string;
   /** Étapes à résoudre avant. Défaut : l'étape précédente du tableau. [] = ouverte dès le début. */
   after?: string[];
+  /**
+   * Libellé court (1 à 3 mots) de la piste, affiché sur l'onglet quand plusieurs questions sont
+   * ouvertes en parallèle (ex. « Pétronille »). Facultatif : à défaut, « Question N ».
+   */
+  label?: string;
   /** Ids d'entités ou de zones acceptés comme bonne réponse. */
   accept: string[];
   /** Nombre de réponses distinctes à trouver parmi accept (défaut 1). */
@@ -595,6 +600,12 @@ export interface CaseProgress {
   startedAt?: number;
   solvedAt?: number;
   stars?: 1 | 2 | 3;
+  /**
+   * Meilleur résultat des parties terminées de cette enquête (champ ajouté après la v1, facultatif :
+   * rétro-compatible). Sa présence signifie « résolue au moins une fois » : l'enquête reste comptée
+   * et les suivantes restent débloquées quand le joueur la recommence ou qu'elle redevient active.
+   */
+  bestStars?: 1 | 2 | 3;
 }
 
 export interface Settings {

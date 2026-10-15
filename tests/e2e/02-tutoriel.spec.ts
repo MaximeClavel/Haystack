@@ -59,7 +59,7 @@ test('tutoriel c00 joué au doigt jusqu’à l’écran de fin, puis relu après
   await expect(page.getByTestId('folder-c01')).toContainText('Nouveau');
   await expect(page.getByTestId('folder-c02')).toHaveAttribute('aria-disabled', 'true');
   await expect(page.getByTestId('folder-bonus-aiguilles')).toHaveAttribute('aria-disabled', 'false');
-  await expect(page.getByTestId('screen-cases')).toContainText('1 affaire classée sur 6');
+  await expect(page.getByTestId('screen-cases')).toContainText('1 enquête résolue sur 6');
 
   // Rouvrir une enquête résolue mène directement à l'écran de fin.
   await tapUi(folder);

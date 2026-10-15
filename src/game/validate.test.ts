@@ -213,6 +213,11 @@ describe('validateCase : étapes', () => {
   it('id d’étape en double', () =>
     expectOnly(errorsOf((d) => d.steps.push({ ...stepOf(d, 's4') })), /id d'étape en double : « s4 »/));
   it('question vide', () => expectOnly(errorsOf((d) => (stepOf(d, 's2').question = '')), /« s2 » : question vide/));
+  it('libellé d’onglet : valide, vide ou trop long', () => {
+    expect(errorsOf((d) => (stepOf(d, 's2').label = 'Pétronille'))).toEqual([]);
+    expectOnly(errorsOf((d) => (stepOf(d, 's2').label = '  ')), /« s2 » : libellé d'onglet/);
+    expectOnly(errorsOf((d) => (stepOf(d, 's2').label = 'x'.repeat(25))), /« s2 » : libellé d'onglet/);
+  });
   it('texte de résolution vide', () =>
     expectOnly(errorsOf((d) => (stepOf(d, 's2').solved = '')), /« s2 » : texte de résolution/));
   it('after : étape inconnue', () =>
