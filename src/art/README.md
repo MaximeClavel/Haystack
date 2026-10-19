@@ -46,6 +46,9 @@ pas été modifié.
 | `tree.ts` | Arbres (boule, conifère, peuplier, nu) et leur ombre |
 | `props.ts` | Les 50 `PropKind` et les variantes utilisées par le monde |
 | `ground.ts` | Sol (13 `GroundKind`) et lignes (8 `GroundLineKind`) |
+| `groundDecor.ts` | Décor du sol posé sur les formes : taches de ton, feuilles mortes, touffes, cailloux, fissures, traces de roues, marelles à la craie, courants et nénuphars de l'eau, roseaux de l'étang, margelle et bollards (avec mouettes) des quais, bande jaune des quais de gare, ombre des ponts, cadre et rosaces des places. Déterminé par la case de grille du monde : aucun raccord entre tuiles |
+| `decor.ts` | Vie des bâtiments : gouttières, taches de crépi, traces de pluie, lierre ou vigne vierge, pots de fleurs, lanterne, linge, chat à la fenêtre, enseigne en drapeau (bretzel, tasse, livre, fleur), antennes et paraboles, lucarnes de toit, fumée, oiseaux sur le faîtage. Plan calculé une fois par bâtiment (graine) |
+| `decor.test.ts` | Déterminisme, emprise et respect des indices d'enquête du décor des bâtiments |
 | `palette.test.ts` | Distinction des couleurs (ΔE CIE76 ≥ 20 pour toutes les paires, ≥ 25 pour les paires piégeuses) et seuils de `lodForZoom` |
 
 ## Vocabulaire couvert
@@ -84,6 +87,30 @@ pas été modifié.
 4. **Déterminisme** : le dessin d'une entité ne dépend que de l'entité, du niveau de détail et de
    l'échelle du contexte (les plus petits détails — yeux, motifs — n'apparaissent qu'à partir de
    1,6 px par unité, échelle toujours atteinte par les tuiles du zoom de jeu).
+
+## Direction artistique (phase 3)
+
+Lumière unique **du nord-ouest** : toutes les ombres tombent vers l'est et le sud (bâtiments, arbres,
+personnes, objets, ponts), les arêtes nord et ouest des toits reçoivent un liseré clair.
+
+- **Sol vivant** : chaque type de sol reçoit de grandes taches de ton et, au niveau 0, des détails fins
+  (feuilles d'automne, fissures, flaques sèches, marelles dans les cours d'école…). Les couleurs de trottoir
+  et de cour sont désormais distinctes (sinon la cour se confondait avec la place).
+- **Eau** : liseré de berge clair, courants, nénuphars et roseaux dans l'étang ; quais avec margelle,
+  bande mouillée et bollards ; ombre des ponts sur l'eau.
+- **Bâtiments** : tuiles et ardoises de tons variés, ombre portée plus lisible, ombre des stores, marche de
+  seuil, toits plats à lés et taches, toits en tôle à deux pans avec plaques translucides, lumière dans les
+  fenêtres éclairées.
+- **Arbres** : variantes de feuillage tirées de la graine (vert, orangé, doré, roux, pommier à fruits rouges,
+  peuplier doré) et feuilles tombées au pied : la ville est en octobre.
+- **Vue d'ensemble** : au niveau 2, chaque bâtiment est cerné d'un fin contour sombre (largeur ≈ 0,6 px écran)
+  qui sépare les toits voisins.
+
+**Règle de prudence sur les indices** : le décor des bâtiments (`decor.ts`) n'est jamais posé sur un lieu
+remarquable (`lm.*`) qui porte des détails d'enquête (`features`), ni sur les styles spéciaux ; sur les bâtiments
+ordinaires il évite les fenêtres ouvertes, brisées ou éclairées et les emplacements des graffitis, affiches,
+balcons et portes ouvertes. Aucune couleur de vocabulaire (vêtements, objets, véhicules) n'a été modifiée ; les
+feuilles mortes évitent le jaune doré (couleur de l'aiguille du bonus).
 
 ## Niveaux de détail
 
@@ -125,7 +152,7 @@ grands objets, sols, scène de rue rendue en tuiles.
 | `?zoom=4` | zoom des planches (défaut 4 ; vérifier aussi 1,5, 1, 0,5 et 0,2) |
 | `?bzoom=…` | zoom des planches de bâtiments (défaut : zoom / 2, au plus 2) |
 | `?bounds=1` | contour rouge de `getEntityBounds` (bleu : `getHitRect`) |
-| `?section=<id>` | une seule planche (ids dans le menu) ; `check` = contrôle des emprises, `perf` = mesure |
+| `?section=<id>` | une seule planche (ids dans le menu, dont `decor` : 24 graines de bâtiments « vécus ») ; `check` = contrôle des emprises (≈ 20 200 rendus : y compris des centaines de bâtiments décorés et 24 graines de chaque arbre), `perf` = mesure |
 | `?lod=0\|1\|2` | force un niveau de détail |
 
 ## Vérifier
