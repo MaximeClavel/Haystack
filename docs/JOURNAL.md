@@ -128,3 +128,12 @@ dans `docs/journal/phase1-<agent>.md`.
 | `direction-artistique` | Finition graphique (src/art uniquement) : lisibilité à toutes les échelles, charme, perf inchangée |
 | `joueur:<enquête>` ×7 | Un joueur test par enquête, qui ne connaît pas les réponses : résout-il l'enquête à partir de ce qu'il voit ? |
 | `correcteur-2` | Traite les constats des joueurs test et de la critique |
+
+## 2026-10-19 — Reprise après une longue interruption
+- 105 vérifications horaires étaient en attente (la session était interrompue depuis le 15/10) : aucun workflow
+  ne tournait, rien n'était perdu. Vérifié : `tsc` OK, 304 tests, `content:check` « OK : aucun problème ».
+- Commit `0d7fa04` : travail de `direction-artistique` (non commité jusque-là), journal
+  `docs/journal/phase3-direction-artistique.md`.
+- Joueurs test aveugles lancés en trois vagues (3 parties en parallèle au plus : ≈ 800 Mo et un cœur chacune) :
+  c01–c03, puis c04–c05 et le bonus, puis c00. Chaque joueur écrit `docs/journal/phase3-joueur-<enquête>.md`.
+  Ensuite : `correcteur-2` sur leurs constats, puis phase 4.
