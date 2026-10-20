@@ -56,7 +56,7 @@ Point d'entrée : `src/main.tsx` (polices Special Elite et Inter, styles, `boot(
 | `icons.tsx` | Icônes SVG (trait) |
 | `styles.css` | Identité visuelle, mise en page mobile, paysage, mouvement réduit |
 | `components/` | `bits.tsx` (étoiles, loupes de difficulté, interrupteur, barre haute), `Minimap.tsx` (noms des quartiers sur la vignette), `PlaceChip.tsx` (nom du lieu sous la caméra, exploration et enquête), `Portrait.tsx` |
-| `screens/` | `Home`, `Cases` (dossiers), `Investigation` (+ `investigation/` : panneau de question, feuille de confirmation, carnet, briefing, résultat, fin, reconstitution, overlays), `Explore`, `HowTo`, `Settings` |
+| `screens/` | `Home`, `Cases` (dossiers), `Investigation` (+ `investigation/` : panneau de question, feuille de confirmation, carnet, briefing, résultat, fin, reconstitution, overlays, `texts.ts` : textes purs liés aux règles — coût d'un indice avec son horizon, explication de la note à l'écran de fin, libellés du panneau, extrait de vers du toast du bonus ; testés dans `texts.test.ts`), `Explore`, `HowTo`, `Settings` |
 | `tools/` | Scripts Node de vérification (non publiés) : `play-c00.mjs`, `states.mjs`, `make-icons.mjs` |
 
 ## Écrans

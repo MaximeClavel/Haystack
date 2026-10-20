@@ -6,7 +6,17 @@
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'preact/hooks';
 import type { Overlay, Pick, StepDef, Vec2 } from '../../types';
 import { PICK_MIN_ZOOM } from '../../config';
-import { CaseSession, computeStars, entityCenter, matchTargets, pickAt, targetRect, withCaseProgress } from '../../game';
+import {
+  CaseSession,
+  MAX_HINT_LEVEL,
+  computeStars,
+  entityCenter,
+  matchTargets,
+  pickAt,
+  stepDependencies,
+  targetRect,
+  withCaseProgress,
+} from '../../game';
 import { useServices } from '../context';
 import { useSave } from '../store';
 import { TopBar } from '../components/bits';
@@ -20,6 +30,7 @@ import type { Entry } from '../App';
 import { QuestionPanel } from './investigation/QuestionPanel';
 import { ConfirmSheet } from './investigation/ConfirmSheet';
 import { Notebook } from './investigation/Notebook';
+import { confirmLabel, foundToastText, verseFor, wrongMessage } from './investigation/texts';
 import { Briefing, CaseEnd, ReplayBar, ResultSheet, type ResultCard } from './investigation/Panels';
 import {
   circleRect,
@@ -35,7 +46,6 @@ import {
 
 type Phase = 'brief' | 'play' | 'end' | 'replay';
 
-const WRONG_MESSAGES = ['Ce n’est pas ça…', 'Ce n’est pas ça… Regardez encore.', 'Pas tout à fait. Continuez de chercher.'];
 const SOLVED_TITLES = ['Bien vu !', 'Excellent !', 'Exactement !', 'Bien joué !'];
 /** Zoom des vols vers une réponse (carnet, reconstitution). */
 const SHOW_ZOOM = 2.4;
@@ -174,11 +184,12 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
     host.setLayer('replay', r ? [{ kind: 'box', rect: r, style: 'reveal' }] : []);
   });
 
-  // Texte d'indice : redéplié à chaque nouvel indice ou changement de question ; replié dès que le
-  // joueur touche la carte (il a lu, il cherche : on lui rend la place).
+  // Texte d'indice : redéplié à chaque nouvel indice, changement de question ou déplacement du projecteur
+  // (bonus : il saute sur l'aiguille suivante après chaque trouvaille) ; replié dès que le joueur touche la
+  // carte (il a lu, il cherche : on lui rend la place).
   useEffect(() => {
     setHintOpen(true);
-  }, [active?.id, hint?.level]);
+  }, [active?.id, hint?.level, hint?.area?.x, hint?.area?.y]);
   useEffect(() => {
     const canvas = host.canvas;
     const fold = (): void => setHintOpen(false);
@@ -237,6 +248,12 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
   }
 
   function fitFound(instant: boolean): void {
+    if (def.bonus) {
+      // Les dix aiguilles couvrent presque toute la ville : cadrer leurs bornes donnerait le zoom minimal, où le
+      // monde est plus petit que l'écran (bande noire sous la barre haute). Vue d'ensemble de l'accueil à la place.
+      focusStart(instant);
+      return;
+    }
     const b = foundBounds(session, world);
     if (b) void host.focusRect(b, { maxZoom: 2, padding: 36, instant });
     else focusStart(instant);
@@ -324,7 +341,9 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
             caseSolved: out.caseSolved,
           });
         } else {
-          svc.toast(`Bien vu ! ${out.found} sur ${out.required}`, 'good');
+          // Bonus : le début du vers du testament rappelle laquelle des dix aiguilles vient d'être trouvée.
+          const verse = verseFor(def, out.stepId, out.foundId);
+          svc.toast(foundToastText(out.found, out.required, verse), 'good', verse ? 3600 : undefined);
         }
         break;
       }
@@ -334,8 +353,7 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
         break;
       case 'wrong': {
         flash({ kind: 'ring', circle: pickCircle(world, pick, zoom), style: 'wrong' }, 2000);
-        const m = session.totals().mistakes;
-        svc.toast(WRONG_MESSAGES[(m - 1 + WRONG_MESSAGES.length) % WRONG_MESSAGES.length], 'bad');
+        svc.toast(wrongMessage(session.totals().mistakes), 'bad');
         break;
       }
       case 'already':
@@ -354,7 +372,12 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
         pendingFocus.current = () => fitFound(false);
       } else {
         const next = session.openSteps();
-        if (next.length > 0 && !next.some((s) => s.id === chosenStep)) setChosenStep(next[0].id);
+        if (next.length > 0 && !next.some((s) => s.id === chosenStep)) {
+          // De préférence la suite du fil qui vient de s'ouvrir (c04 : « La tarte » après « Le voisin »), pas la
+          // première question de la liste, qui appartient à l'autre fil.
+          const follow = next.find((s) => stepDependencies(def, def.steps.findIndex((x) => x.id === s.id)).includes(c.stepId));
+          setChosenStep((follow ?? next[0]).id);
+        }
         setCollapsed(false);
       }
     }
@@ -474,6 +497,7 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
         stars={session.stars()}
         hints={totals.hints}
         mistakes={totals.mistakes}
+        reveals={def.steps.filter((s) => session.stepProgress(s.id).hints >= MAX_HINT_LEVEL).length}
         onReplay={() => {
           setReplayIndex(0);
           setPhase('replay');
@@ -588,7 +612,12 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
         <ConfirmSheet
           host={host}
           pick={selection}
-          questionLabel={`Question ${activeIndex} sur ${def.steps.length}`}
+          questionLabel={confirmLabel({
+            stepCount: def.steps.length,
+            index: activeIndex - 1,
+            openCount: open.length,
+            label: active.label,
+          })}
           question={active.question}
           onConfirm={confirmPick}
           onCancel={() => setSelection(null)}

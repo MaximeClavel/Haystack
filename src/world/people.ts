@@ -138,8 +138,11 @@ function holdingFor(rng: Rng, role: Role, district: string, kind: string): HeldI
   if (role === 'tourist' && rng.chance(0.3)) return 'map';
   if ((kind === 'park' || district === 'riviere') && rng.chance(0.07)) return 'icecream';
   if (district === 'halles' && rng.chance(0.08)) return 'baguette';
+  // Aucune tarte dans la foule : la tarte est un signe distinctif des personnages d'enquête
+  // (c00, c04), pas un objet de décor. L'entrée « baguette 0,6 » garde la place de l'ancienne
+  // tarte dans le tirage : le flux pseudo-aléatoire, donc les ids et les positions, ne bougent pas.
   return rng.weighted<HeldItem>([
-    ['none', 88], ['baguette', 2.5], ['bottle', 2], ['letter', 2], ['box', 1.5], ['phone', 2], ['cake', 0.6], ['key', 0.4], ['flashlight', 0.2], ['icecream', 0.8],
+    ['none', 88], ['baguette', 2.5], ['bottle', 2], ['letter', 2], ['box', 1.5], ['phone', 2], ['baguette', 0.6], ['key', 0.4], ['flashlight', 0.2], ['icecream', 0.8],
   ]);
 }
 
@@ -248,7 +251,7 @@ function spawn(g: Gen, rng: Rng, kind: string, district: string, x: number, y: n
       return 1;
     case 'carry': {
       const r = district === 'port' ? 'docker' : role();
-      one(r, 'carry', face(), { holding: rng.chance(0.85) ? 'box' : 'cake' });
+      one(r, 'carry', face(), { holding: rng.chance(0.85) ? 'box' : 'baguette' });
       return 1;
     }
     case 'jog':
@@ -284,7 +287,8 @@ function spawn(g: Gen, rng: Rng, kind: string, district: string, x: number, y: n
         const r = couple ? 'adult' : role();
         const pose: Pose = sit ? 'sit' : rng.chance(0.15) ? rng.pick<Pose>(['point', 'wave', 'phone']) : 'stand';
         const emote: Emote | undefined = couple ? 'heart' : k === talker ? 'talk' : rng.chance(0.08) ? rng.pick<Emote>(['exclaim', 'question', 'idea']) : undefined;
-        addPerson(g, px, py, randomAppearance(rng, r), pose, facing, { emote, holding: sit && rng.chance(0.25) ? rng.pick<HeldItem>(['bottle', 'baguette', 'cake']) : undefined });
+        // (pas de tarte dans la foule ; 'bottle' x2 garde la taille de la liste, donc le flux aléatoire)
+        addPerson(g, px, py, randomAppearance(rng, r), pose, facing, { emote, holding: sit && rng.chance(0.25) ? rng.pick<HeldItem>(['bottle', 'baguette', 'bottle']) : undefined });
         if (k === talker && rng.chance(0.3)) talker = -1;
       });
       return n;

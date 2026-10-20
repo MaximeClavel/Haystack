@@ -4,6 +4,7 @@ import { WORLD_SEED } from '../config';
 import { compareDrawOrder, getEntityBounds } from '../art/bounds';
 import { appearanceDistance, buildingAt, buildWorld, groundAt, isWalkable, onCrosswalk, worldMeta } from './index';
 import { generateAmbient } from './generate';
+import { CASES } from '../content';
 import { LANDMARKS } from './layoutSpec';
 import { inflate, intersects, rectIntersectsConvex } from './geom';
 import { ACCESSORIES, BUILDS, COLORS, FACES, HAIR_COLORS, HAIRS, HATS, PATTERNS, SKINS, TOPS, BOTTOMS } from './appearance';
@@ -289,6 +290,20 @@ describe('véhicules, arbres, objets', () => {
     expect(count('prop')).toBeGreaterThan(1500);
   });
 
+  it('aucun bateau ne porte le nom (ou l’enseigne) d’un lieu remarquable que les enquêtes font chercher', () => {
+    // Deux bateaux « SAINTE-PAILLE » ont déjà fait douter un joueur qui cherchait l'hôpital (c05).
+    const norm = (s: string) => s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const labels: string[] = [];
+    for (const e of world.entities) if (e.kind === 'vehicle' && e.vehicle === 'boat' && e.label) labels.push(norm(e.label));
+    expect(labels.length).toBeGreaterThan(10);
+    for (const lm of LANDMARKS) {
+      for (const text of [lm.name, lm.sign ?? '']) {
+        const t = norm(text);
+        if (t) for (const l of labels) expect(t.includes(l), `bateau « ${l} » homonyme du lieu « ${text} »`).toBe(false);
+      }
+    }
+  });
+
   it('ids conformes et uniques', () => {
     expect(world.byId.size).toBe(world.entities.length);
     expect(world.bounds.size).toBe(world.entities.length);
@@ -456,6 +471,37 @@ describe('intégration des enquêtes', () => {
   });
 });
 
+describe('la tarte, signe distinctif des personnages d’enquête', () => {
+  // Une tarte à la main désigne un protagoniste (c00, c04). Si la foule en portait aussi, elle
+  // fournirait des leurres sans message dédié (une vieille dame au dessert à 110 u d'Octave, en c04).
+  const holdsCake = (e: Entity) => e.kind === 'person' && e.holding === 'cake';
+
+  it('aucun passant ambiant ne tient de tarte (ville de base)', () => {
+    expect(world.entities.filter(holdsCake).map((e) => e.id)).toEqual([]);
+    expect(world.entities.filter((e) => e.kind === 'prop' && e.prop === 'cake').map((e) => e.id)).toEqual([]);
+  });
+
+  it('une enquête qui donne une tarte à un personnage reste seule à en porter une', () => {
+    const victim = persons.find((p) => p.pose === 'walk' && p.appearance.build !== 'child')!;
+    const gp = LANDMARKS.find((l) => l.id === 'grand-place')!.rect;
+    const c = fakeCase({ ...victim.appearance }, { x: gp.x + 80, y: gp.y + 300 });
+    const suspect = c.entities.find((e) => e.id === 'cx.suspect');
+    if (suspect?.kind === 'person') suspect.holding = 'cake';
+    const w = buildWorld({ cases: [c] });
+    expect(w.entities.filter(holdsCake).map((e) => e.id)).toEqual(['cx.suspect']);
+  });
+
+  it('dans la vraie ville, les seules tartes à la main sont celles des personnages d’enquête', () => {
+    const real = buildWorld({ cases: CASES });
+    const holders = real.entities.filter(holdsCake);
+    expect(holders.length, 'les enquêtes (c00, c04) donnent une tarte à des personnages').toBeGreaterThan(0);
+    for (const e of holders) {
+      expect(e.id.startsWith('a.'), `${e.id} : passant ambiant avec une tarte`).toBe(false);
+      expect(e.tags, e.id).toContain('story');
+    }
+  });
+});
+
 describe('performance', () => {
   it('génération complète en moins de ~400 ms', () => {
     // Graine inédite : rien en cache.
@@ -495,5 +541,10 @@ describe('robustesse : autres graines', () => {
     expect(bad).toEqual([]);
     expect(count('person', w)).toBeGreaterThan(2400);
     expect(count('tree', w)).toBeGreaterThan(700);
+  });
+
+  it.each([1, 2, 3])('graine %i : aucune tarte dans la foule (réservée aux personnages d’enquête)', (seed) => {
+    const w = buildWorld({ seed });
+    expect(w.entities.filter((e) => e.kind === 'person' && e.holding === 'cake').map((e) => e.id)).toEqual([]);
   });
 });

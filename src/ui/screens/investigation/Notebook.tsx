@@ -6,6 +6,7 @@ import type { CaseSession } from '../../../game';
 import { Icon } from '../../icons';
 import { Portrait } from '../../components/Portrait';
 import { districtName, fr, paragraphs } from '../../format';
+import { testamentVerses } from './texts';
 
 export interface NotebookProps {
   def: CaseDef;
@@ -20,23 +21,6 @@ export interface NotebookProps {
   onRemovePin: (i: number) => void;
   onNotes: (text: string) => void;
   onPinMode: () => void;
-}
-
-/**
- * Vers du « testament » d'une enquête à réponses multiples (bonus) : un vers par réponse, dans l'ordre
- * de `accept`. `null` si le briefing n'a pas cette forme (le texte est alors affiché tel quel).
- */
-export function testamentVerses(def: CaseDef): { paragraph: string; verses: string[] } | null {
-  const accept = def.steps[0]?.accept ?? [];
-  if (!def.bonus || accept.length < 3) return null;
-  for (const para of def.intro.split(/\n\s*\n/)) {
-    const lines = para
-      .split('\n')
-      .map((l) => l.replace(/^\s*«\s*/, '').replace(/\s*»\s*$/, '').trim())
-      .filter((l) => l.length > 0);
-    if (lines.length === accept.length) return { paragraph: para, verses: lines };
-  }
-  return null;
 }
 
 /** Personnages dont au moins une apparition a été trouvée. */
@@ -142,7 +126,12 @@ export function Notebook(p: NotebookProps) {
                             <span class="nb-verse">{fr(v)}</span>
                             {done && <span class="sr-only"> (aiguille trouvée)</span>}
                             {done && (
-                              <button type="button" class="link-btn" onClick={() => p.onShow(ids[k])}>
+                              <button
+                                type="button"
+                                class="link-btn"
+                                aria-label={`Voir l’aiguille ${k + 1}`}
+                                onClick={() => p.onShow(ids[k])}
+                              >
                                 Voir
                               </button>
                             )}
@@ -160,7 +149,13 @@ export function Notebook(p: NotebookProps) {
           <section class="nb-section">
             <h3>Questions résolues</h3>
             {solved.length === 0 ? (
-              <p class="nb-empty">Aucune pour l’instant. Observez, puis désignez.</p>
+              <p class="nb-empty">
+                {testament
+                  ? foundIds.size === 0
+                    ? 'Aucune aiguille trouvée pour l’instant. Observez, puis désignez.'
+                    : `${foundIds.size} aiguille${foundIds.size > 1 ? 's' : ''} trouvée${foundIds.size > 1 ? 's' : ''} sur ${def.steps[0].accept.length}, cochée${foundIds.size > 1 ? 's' : ''} dans le testament.`
+                  : 'Aucune pour l’instant. Observez, puis désignez.'}
+              </p>
             ) : (
               <ol class="nb-solved">
                 {solved.map((s) => {
@@ -173,7 +168,13 @@ export function Notebook(p: NotebookProps) {
                       </p>
                       <p class="nb-a">{fr(s.solved)}</p>
                       {found.length > 0 && (
-                        <button type="button" class="link-btn" onClick={() => p.onShow(found[0])} data-testid={`nb-show-${s.id}`}>
+                        <button
+                          type="button"
+                          class="link-btn"
+                          aria-label={`Voir la réponse de la question ${i + 1}`}
+                          onClick={() => p.onShow(found[0])}
+                          data-testid={`nb-show-${s.id}`}
+                        >
                           <Icon name="eye" size={16} /> Voir
                         </button>
                       )}
@@ -184,22 +185,25 @@ export function Notebook(p: NotebookProps) {
             )}
           </section>
 
-          <section class="nb-section">
-            <h3>Personnages identifiés</h3>
-            {people.length === 0 ? (
-              <p class="nb-empty">Personne n’est encore identifié.</p>
-            ) : (
-              <ul class="nb-people">
-                {people.map((c) => (
-                  <li key={c.id}>
-                    <Portrait appearance={c.appearance} size={64} label={`Portrait de ${c.name}`} />
-                    <span class="nb-name">{c.name}</span>
-                    {c.role && <span class="nb-role">{c.role}</span>}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          {/* Le bonus n'a aucun personnage : la rubrique ne pourrait jamais se remplir. */}
+          {def.characters.length > 0 && (
+            <section class="nb-section">
+              <h3>Personnages identifiés</h3>
+              {people.length === 0 ? (
+                <p class="nb-empty">Personne n’est encore identifié.</p>
+              ) : (
+                <ul class="nb-people">
+                  {people.map((c) => (
+                    <li key={c.id}>
+                      <Portrait appearance={c.appearance} size={64} label={`Portrait de ${c.name}`} />
+                      <span class="nb-name">{c.name}</span>
+                      {c.role && <span class="nb-role">{c.role}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
 
           <section class="nb-section">
             <h3>

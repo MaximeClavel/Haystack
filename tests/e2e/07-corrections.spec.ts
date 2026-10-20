@@ -66,9 +66,10 @@ test('R2 : la bonne réponse d’une autre question ouverte (c05) compte, sans e
   await expect(page.getByTestId('question-panel')).toBeVisible();
   // L'onglet actif est la question 2 (faux infirmier) : on désigne Gontran, réponse de la question 5.
   await expect(page.getByTestId('tab-s2')).toHaveAttribute('aria-selected', 'true');
-  // Les pistes parallèles sont nommées, pas « Question 2 / 3 / 4 / 5 ».
+  // Les pistes parallèles sont nommées, pas « Question 2 / 3 / 4 / 5 » : le panneau les compte (« 4 pistes ouvertes »).
   await expect(page.getByTestId('tab-s2')).toHaveText('Infirmier');
   await expect(page.getByTestId('tab-s5')).toHaveText('Gontran');
+  await expect(page.getByTestId('question-panel')).toContainText('4 pistes ouvertes');
   await tapAndSelect(page, 'c05.gontran.1', testInfo);
   // La feuille de confirmation rappelle la question en cours (on compare la vignette à ses indices visuels).
   await expect(page.getByTestId('confirm-question')).toContainText('faux infirmier');

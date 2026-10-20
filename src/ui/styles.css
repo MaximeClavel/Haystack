@@ -1025,7 +1025,7 @@ button {
 .tab {
   flex: none;
   min-height: 44px;
-  padding: 6px 12px;
+  padding: 6px 8px;
   border: 2px solid var(--ink);
   border-radius: 999px;
   background: var(--paper);
@@ -1133,6 +1133,11 @@ button {
   color: var(--ink-2);
 }
 
+/* Droitier : le bouton Indice est à droite de la barre d'actions ; « Non merci » prend sa place, pas « Oui ». */
+[data-hand='right'] .hint-ask .btn-row {
+  flex-direction: row-reverse;
+}
+
 .hint-ask-stars {
   display: flex;
   align-items: center;
@@ -1185,9 +1190,13 @@ button {
   color: var(--hay);
 }
 
+/* Indice : une aide, pas l'action principale (le jaune plein reste à « Désigner » et « Commencer »). */
 .action.hint-action {
-  background: var(--hay);
-  color: var(--hay-ink);
+  border-color: var(--hay-2);
+}
+
+.action.hint-action .icon {
+  color: var(--hay-2);
 }
 
 /* Feuille de confirmation */
@@ -1300,6 +1309,17 @@ button {
   gap: 10px;
 }
 
+.dossier-diff {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dossier-diff-label {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
 .dossier-num {
   font-family: var(--font-title);
   font-size: 14px;
@@ -1365,6 +1385,14 @@ button {
 
 .end-head .stamp {
   margin: 4px 0 6px;
+}
+
+.stars-why {
+  max-width: 30em;
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--ink-2);
 }
 
 .end-text {
@@ -2087,7 +2115,7 @@ button {
     display: none;
   }
 
-  /* En-tête du panneau : « Question 2 sur 7 » et ses points tiennent sur une ligne. */
+  /* En-tête du panneau : « Question 2 sur 7 » (ou « 4 pistes ouvertes ») et ses points tiennent sur une ligne. */
   .qpanel-label {
     font-size: 13.5px;
     white-space: nowrap;

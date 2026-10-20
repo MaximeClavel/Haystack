@@ -5,6 +5,7 @@ import type { CaseDef, HintResult, StepDef, StepProgress } from '../../../types'
 import { REVEAL_TEXT, requiredOf } from '../../../game';
 import { Icon } from '../../icons';
 import { fr } from '../../format';
+import { hintCostText, panelLabel } from './texts';
 
 export interface QuestionPanelProps {
   def: CaseDef;
@@ -47,15 +48,6 @@ const HINT_LEVEL_TEXT: Record<1 | 2 | 3, string> = {
   3: 'Indice 3 sur 3 : la réponse est montrée.',
 };
 
-const starsText = (n: number): string => `${n} étoile${n > 1 ? 's' : ''}`;
-
-/** Ce qu'un indice coûte, en clair (la note est celle de l'enquête entière, erreurs comprises). */
-function hintCostText(now: number, after: number): string {
-  return after < now
-    ? `Votre note passera de ${now} à ${starsText(after)} au plus.`
-    : `Votre note reste à ${starsText(now)} pour l’instant.`;
-}
-
 export function QuestionPanel(p: QuestionPanelProps) {
   const { def, open, active, solvedIds, activeProgress, hint } = p;
   const index = active ? def.steps.findIndex((s) => s.id === active.id) : -1;
@@ -95,9 +87,7 @@ export function QuestionPanel(p: QuestionPanelProps) {
         <span class="qpanel-label">
           {!active
             ? 'Toutes les questions sont résolues'
-            : def.steps.length > 1
-              ? `Question ${index + 1} sur ${def.steps.length}`
-              : 'Votre mission'}
+            : panelLabel({ stepCount: def.steps.length, index, openCount: open.length })}
         </span>
         {active && required > 1 && (
           <span class="qcount" aria-label={`${found} trouvées sur ${required}`}>
@@ -169,7 +159,9 @@ export function QuestionPanel(p: QuestionPanelProps) {
             data-testid="hint-toggle"
           >
             <Icon name="hint" size={16} />
-            <span>Indice {hint?.level} sur 3</span>
+            <span>
+              Indice {hint?.level} sur 3{!p.hintOpen && ' · relire'}
+            </span>
             <Icon name={p.hintOpen ? 'chevronDown' : 'chevronUp'} size={16} />
           </button>
           {p.hintOpen &&
@@ -178,7 +170,7 @@ export function QuestionPanel(p: QuestionPanelProps) {
                 {fr(t)}
               </p>
             ))}
-          {p.hintOpen && hint?.area && (
+          {hint?.area && (
             <div class="hint-actions">
               <button type="button" class="link-btn" onClick={p.onHintShow}>
                 <Icon name="eye" size={16} /> Voir la zone
@@ -201,7 +193,7 @@ export function QuestionPanel(p: QuestionPanelProps) {
             </p>
             <p class="hint-ask-sub">{HINT_LEVEL_TEXT[nextLevel]}</p>
             <p class="hint-ask-stars" data-testid="hint-cost">
-              <Icon name="star" size={15} filled /> {hintCostText(p.starsNow, p.starsAfterHint)}
+              <Icon name="star" size={15} filled /> {fr(hintCostText(p.starsNow, p.starsAfterHint, def.steps.length))}
             </p>
             <div class="btn-row">
               <button type="button" class="btn btn-paper" onClick={p.onHintCancel} data-testid="hint-cancel">

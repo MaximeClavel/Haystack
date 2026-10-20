@@ -38,7 +38,7 @@ export const c02: CaseDef = {
   teaser: 'Au Parc des Meules, la cane dorée de la baronne a disparu le jour du grand concours.',
   intro:
     'Cet après-midi, au kiosque à musique, se tient le Grand Concours de la Plus Belle Cane. La grande favorite : Duchesse, la cane au plumage entièrement doré de la baronne Adélaïde de la Botte. Problème : ce matin, Duchesse a disparu de l’étang aux Canards.\n\n' +
-    'La baronne vous attend au bord de l’étang, au pied du ponton, avec Picotin. Elle offre une récompense, sa gratitude éternelle et sa recette de canard à l’orange — non, pardon, pas celle-là.\n\n' +
+    'La baronne vous attend au bord de l’étang, au pied du ponton, avec votre coéquipier Picotin. Elle offre une récompense, sa gratitude éternelle et sa recette de canard à l’orange — non, pardon, pas celle-là.\n\n' +
     'Retrouvez Duchesse avant le concours.\n\n— Commissaire Odile Fétu',
   start: { x: 5250, y: 980, zoom: 1.6 },
   characters: [
@@ -102,11 +102,19 @@ export const c02: CaseDef = {
     },
     {
       id: 's2',
-      question: 'Barbarie a fourré Duchesse dans un carton. Où l’a-t-il emportée ?',
+      question: 'Barbarie a fourré Duchesse dans un carton et s’en va avec. Où l’emporte-t-il ?',
       accept: ['c02.camionnette'],
       nearMiss: [
         { id: 'c02.barbarie.2', feedback: 'C’est bien Barbarie, le carton dans les bras. Suivez-le : où va-t-il ?' },
         { id: 'c02.barbarie.1', feedback: 'C’est bien Barbarie, mais plus tôt, au bord de l’étang : il n’a pas encore de carton. Suivez-le.' },
+        {
+          id: 'c02.barbarie.3',
+          feedback: 'C’est bien Barbarie, mais les bras en l’air et sans carton : ce n’est pas ce moment-là de l’histoire. Suivez plutôt le carton.',
+        },
+        {
+          id: 'c02.barque',
+          feedback: 'Barbarie est bien à bord… mais les bras en l’air et sans carton : ce n’est pas ce moment-là de l’histoire. Suivez plutôt le carton.',
+        },
         {
           id: 'c02.bigarade.1',
           feedback: 'Le chef Bigarade porte un carton, lui aussi : des oranges. Pour un canard à l’orange ? Il jure que non, la main sur la toque.',
@@ -125,6 +133,7 @@ export const c02: CaseDef = {
       accept: ['c02.lulu.2'],
       nearMiss: [
         { id: 'c02.duchesse.2', feedback: 'Duchesse saute de la camionnette ! Mais qui lui a ouvert la portière ?' },
+        { id: 'c02.camionnette', feedback: 'Elle est vide, justement. Qui a ouvert la portière ?' },
         { id: 'c02.lulu.1', feedback: 'C’est bien Lulu… mais plus tôt, au bord de l’étang. Désignez-le au moment où il libère Duchesse.' },
       ],
       hints: [
@@ -161,6 +170,7 @@ export const c02: CaseDef = {
       nearMiss: [
         { id: 'c02.barbarie.1', feedback: 'C’est bien Barbarie, mais ce matin, sur la rive. Depuis, il a pris le large.' },
         { id: 'c02.barbarie.2', feedback: 'C’est bien Barbarie, mais avec son carton, à travers le parc. Depuis, il a pris le large.' },
+        { id: 'c02.camionnette', feedback: 'Sa camionnette est vide, portière grande ouverte : Barbarie n’est plus dans les parages.' },
         { id: 'c02.canard.4', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },
         { id: 'c02.canard.5', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },
         { id: 'c02.canard.6', feedback: 'Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent.' },

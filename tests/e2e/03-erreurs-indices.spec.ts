@@ -24,7 +24,13 @@ test('c01 : erreur, fausse piste et indices 1 → 3 (projecteur, révélation)',
   const def = await page.evaluate(() => {
     const d = window.__haystack.cases.find((c) => c.id === 'c01')!;
     const s1 = d.steps[0];
-    return { question: s1.question, hints: s1.hints.map((h) => h.text), near: s1.nearMiss ?? [], answer: s1.accept[0] };
+    return {
+      question: s1.question,
+      hints: s1.hints.map((h) => h.text),
+      near: s1.nearMiss ?? [],
+      answer: s1.accept[0],
+      stepCount: d.steps.length,
+    };
   });
   await expect(page.getByTestId('question')).toHaveText(def.question);
 
@@ -80,6 +86,10 @@ test('c01 : erreur, fausse piste et indices 1 → 3 (projecteur, révélation)',
   // Niveau 2 : texte + zone éclairée (projecteur) et vol vers la zone.
   await tapUi(page.getByTestId('action-hint'));
   await expect(page.getByTestId('hint-ask')).toContainText('Indice 2 sur 3');
+  // La note reste à 2 étoiles : le texte annonce jusqu'où (le nombre de questions de l'enquête).
+  await expect(page.getByTestId('hint-cost')).toContainText(
+    `Votre note reste à 2 étoiles ; au-delà de ${def.stepCount} indices en tout, elle passera à 1 étoile.`,
+  );
   await tapUi(page.getByTestId('hint-confirm'));
   await expect(box).toContainText('Indice 2 sur 3');
   await expect(box).toContainText(def.hints[0]);
@@ -130,6 +140,8 @@ test('c01 : erreur, fausse piste et indices 1 → 3 (projecteur, révélation)',
   // Niveau 3 : révélation de la réponse.
   await tapUi(page.getByTestId('action-hint'));
   await expect(page.getByTestId('hint-ask')).toContainText('Indice 3 sur 3');
+  // La révélation fait tomber la note.
+  await expect(page.getByTestId('hint-cost')).toContainText('Votre note passera de 2 à 1 étoile au plus.');
   await tapUi(page.getByTestId('hint-confirm'));
   await expect(box).toContainText('Indice 3 sur 3');
   await expect(box).toContainText(REVEAL_TEXT);

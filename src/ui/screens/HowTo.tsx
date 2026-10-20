@@ -23,19 +23,19 @@ const STEPS: Step[] = [
   },
   {
     title: 'Suivre un personnage',
-    text: 'Une même personne apparaît plusieurs fois sur la carte, à différents moments de son histoire. Repérez ses vêtements et suivez-la.',
+    text: 'Une même personne apparaît plusieurs fois sur la carte, à différents moments de son histoire. Repérez ses vêtements et suivez-la : un fil rouge relie vos trouvailles.',
     draw: (c) => drawFollowIllustration(c),
     alt: 'La même dame au béret vert, d’abord en train de marcher, puis assise sur un banc, reliées par un fil rouge.',
   },
   {
     title: 'Désigner',
-    text: 'Touchez une personne, un objet ou un lieu, vérifiez la vignette, puis appuyez sur « Désigner ». Une erreur n’est pas grave, mais elle coûte des étoiles.',
+    text: 'Touchez une personne, un objet ou un lieu, vérifiez la vignette, puis appuyez sur « Désigner ». Jusqu’à deux erreurs, rien n’est perdu ; au-delà, elles coûtent des étoiles.',
     draw: (c) => drawPickIllustration(c),
     alt: 'Une petite foule ; un personnage masqué est encadré, avec le bouton Désigner.',
   },
   {
     title: 'Indices et carnet',
-    text: 'Bloqué ? Un indice éclaire une zone de la carte. Le carnet garde le briefing, vos découvertes, vos notes et vos punaises.',
+    text: 'Bloqué ? Un indice éclaire une zone de la carte. Le premier indice vous fait perdre une étoile ; comptez ensuite à peu près un indice par question avant d’en perdre une autre. Le carnet garde le briefing, vos découvertes, vos notes et vos punaises.',
     draw: drawHintIllustration,
     alt: 'Une zone de la carte éclairée par un projecteur, et une punaise rouge.',
   },

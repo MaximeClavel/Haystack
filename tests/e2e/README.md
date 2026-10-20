@@ -39,6 +39,8 @@ npx playwright show-trace test-results/<test>/trace.zip         # trace d'un éc
 | `04-toutes-les-enquetes.spec.ts` | **Toutes les enquêtes** (c00 → c05 puis le bonus) résolues au doigt en les débloquant dans l'ordre ; chaque réponse acceptée, y compris les alternatives, est tapée et vérifiée |
 | `05-explorer-reglages.spec.ts` | Exploration (glisser, nom du lieu, tap sur un lieu remarquable), minicarte (exploration et enquête), Comment jouer, réglages (mouvement réduit, gaucher, réinitialisation) |
 | `06-parcours-console.spec.ts` | Tous les écrans dans une même page : approche de loin, panneau repliable, carnet (notes, punaise posée puis retirée) — sans erreur console |
+| `07-corrections.spec.ts` | Corrections issues des revues (R1…R12, M1…M6) : recommencer, réponse d'une autre question ouverte, nom du lieu, bouton Retour, double tap, notes, petit écran, testament du bonus |
+| `08-retours-joueurs-ui.spec.ts` | Corrections de l'interface issues des joueurs test aveugles : « N pistes ouvertes » et suite du fil (c04), indice replié (« relire », zone accessible), « Non merci » sous le bouton Indice, toast du bonus avec le début du vers, carnet (rubrique vide, « Voir » nommés), fin du bonus sans bande noire, « Comment jouer », difficulté au briefing, onglets de c05 à 360 px |
 | `tools/planche.mjs` | Planche contact des captures de cibles (voir ci-dessous) |
 
 ## « Chaque réponse est désignable » (test 04)

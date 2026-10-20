@@ -225,5 +225,9 @@ export async function solveOpenCase(page: Page, caseId: string, testInfo: TestIn
   const stars = end.getByRole('img', { name: /étoiles? sur 3/ });
   await expect(stars).toBeVisible();
   const label = (await stars.getAttribute('aria-label')) ?? '';
+  // Une ligne sous les étoiles dit pourquoi cette note (ici : aucun indice ni erreur, le maximum).
+  const why = end.getByTestId('stars-why');
+  await expect(why).toBeVisible();
+  if (label.startsWith('3')) await expect(why).toContainText('le maximum');
   return { stars: Number(label.split(' ')[0]) };
 }

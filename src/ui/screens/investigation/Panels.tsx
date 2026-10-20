@@ -6,6 +6,7 @@ import type { CaseDef } from '../../../types';
 import { Difficulty, Stars } from '../../components/bits';
 import { Icon } from '../../icons';
 import { caseNumber, fr, paragraphs } from '../../format';
+import { starsExplanation } from './texts';
 
 export function Briefing(props: { def: CaseDef; panelRef: Ref<HTMLElement>; onStart: () => void }) {
   const { def } = props;
@@ -17,7 +18,13 @@ export function Briefing(props: { def: CaseDef; panelRef: Ref<HTMLElement>; onSt
     <section ref={props.panelRef} class="sheet briefing" role="dialog" aria-labelledby="brief-title" data-testid="briefing">
       <div class="dossier-head">
         <span class="dossier-num">{def.bonus ? 'Hors série' : `Dossier n° ${caseNumber(def)}`}</span>
-        <Difficulty level={def.difficulty} />
+        {/* Libellé masqué aux lecteurs d'écran : les loupes annoncent déjà « Difficulté N sur 5 ». */}
+        <span class="dossier-diff">
+          <span class="dossier-diff-label" aria-hidden="true">
+            Difficulté
+          </span>
+          <Difficulty level={def.difficulty} />
+        </span>
       </div>
       <h2 id="brief-title" ref={titleRef} tabIndex={-1} class="dossier-title">
         {def.title}
@@ -100,6 +107,8 @@ export function CaseEnd(props: {
   stars: 1 | 2 | 3;
   hints: number;
   mistakes: number;
+  /** Questions dont la réponse a été révélée (indice de niveau 3) : explique une note à 1 étoile. */
+  reveals: number;
   onReplay: () => void;
   onLook: () => void;
   onExit: () => void;
@@ -121,6 +130,17 @@ export function CaseEnd(props: {
           {def.title}
         </h2>
         <Stars count={props.stars} size={30} />
+        <p class="stars-why" data-testid="stars-why">
+          {fr(
+            starsExplanation({
+              stars: props.stars,
+              hints: props.hints,
+              mistakes: props.mistakes,
+              stepCount: def.steps.length,
+              reveals: props.reveals,
+            }),
+          )}
+        </p>
       </div>
       <div class="scroll end-text">
         {paragraphs(def.epilogue).map((t, i) => (

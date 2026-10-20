@@ -71,7 +71,7 @@ export const POSTERS = ['CIRQUE', 'CONCERT', 'BAL', 'SOLDES', 'FÊTE', 'LOTO', '
 export const BOAT_NAMES = [
   'LA MOUETTE',
   'BOTTE II',
-  'SAINTE-PAILLE',
+  'LA FANEUSE', // pas « SAINTE-PAILLE » : c'est le nom de l'hôpital, que c05 fait chercher
   'L\'ÉPI',
   'FENAISON',
   'BELLE-MEULE',
