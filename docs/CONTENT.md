@@ -42,7 +42,7 @@ de ce code : ils sont toujours exacts.
 
 | Commande | Rôle |
 |---|---|
-| `npm run content:check` (ou `npx tsx tools/content/check.ts --verbose`) | construit la ville AVEC les enquêtes, lance `validateAllCases`, puis les règles de la bible : hors chaussée, 80 u entre enquêtes, écarts d’apparence (≥ 3 attributs saillants sauf sosies déclarés), figurants, sosies ambiants, rayons d’indice, occultation des réponses |
+| `npm run content:check` (ou `npx tsx tools/content/check.ts --verbose`) | construit la ville AVEC les enquêtes, lance `validateAllCases`, puis les règles de la bible : hors chaussée, 80 u entre enquêtes, écarts d’apparence (≥ 3 attributs saillants sauf sosies déclarés), figurants, sosies ambiants, rayons d’indice, occultation des réponses, couleur d’un bas caché (tablier, manteau, robe) citée dans un texte |
 | `npx tsx tools/content/probe.ts x,y [x,y…]` | pour chaque point : sol, praticable, passage piéton, caché par un toit, bâtiment, entités ambiantes à moins de 16 u |
 | `node scripts/shot.mjs "/tools/content/preview.html?x=…&y=…&zoom=2&ids=1&only=c03" .shots/x.png` | aperçu de la ville avec les enquêtes ; `ids=1` étiquette les entités d’enquête, `threads=c03` trace les fils rouges, `hint=c03.s4` allume le projecteur de l’indice 2, `mark=id1,id2`, `grid=50` |
 | `npm run content:doc` | régénère ce document |
@@ -199,7 +199,7 @@ traverser la rivière.
 
 > Bienvenue à Meulebourg, inspecteur. Ici, on cherche des aiguilles dans des bottes de foin… et on les trouve.
 >
-> Pour fêter votre arrivée, j’avais commandé une tarte aux fraises à la boulangerie. Elle n’est jamais arrivée. Ce n’est pas encore un crime, mais c’est déjà un drame. Mon chien Croquette a lui aussi disparu ce matin : je suppose que c’est une coïncidence.
+> Pour fêter votre arrivée, j’avais commandé une tarte aux fraises à la boulangerie. Elle n’est jamais arrivée. Ce n’est pas encore un crime, mais c’est déjà un drame. Mon chien blanc, Croquette, a lui aussi disparu ce matin : je suppose que c’est une coïncidence.
 >
 > Le brigadier Picotin vous attend au square de la rue Neuve. Pincez pour zoomer, glissez pour vous déplacer, et touchez une personne ou un objet pour le désigner.
 >
@@ -225,9 +225,9 @@ traverser la rivière.
 |---|---|---|
 | s1 | désigner une personne | Picotin est décrit par ce qui se voit (casquette de police, uniforme bleu, bermuda beige : plus de moustache, invisible au zoom de jeu) et agite la main ; il est au centre de l’écran de départ |
 | s2 | un personnage apparaît plusieurs fois ; suivre son sens de marche | les deux apparitions du livreur sont à 110 u l’une de l’autre, visibles ensemble ; le `nearMiss` sur la première explique le principe |
-| s3 | désigner un animal / un objet ; les fausses pistes | le chien blanc a la tarte sous le museau ; la tarte, les pigeons et le dormeur ont chacun un message dédié |
+| s3 | désigner un animal / un objet ; les fausses pistes | le chien blanc se tient devant la tarte entière ; la tarte, les pigeons et le dormeur ont chacun un message dédié |
 
-**Amorce loyale** : le briefing signale que le chien de la commissaire, Croquette, a lui aussi disparu ce
+**Amorce loyale** : le briefing signale que le chien blanc de la commissaire, Croquette, a lui aussi disparu ce
 matin (« je suppose que c’est une coïncidence ») ; la résolution de s3 la reprend. Le coupable n’est donc
 plus un deus ex machina.
 
@@ -243,7 +243,7 @@ est à l’écran d’un téléphone. Seul piège : un chien orange tenu en lais
 **Signes distinctifs** (traits portés par au plus 5 % des 3 231 passants ambiants, du plus rare au moins rare) :
 
 - `c00.picotin` : casquette de police (0,4 %), uniforme (1,2 %), cheveux courts rouge (2,1 %)
-- `c00.livreur` : tablier (2,6 %), bas rouge (2,8 %), cheveux bouclés noir (3,0 %)
+- `c00.livreur` : tablier (2,6 %), bas rouge (2,8 % — masqué par le tablier, à ne pas citer), cheveux bouclés noir (3,0 %)
 
 **Entités**
 
@@ -265,31 +265,31 @@ est à l’écran d’un téléphone. Seul piège : un chien orange tenu en lais
 - **Réponses** (`accept`) : `c00.picotin.1`
 - **Indice 1** : Il vous attend dans le square, du côté nord, près de l’allée.
 - **Indice 2** : Cherchez l’homme en uniforme qui agite la main. — zone `{ x: 1600, y: 1905, radius: 90 }`
-- **Résolution** (`solved`) : « Ah, inspecteur ! Le livreur de la boulangerie est passé devant moi avec la tarte : casquette, tablier blanc, short rouge. Il traversait le square vers l’ouest… et je ne l’ai jamais vu ressortir. »
+- **Résolution** (`solved`) : « Ah, inspecteur ! Le livreur de la boulangerie est passé devant moi avec la tarte : tablier blanc, casquette rouge, cheveux bouclés. Il traversait le square vers l’ouest… et il n’en est jamais ressorti. »
 
 ##### Étape `s2` — après : `s1` (`after` omis)
 
-- **Question** : Où est le livreur MAINTENANT ? Astuce : un même personnage peut apparaître plusieurs fois sur la carte, à différents moments de son histoire.
+- **Question** : Où est le livreur (tablier blanc, casquette rouge) MAINTENANT, dans le square ? Astuce : un même personnage peut apparaître plusieurs fois sur la carte, à différents moments de son histoire.
 - **Réponses** (`accept`) : `c00.livreur.2`
 - **Fausses pistes** (`nearMiss`) :
   - `c00.livreur.1` → « C’est bien lui… mais un peu plus tôt : il porte encore la tarte. Regardez vers où il marche et cherchez la suite de son histoire. »
   - `c00.picotin.1` → « Picotin vous fait signe. Il attend que vous trouviez le livreur. »
 - **Indice 1** : Il marchait vers l’ouest du square. Un livreur fatigué, ça finit toujours par s’asseoir.
 - **Indice 2** : Regardez les bancs, à l’ouest de l’allée centrale. — zone `{ x: 1570, y: 1890, radius: 80 }`
-- **Résolution** (`solved`) : Le livreur dort à poings fermés sur un banc. Et ses bras sont vides : plus de tarte !
+- **Résolution** (`solved`) : Le livreur dort à poings fermés sur un banc. Et ses bras sont vides : plus de tarte ! Le fil rouge relie vos trouvailles, dans l’ordre de l’histoire.
 - **Fils rouges** (`thread`) : `c00.livreur.1` → `c00.livreur.2`
 
 ##### Étape `s3` — après : `s2` (`after` omis)
 
-- **Question** : La tarte a disparu pendant la sieste du livreur. Qui l’a mangée ?
+- **Question** : Le livreur dort, la tarte traîne dans l’herbe. Qui va s’en régaler ?
 - **Réponses** (`accept`) : `c00.croquette`
 - **Fausses pistes** (`nearMiss`) :
-  - `c00.tarte` → « Voici ce qu’il reste de la tarte. Mais qui a croqué dedans ? »
+  - `c00.tarte` → « La voilà, encore entière. Mais qui la lorgne ? »
   - `c00.pigeons` → « Les pigeons guettent les miettes. Une tarte entière, c’est trop lourd pour eux. »
   - `c00.livreur.2` → « Il ronfle. Difficile de manger une tarte en dormant. »
 - **Indice 1** : Regardez juste devant le banc du livreur.
-- **Indice 2** : Un gourmand à quatre pattes, le museau dans la crème… — zone `{ x: 1545, y: 1915, radius: 70 }`
-- **Résolution** (`solved`) : Croquette ! Le chien de la commissaire Fétu, le museau plein de crème. Une coïncidence, disiez-vous ? Affaire classée.
+- **Indice 2** : Un gourmand à quatre pattes, le nez sur la tarte… — zone `{ x: 1545, y: 1915, radius: 70 }`
+- **Résolution** (`solved`) : Croquette ! Le chien de la commissaire Fétu, planté devant la tarte, l’air trop innocent. Une coïncidence, disiez-vous ? Affaire classée.
 - **Fils rouges** (`thread`) : `c00.livreur.2` → `c00.croquette`
 
 **Reconstitution** (`replay`)
@@ -365,7 +365,7 @@ est à l’écran d’un téléphone. Seul piège : un chien orange tenu en lais
 **Signes distinctifs** (traits portés par au plus 5 % des 3 231 passants ambiants, du plus rare au moins rare) :
 
 - `c01.picotin` : casquette de police (0,4 %), uniforme (1,2 %), cheveux courts rouge (2,1 %)
-- `c01.rose` : toque (0,3 %), cheveux chignon blonds (1,2 %), tablier (2,6 %), haut rose (3,1 %), bas blanc (4,4 %)
+- `c01.rose` : toque (0,3 %), cheveux chignon blonds (1,2 %), tablier (2,6 %), haut rose (3,1 %), bas blanc (4,4 % — en partie masqué par le tablier, signe peu fiable : dire où il se voit)
 - `c01.lafouine` : cagoule / masque (0,3 %), haut noir rayé (1,2 %)
 - `c01.motus` : haut noir rayé (1,2 %)
 
@@ -416,17 +416,18 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
   - `c01.motus.1` → « C’est Motus, le mime du marché : même bonnet, même pull rayé… mais pas de masque, et les mains vides. Il est coincé dans une boîte invisible depuis ce matin. »
 - **Indice 1** : Il fonce vers l’est, dans l’allée entre les deux premières rangées d’étals.
 - **Indice 2** : Cherchez quelqu’un qui court, un sac d’argent à la main. — zone `{ x: 2805, y: 490, radius: 120 }`
-- **Résolution** (`solved`) : Le voici, le sac de la recette à la main, qui fend la foule en direction de la rue des Étals.
+- **Résolution** (`solved`) : Le voici, le sac de la recette à la main, qui fend la foule vers l’est, en direction de la rue des Étals.
 - **Fils rouges** (`thread`) : `c01.rose.1` → `c01.lafouine.1`
 
 ##### Étape `s3` — après : `s2` (`after` omis)
 
-- **Question** : Plus loin, le voleur marche les mains vides. Où a-t-il caché la caisse ?
+- **Question** : Plus loin, à l’est du marché, le voleur marche les mains vides. Où a-t-il caché la caisse ?
 - **Réponses** (`accept`) : `c01.caisse`, `c01.poubelle`
 - **Fausses pistes** (`nearMiss`) :
   - `c01.lafouine.2` → « Le voleur, les mains vides : il vient de se débarrasser de la caisse, quelque part derrière lui. »
   - `c01.lafouine.1` → « C’est bien lui, mais plus tôt : il tenait encore le sac. Où l’a-t-il laissé en chemin ? »
-- **Indice 1** : Il a traversé la rue des Étals, à la sortie est du marché.
+  - `c01.lafouine.3` → « Vous l’avez retrouvé, mais c’est la caisse qu’on cherche. Revenez sur ses pas. »
+- **Indice 1** : Il a traversé la rue des Étals, celle qui longe le marché.
 - **Indice 2** : Regardez au coin de la rue des Étals et de la rue du Cinéma. — zone `{ x: 3215, y: 595, radius: 80 }`
 - **Résolution** (`solved`) : La recette dépasse d’une poubelle, au coin de la rue. Il comptait venir la rechercher après la séance.
 - **Fils rouges** (`thread`) : `c01.lafouine.1` → `c01.caisse` ; `c01.caisse` → `c01.lafouine.2`
@@ -449,8 +450,8 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 **Reconstitution** (`replay`)
 
 1. `c01.rose.1` — À l’ouverture, Rose Lemiel voit sa caisse filer sous son nez.
-2. `c01.lafouine.1` — Lafouine traverse le marché en courant, la caisse sous le bras.
-3. `c01.motus.1` — Il passe devant Motus, le mime, qui ne dira rien — évidemment.
+2. `c01.motus.1` — Lafouine file devant Motus, le mime, qui ne dira rien — évidemment.
+3. `c01.lafouine.1` — Il traverse le marché en courant, la caisse à la main.
 4. `c01.caisse` — Au coin de la rue, il cache la caisse dans une poubelle.
 5. `c01.lafouine.2` — Puis il file vers le cinéma, les mains vides, l’air innocent.
 6. `c01.lafouine.3` — Dans la file du Rex, il attend son alibi… en masque de bandit.
@@ -480,7 +481,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 
 > Cet après-midi, au kiosque à musique, se tient le Grand Concours de la Plus Belle Cane. La grande favorite : Duchesse, la cane au plumage entièrement doré de la baronne Adélaïde de la Botte. Problème : ce matin, Duchesse a disparu de l’étang aux Canards.
 >
-> La baronne vous attend au bord de l’étang, au pied du ponton, avec Picotin. Elle offre une récompense, sa gratitude éternelle et sa recette de canard à l’orange — non, pardon, pas celle-là.
+> La baronne vous attend au bord de l’étang, au pied du ponton, avec votre coéquipier Picotin. Elle offre une récompense, sa gratitude éternelle et sa recette de canard à l’orange — non, pardon, pas celle-là.
 >
 > Retrouvez Duchesse avant le concours.
 >
@@ -537,8 +538,8 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 **Signes distinctifs** (traits portés par au plus 5 % des 3 231 passants ambiants, du plus rare au moins rare) :
 
 - `c02.picotin` : casquette de police (0,4 %), uniforme (1,2 %), cheveux courts rouge (2,1 %)
-- `c02.baronne` : haut violet à pois (0,4 %), bas violet (1,9 %), cheveux chignon blanc (2,1 %)
-- `c02.barbarie` : haut vert à carreaux (0,7 %), bas jaune (1,7 %)
+- `c02.baronne` : haut violet à pois (0,4 %), bas violet (1,9 % — en partie masqué par la robe, signe peu fiable : dire où il se voit), cheveux chignon blanc (2,1 %)
+- `c02.barbarie` : haut vert à carreaux (0,7 %), bas jaune (1,7 % — en partie masqué par le manteau, signe peu fiable : dire où il se voit)
 - `c02.lulu` : bas orange (0,7 %), cheveux en épis blonds (0,9 %), ballon (1,6 %), salopette (3,6 %)
 - `c02.bigarade` : toque (0,3 %), tablier (2,6 %)
 
@@ -595,11 +596,13 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 
 ##### Étape `s2` — après : `s1` (`after` omis)
 
-- **Question** : Barbarie a fourré Duchesse dans un carton. Où l’a-t-il emportée ?
+- **Question** : Barbarie a fourré Duchesse dans un carton et s’en va avec. Où l’emporte-t-il ?
 - **Réponses** (`accept`) : `c02.camionnette`
 - **Fausses pistes** (`nearMiss`) :
   - `c02.barbarie.2` → « C’est bien Barbarie, le carton dans les bras. Suivez-le : où va-t-il ? »
   - `c02.barbarie.1` → « C’est bien Barbarie, mais plus tôt, au bord de l’étang : il n’a pas encore de carton. Suivez-le. »
+  - `c02.barbarie.3` → « C’est bien Barbarie, mais les bras en l’air et sans carton : ce n’est pas ce moment-là de l’histoire. Suivez plutôt le carton. »
+  - `c02.barque` → « Barbarie est à bord… mais les bras en l’air et sans carton : ce n’est pas ce moment-là de l’histoire. Suivez plutôt le carton. »
   - `c02.bigarade.1` → « Le chef Bigarade porte un carton, lui aussi : des oranges. Pour un canard à l’orange ? Il jure que non, la main sur la toque. »
 - **Indice 1** : Barbarie a pris l’allée qui descend vers le boulevard des Halles, le boulevard qui traverse le parc.
 - **Indice 2** : Un véhicule à son nom est garé sur le boulevard. — zone `{ x: 5325, y: 1250, radius: 110 }`
@@ -612,6 +615,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 - **Réponses** (`accept`) : `c02.lulu.2`
 - **Fausses pistes** (`nearMiss`) :
   - `c02.duchesse.2` → « Duchesse saute de la camionnette ! Mais qui lui a ouvert la portière ? »
+  - `c02.camionnette` → « Elle est vide, justement. Qui a ouvert la portière ? »
   - `c02.lulu.1` → « C’est bien Lulu… mais plus tôt, au bord de l’étang. Désignez-le au moment où il libère Duchesse. »
 - **Indice 1** : Regardez juste à côté de la camionnette, portière ouverte.
 - **Indice 2** : Quelqu’un de petit, avec un ballon, qui a tout vu depuis la rive. — zone `{ x: 5295, y: 1280, radius: 70 }`
@@ -642,6 +646,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 - **Fausses pistes** (`nearMiss`) :
   - `c02.barbarie.1` → « C’est bien Barbarie, mais ce matin, sur la rive. Depuis, il a pris le large. »
   - `c02.barbarie.2` → « C’est bien Barbarie, mais avec son carton, à travers le parc. Depuis, il a pris le large. »
+  - `c02.camionnette` → « Sa camionnette est vide, portière grande ouverte : Barbarie n’est plus dans les parages. »
   - `c02.canard.4` → « Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent. »
   - `c02.canard.5` → « Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent. »
   - `c02.canard.6` → « Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent. »
@@ -685,7 +690,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 
 **Briefing** (`intro`) :
 
-> Ce matin, Achille Lapince, dit « le Hérisson » — cheveux en épis, pyjama rayé bleu et blanc —, devait être transféré à la prison de la Préfecture. Le fourgon s’est arrêté devant la gare. Deux minutes plus tard, il était vide.
+> Ce matin, Achille Lapince, dit « le Hérisson » — cheveux en épis, pyjama rayé bleu et blanc —, devait être transféré à la prison de la Préfecture. Le fourgon s’est arrêté devant la gare, sous la garde du brigadier Picotin. Deux minutes plus tard, il était vide.
 >
 > Depuis l’alerte, deux agents gardent le Pont Central. Lapince n’a ni argent ni vêtements de rechange, mais il a des amis. Retrouvez-le avant le train de midi.
 >
@@ -693,7 +698,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 
 **Épilogue** (`epilogue`) :
 
-> Achille Lapince a tenu quarante minutes immobile, les bras en l’air, avant que Picotin ne lui demande l’heure. Il a répondu.
+> Achille Lapince a tenu quarante minutes immobile, les bras en l’air, avant que le brigadier Picotin ne lui demande l’heure. Il a répondu.
 >
 > Lola Cachou a été arrêtée au quai Sud, à bord de « La Cocotte ». L’épouvantail a récupéré son chapeau, et les jardiniers jurent qu’il a l’air plus fier qu’avant.
 
@@ -755,7 +760,7 @@ chemise** — deux attributs très visibles.
 - `c03.picotin` : casquette de police (0,4 %), uniforme (1,2 %), cheveux courts rouge (2,1 %)
 - `c03.lapince` : cheveux en épis blonds (0,9 %), haut blanc rayé (1,4 %)
 - `c03.lapince-paille` : cheveux en épis blonds (0,9 %), haut blanc rayé (1,4 %)
-- `c03.lola` : haut rose à pois (0,6 %), cheveux bouclés rouge (0,9 %), bas rose (1,5 %)
+- `c03.lola` : haut rose à pois (0,6 %), cheveux bouclés rouge (0,9 %), bas rose (1,5 % — en partie masqué par la robe, signe peu fiable : dire où il se voit)
 - `c03.marin` : cheveux en épis blonds (0,9 %), haut blanc rayé (1,4 %)
 - `c03.epouvantail` : haut blanc à carreaux (0,9 %), cheveux en épis blonds (0,9 %)
 - `c03.epouvantail-nu` : haut blanc à carreaux (0,9 %), cheveux en épis blonds (0,9 %)
@@ -802,15 +807,18 @@ chemise** — deux attributs très visibles.
   - `c03.picotin.1` → « Picotin est très occupé, là-bas. On y reviendra : trouvez d’abord le fourgon. »
 - **Indice 1** : Il est garé rue de la Gare, au sud du parvis, juste à côté du bus vert.
 - **Indice 2** : Un fourgon bleu marine, vide. — zone `{ x: 1080, y: 1820, radius: 90 }`
-- **Résolution** (`solved`) : Le fourgon est vide, portière grande ouverte. Mais où étaient les agents pendant l’évasion ?
+- **Résolution** (`solved`) : Le fourgon est vide, portière grande ouverte. Mais que faisaient les agents pendant l’évasion ?
 
 ##### Étape `s2` — après : `s1` (`after` omis)
 
-- **Question** : Au moment de l’évasion, les agents étaient occupés ailleurs. Qui a fait diversion ?
+- **Question** : Devant la gare, les agents ont été distraits au moment de l’évasion. Qui a fait diversion ?
 - **Réponses** (`accept`) : `c03.lola.1`
 - **Fausses pistes** (`nearMiss`) :
   - `c03.picotin.1` → « Picotin évente la dame évanouie de son képi. Il n’a rien vu partir — il ne voit d’ailleurs pas grand-chose. »
   - `c03.fourgon` → « Le fourgon, toujours vide. Qui a détourné l’attention des agents ? »
+  - `c03.agent.1` → « Ces deux-là gardent le pont depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ? »
+  - `c03.agent.2` → « Ces deux-là gardent le pont depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ? »
+  - `z.pont-central` → « Le pont est gardé depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ? »
 - **Indice 1** : Quelqu’un a fait un malaise très opportun, tout près du fourgon.
 - **Indice 2** : Regardez sur le parvis, juste au-dessus du fourgon. — zone `{ x: 1095, y: 1815, radius: 70 }`
 - **Résolution** (`solved`) : Une dame s’est « évanouie » sur le parvis : lunettes noires, béret, robe rose à pois. Tous les agents ont couru à son secours… Un évanouissement bien commode.
@@ -818,14 +826,14 @@ chemise** — deux attributs très visibles.
 
 ##### Étape `s3` — après : `s2` (`after` omis)
 
-- **Question** : Lapince a filé à pied, toujours en pyjama rayé. Retrouvez-le dans sa fuite.
+- **Question** : Lapince a quitté le parvis à pied, en pyjama rayé, cheveux en épis. Quelqu’un l’a vu courir : retrouvez-le.
 - **Réponses** (`accept`) : `c03.lapince.1`, `c03.lapince.2`
 - **Fausses pistes** (`nearMiss`) :
   - `c03.marin.1` → « Une marinière, pas un pyjama : ce marin porte un bonnet, et il n’a pas quitté son quai de la matinée. »
   - `c03.client` → « Un client du Fer à Cheval, très agité. Regardez plutôt ce qu’il montre du doigt. »
   - `c03.lola.1` → « La fausse malade est encore sur le parvis. Lapince, lui, a déjà pris la poudre d’escampette. »
   - `c03.lapince.3` → « C’est bien lui, mais beaucoup plus loin, de l’autre côté de la rivière. Retrouvez d’abord le début de sa fuite. »
-- **Indice 1** : Il est parti vers le sud, par les petites rues du quartier de la Gare. Un client du bar Le Fer à Cheval l’a vu passer.
+- **Indice 1** : Il est parti vers le sud, par les petites rues du quartier de la Gare. Le témoin est un client du bar Le Fer à Cheval.
 - **Indice 2** : Regardez devant la terrasse du Fer à Cheval. — zone `{ x: 875, y: 2220, radius: 90 }`
 - **Résolution** (`solved`) : Le revoilà, qui file vers le sud — devant le Fer à Cheval, puis en se faufilant près du Garage Pistons. Il se dirige vers la rivière.
 - **Fils rouges** (`thread`) : `c03.fourgon` → `c03.lapince.1` ; `c03.lapince.1` → `c03.lapince.2`
@@ -851,7 +859,7 @@ chemise** — deux attributs très visibles.
   - `c03.epouvantail.1` → « Cet épouvantail a toujours son chapeau. »
   - `c03.epouvantail.2` → « Cet épouvantail a toujours son chapeau. »
   - `c03.epouvantail.3` → « Cet épouvantail a toujours son chapeau. »
-  - `c03.lapince.4` → « Celui-ci a un chapeau… Gardez-le à l’œil quand même. »
+  - `c03.lapince.4` → « Cet épouvantail a toujours son chapeau. »
 - **Indice 1** : Ils se dressent au milieu des potagers, bras levés. Comptez les chapeaux.
 - **Indice 2** : Cherchez dans la rangée nord des jardins. — zone `{ x: 1085, y: 4320, radius: 120 }`
 - **Résolution** (`solved`) : Un épouvantail décoiffé, cheveux de paille au vent. Quelqu’un avait besoin d’un chapeau…
@@ -973,7 +981,7 @@ chemise** — deux attributs très visibles.
 - `c04.octave` : haut-de-forme (1,0 %), bas violet (1,9 %), haut violet (3,6 %)
 - `c04.ludo` : cheveux bouclés noir (3,0 %)
 - `c04.lino` : cheveux bouclés noir (3,0 %)
-- `c04.zita` : haut jaune à carreaux (0,6 %), cheveux chignon gris (2,4 %), bas vert (3,1 %)
+- `c04.zita` : haut jaune à carreaux (0,6 %), cheveux chignon gris (2,4 %), bas vert (3,1 % — masqué par le manteau, à ne pas citer)
 
 **Entités**
 
@@ -1019,9 +1027,9 @@ chemise** — deux attributs très visibles.
   - `c04.ludo.1` → « C’est bien lui, le diamant à la main… au moment du vol. Où est-il allé ensuite ? »
   - `c04.lino.1` → « Lino sort de l’égout : il n’a rien en main. Regardez lequel des deux tient le diamant devant la vitrine. »
   - `c04.lino.2` → « C’est Lino, le jumeau sans sac à dos. Devant la vitrine, c’est celui au sac à dos qui tenait le diamant. »
-- **Indice 1** : Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant. Il est parti vers le nord, vers la Grand-Place.
+- **Indice 1** : Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant, celui qui avait un sac au dos. Il est parti vers le nord, vers la Grand-Place.
 - **Indice 2** : Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule. — zone `{ x: 2735, y: 2330, radius: 140 }`
-- **Résolution** (`solved`) : Ludo Taupin, sac au dos, fend la foule de la Grand-Place. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.
+- **Résolution** (`solved`) : Ludo Taupin, sac au dos, a traversé la Grand-Place avec le butin. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.
 - **Fils rouges** (`thread`) : `c04.ludo.1` → `c04.ludo.2`
 
 ##### Étape `s3` — après : `s2` (`after: ["s2"]`)
@@ -1038,16 +1046,16 @@ chemise** — deux attributs très visibles.
 
 ##### Étape `s4` — après : rien (ouverte dès le début) (`after: []`)
 
-- **Question** : Un voisin a vu quelqu’un s’éloigner de la bijouterie à l’aube, une tarte à la main. Retrouvez cette personne.
+- **Question** : Un voisin a vu quelqu’un s’éloigner de la bijouterie à l’aube, vers la Grand-Place, une tarte à la main. Retrouvez-le.
 - **Réponses** (`accept`) : `c04.octave.1`
 - **Fausses pistes** (`nearMiss`) :
   - `c04.octave.3` → « C’est le bijoutier, plus tard dans la matinée. Il n’a plus de tarte… Cherchez-le à l’aube, sur la Grand-Place. »
-  - `c04.picotin.2` → « Picotin a une tarte, oui. Mais il ne l’avait pas à l’aube : il dormait. »
+  - `c04.picotin.2` → « Picotin ? À l’aube, il dormait encore. »
   - `c04.zita.1` → « Cette dame porte bien une tarte, mais elle est à la terrasse d’un café, bien loin de la bijouterie. Ce n’est pas elle que le voisin a vue. »
   - `c04.octave.2` → « C’est bien le bijoutier, mais les mains vides, plus au nord : la tarte n’est plus là. Cherchez-le à l’aube, près de la Grand-Place. »
 - **Indice 1** : Haut-de-forme, costume violet, une tarte à la main, l’air de ne pas vouloir être vu… Ça ne vous rappelle personne ?
 - **Indice 2** : Il a traversé l’est de la Grand-Place. — zone `{ x: 3010, y: 2280, radius: 140 }`
-- **Résolution** (`solved`) : Octave Carat en personne, à l’aube, une tarte sous le bras ! Le bijoutier « effondré » avait des choses à cacher.
+- **Résolution** (`solved`) : Octave Carat en personne, à l’aube, une tarte plaquée devant le visage ! Il file vers le nord. Le bijoutier « effondré » avait des choses à cacher.
 - **Fils rouges** (`thread`) : `c04.octave.3` → `c04.octave.1`
 
 ##### Étape `s5` — après : `s4` (`after: ["s4"]`)
@@ -1056,23 +1064,23 @@ chemise** — deux attributs très visibles.
 - **Réponses** (`accept`) : `c04.zita.1`
 - **Fausses pistes** (`nearMiss`) :
   - `c04.octave.2` → « C’est Octave, les mains vides : il vient de donner la tarte. À qui ? »
-  - `c04.octave.1` → « C’est bien Octave, tarte au bras, mais plus tôt. Suivez-le : à qui va-t-il la confier ? »
-  - `c04.picotin.2` → « Picotin a une tarte, lui aussi : il en trouve toujours une. Mais ce n’est pas à lui que le bijoutier l’a confiée. »
+  - `c04.octave.1` → « C’est bien Octave, tarte à la main, mais plus tôt. Suivez-le : à qui va-t-il la confier ? »
+  - `c04.picotin.2` → « Picotin n’a rien à voir avec ce que le bijoutier a confié : il n’était même pas là. »
   - `lm.cafe-du-centre` → « Le Café du Centre, oui. Mais c’est à une personne que le bijoutier a confié la tarte. »
-- **Indice 1** : Il a continué vers le nord, jusqu’à une terrasse où l’on sert le café.
+- **Indice 1** : Il ne s’est arrêté qu’à une terrasse où l’on sert le café.
 - **Indice 2** : Regardez devant le Café du Centre. — zone `{ x: 3200, y: 1820, radius: 90 }`
 - **Résolution** (`solved`) : À sa sœur, Zita Pistache, à la terrasse du Café du Centre. Elle devait quitter la ville avec… la tarte.
 - **Fils rouges** (`thread`) : `c04.octave.1` → `c04.octave.2` ; `c04.octave.2` → `c04.zita.1`
 
 ##### Étape `s6` — après : `s3`, `s5` (`after: ["s3","s5"]`)
 
-- **Question** : Le diamant de la vitrine était un faux : le vrai était caché dans la tarte. Mais Zita ne l’a plus ! Où est la tarte à présent ?
+- **Question** : Le diamant de la vitrine était un faux : le vrai était caché dans la tarte. Mais Zita ne l’a plus ! Où est la tarte, sur la place ?
 - **Réponses** (`accept`) : `c04.picotin.2`
 - **Fausses pistes** (`nearMiss`) :
   - `c04.zita.2` → « Zita, les mains vides. En voyant la police partout, elle s’est débarrassée de la tarte. Juste à côté… »
   - `c04.zita.1` → « Zita portait bien la tarte, à la terrasse du café. Mais elle n’a pas gardé cette tarte longtemps… »
   - `lm.hotel-de-ville` → « L’Hôtel de Ville, oui. Mais entre les mains de qui la tarte a-t-elle atterri ? »
-- **Indice 1** : Zita a voulu se débarrasser de la tarte au plus vite, en la donnant à la personne la moins soupçonneuse de la ville.
+- **Indice 1** : Zita a voulu se débarrasser de la tarte au plus vite, en la donnant à la dernière personne qu’on irait soupçonner.
 - **Indice 2** : Regardez devant l’Hôtel de Ville. — zone `{ x: 2760, y: 1790, radius: 90 }`
 - **Résolution** (`solved`) : Dans les mains de Picotin, qui la trouve « délicieuse, un peu croquante au milieu ». Le vrai diamant était dedans, comme une fève dans la galette.
 - **Fils rouges** (`thread`) : `c04.zita.1` → `c04.zita.2` ; `c04.zita.2` → `c04.picotin.2`
@@ -1183,10 +1191,10 @@ visible :
 **Signes distinctifs** (traits portés par au plus 5 % des 3 231 passants ambiants, du plus rare au moins rare) :
 
 - `c05.picotin` : casquette de police (0,4 %), uniforme (1,2 %), cheveux courts rouge (2,1 %)
-- `c05.berenice` : bouquet (0,8 %), bas rouge (2,8 %), cheveux longs noir (3,6 %), haut rouge (3,8 %)
+- `c05.berenice` : bouquet (0,8 %), bas rouge (2,8 % — en partie masqué par la robe, signe peu fiable : dire où il se voit), cheveux longs noir (3,6 %), haut rouge (3,8 %)
 - `c05.gontran` : bas orange (0,7 %), haut-de-forme (1,0 %), haut rouge (3,8 %), parapluie (4,3 %)
-- `c05.gontran-deguise` : cagoule / masque (0,3 %), bas orange (0,7 %), haut-de-forme (1,0 %), parapluie (4,3 %)
-- `c05.petronille` : bas orange (0,7 %), haut-de-forme (1,0 %), cheveux longs rouge (1,3 %), haut vert (3,8 %)
+- `c05.gontran-deguise` : cagoule / masque (0,3 %), bas orange (0,7 % — en partie masqué par le manteau, signe peu fiable : dire où il se voit), haut-de-forme (1,0 %), parapluie (4,3 %)
+- `c05.petronille` : bas orange (0,7 % — en partie masqué par le manteau, signe peu fiable : dire où il se voit), haut-de-forme (1,0 %), cheveux longs rouge (1,3 %), haut vert (3,8 %)
 - `c05.hector` : bas orange (0,7 %), cheveux bouclés marron (3,7 %), chapeau melon (3,9 %), parapluie (4,3 %)
 - `c05.armateur` : haut-de-forme (1,0 %), haut rouge (3,8 %), parapluie (4,3 %)
 
@@ -1237,15 +1245,17 @@ visible :
   - `lm.hopital` → « L’hôpital Sainte-Paille, oui. Mais c’est l’infirmier qu’on cherche, dehors, devant l’entrée. »
 - **Indice 1** : L’hôpital est au sud, rue des Brancards. Un infirmier avec un flacon… et un drôle de chapeau.
 - **Indice 2** : Devant l’entrée de l’hôpital, près des ambulances. — zone `{ x: 5810, y: 3150, radius: 90 }`
-- **Résolution** (`solved`) : Blouse blanche et masque… mais un haut-de-forme, un parapluie et le pantalon orange de la troupe ! L’assassin est l’un des comédiens. Retenez bien ces détails.
+- **Résolution** (`solved`) : Blouse blanche et masque… mais un haut-de-forme, un parapluie et le pantalon orange de la troupe ! L’assassin est l’un des comédiens. Retenez bien ces détails : le carnet les gardera pour vous.
 
 ##### Étape `s3` — après : `s1` (`after: ["s1"]`)
 
 - **Question** : Pétronille Doublure, la doublure de Bérénice, jure avoir répété « la scène de la mort » au calme pendant l’entracte. Trouvez-la.
 - **Réponses** (`accept`) : `c05.petronille.1`
-- **Indice 1** : Où répète-t-on le mieux la scène de la mort ? Dans l’endroit le plus calme du quartier des Arts.
+- **Fausses pistes** (`nearMiss`) :
+  - `z.cimetiere` → « Le cimetière, oui. Mais ce n’est pas ce qu’on cherche : une femme qui déclame, partition en main. »
+- **Indice 1** : Où répète-t-on la scène de la mort ? Au plus calme du quartier des Arts. Cherchez un haut-de-forme et une partition.
 - **Indice 2** : Au cimetière, sur l’allée centrale. — zone `{ x: 4640, y: 3225, radius: 110 }`
-- **Résolution** (`solved`) : Au cimetière, entre deux tombes, Pétronille déclame la mort de l’héroïne. Haut-de-forme et pantalon orange… mais elle s’appuie sur une canne.
+- **Résolution** (`solved`) : Au cimetière, entre deux tombes, Pétronille déclame la mort de l’héroïne. Haut-de-forme, pantalon orange qui dépasse du long manteau vert… mais elle s’appuie sur une canne.
 
 ##### Étape `s4` — après : `s1` (`after: ["s1"]`)
 
@@ -1254,13 +1264,13 @@ visible :
 - **Fausses pistes** (`nearMiss`) :
   - `c05.admiratrice` → « Une admiratrice, très consolante. Elle n’a jamais mis les pieds au théâtre. »
   - `lm.musee` → « Le Musée des Beaux-Arts, oui. Mais c’est Hector qu’on cherche, sur le parvis. »
-- **Indice 1** : Quel bâtiment du quartier des Arts abrite le plus de belles choses ? Marbre, colonnes, statues…
+- **Indice 1** : Quel bâtiment du quartier des Arts abrite le plus de belles choses ? Marbre, colonnes, statues… Il y est en bonne compagnie.
 - **Indice 2** : Sur le parvis du Musée des Beaux-Arts. — zone `{ x: 4890, y: 2520, radius: 110 }`
 - **Résolution** (`solved`) : Devant le musée, Hector se console déjà avec une admiratrice. Pantalon orange et parapluie… mais un chapeau melon.
 
 ##### Étape `s5` — après : `s1` (`after: ["s1"]`)
 
-- **Question** : Gontran Lamèche, le doyen de la troupe, jure qu’il lisait son journal pendant l’entracte. Trouvez-le.
+- **Question** : Gontran Lamèche, le doyen de la troupe, jure qu’il n’a pas bougé à l’entracte : il lisait son journal. Trouvez-le.
 - **Réponses** (`accept`) : `c05.gontran.1`
 - **Fausses pistes** (`nearMiss`) :
   - `c05.berenice.1` → « Bérénice ne lira plus rien ce soir. Cherchez celui qui lit. »
@@ -1284,7 +1294,7 @@ visible :
 
 ##### Étape `s7` — après : `s6` (`after: ["s6"]`)
 
-- **Question** : Gontran file vers le port pour embarquer sur le dernier bateau. Retrouvez-le avant le départ !
+- **Question** : Gontran file discrètement au port pour embarquer sur « L’Entracte », le dernier bateau. Retrouvez-le avant le départ !
 - **Réponses** (`accept`) : `c05.gontran.3`
 - **Fausses pistes** (`nearMiss`) :
   - `c05.armateur.1` → « Monsieur Cargo, l’armateur de « L’Entracte » : haut-de-forme, costume rouge, parapluie… mais un pantalon NOIR. Il attend un passager en retard. »
@@ -1292,7 +1302,7 @@ visible :
   - `c05.gontran.1` → « C’est bien lui, mais devant le théâtre : il n’y est plus. Il file vers le port. »
   - `c05.faux-infirmier` → « Le faux infirmier, ce matin, à l’hôpital. Depuis, il a retiré sa blouse. »
   - `c05.bateau` → « Le bateau « L’Entracte » attend son dernier passager. Il n’est pas encore à bord. »
-- **Indice 1** : Il a traversé la Fenaison par le Pont du Parc, puis longé les quais vers l’est, jusqu’au bateau « L’Entracte ».
+- **Indice 1** : Il a franchi le Pont du Parc, à l’entrée ouest du port, puis longé les quais vers l’est, sans aller jusqu’au bout.
 - **Indice 2** : Tout près du bateau, quelqu’un se cache entre deux caisses. — zone `{ x: 5480, y: 3940, radius: 100 }`
 - **Résolution** (`solved`) : Accroupi entre deux caisses, à trois pas de la passerelle, le parapluie à la main. Picotin l’attendait — pour une fois, au bon endroit.
 - **Fils rouges** (`thread`) : `c05.gontran.1` → `c05.gontran.2` ; `c05.gontran.2` → `c05.gontran.3`
@@ -1333,14 +1343,14 @@ visible :
 > On raconte qu’Hector Meule, fondateur de la ville, cherchait une aiguille d’or dans une botte de foin quand il décida de bâtir Meulebourg autour. Il en perdit dix autres en chemin, et laissa ce testament :
 >
 > « Là où l’on attend les trains, le temps a deux aiguilles : j’en ai mis une troisième.
-> Ma main levée en tient une, et ne la lâche pas.
+> Au parc qui porte mon nom, ma main levée en tient une, et ne la lâche pas.
 > Le boucher a ses crochets ; à sa porte, mon aiguille.
 > La police perd ses affaires : cherchez entre ses voitures.
 > À l’école, on apprend à compter : commencez dans la cour.
 > Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un.
 > Un ange veille sur les morts, et sur une aiguille.
 > Sur le Pont Central, une aiguille regarde couler la Fenaison.
-> Aux jardins ouvriers, elle pousse devant la serre la plus au sud, un peu à l’écart des autres.
+> Aux jardins ouvriers, elle pousse devant la serre la plus au sud de toutes, juste à la sortie des parcelles.
 > La capitainerie garde tout ce qui entre au port… même une aiguille. »
 >
 > Zoomez bien : une aiguille d’or n’est qu’un petit trait doré.
@@ -1360,14 +1370,14 @@ dix lieux couvrent les neuf quartiers :
 | # | Vers du testament | Lieu | Quartier |
 |---|---|---|---|
 | 1 | « Là où l’on attend les trains, le temps a deux aiguilles : j’en ai mis une troisième. » | sur le cadran de l’horloge de la gare (en hauteur : `z` 139) | Gare |
-| 2 | « Ma main levée en tient une, et ne la lâche pas. » | dans la main levée de la Statue du Fondateur (`z` 36) | Parc |
+| 2 | « Au parc qui porte mon nom, ma main levée en tient une, et ne la lâche pas. » | dans la main levée de la Statue du Fondateur (`z` 36) | Parc |
 | 3 | « Le boucher a ses crochets ; à sa porte, mon aiguille. » | devant la Boucherie Tendron | Halles |
 | 4 | « La police perd ses affaires : cherchez entre ses voitures. » | devant le commissariat, entre deux voitures de police | Vieille Ville |
 | 5 | « À l’école, on apprend à compter : commencez dans la cour. » | cour de l’école Jules-Botte, au pied de la façade | Faubourg |
 | 6 | « Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un. » | bac à sable de l’aire de jeux | Parc |
 | 7 | « Un ange veille sur les morts, et sur une aiguille. » | au pied de l’ange est du cimetière | Arts |
 | 8 | « Sur le Pont Central, une aiguille regarde couler la Fenaison. » | trottoir est du Pont Central, côté nord | Fenaison |
-| 9 | « Aux jardins ouvriers, elle pousse devant la serre la plus au sud, un peu à l’écart des autres. » | devant la serre la plus au sud (`b.jardins.68`, 2029 × 4699), près du chemin des Serres | Jardins |
+| 9 | « Aux jardins ouvriers, elle pousse devant la serre la plus au sud de toutes, juste à la sortie des parcelles. » | devant la serre la plus au sud (`b.jardins.68`, 2029 × 4699), près du chemin des Serres | Jardins |
 | 10 | « La capitainerie garde tout ce qui entre au port… même une aiguille. » | devant la porte de la capitainerie | Port |
 
 **Indice 2 sans zone** (exception documentée à la règle « l’indice 2 a une zone ») : avec dix réponses
@@ -1381,9 +1391,26 @@ lieux remarquables (fixes) ; l’ange du cimetière (`a.o.517`, 4890 × 3246) et
 revérifier par capture.
 
 **Un vers = un seul lieu.** La ville compte trois horloges (gare, Hôtel de Ville, église Saint-Foin) et
-33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre la plus au sud,
-un peu à l’écart des autres ») et l’aiguille 9 déplacée devant cette serre-là (elle était devant l’une des
-33, au hasard). Le vers 6 dit « au parc » (le terrain de jeux de l’école a lui aussi un toboggan).
+33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre la plus au sud
+de toutes, juste à la sortie des parcelles ») et l’aiguille 9 déplacée devant cette serre-là (elle était
+devant l’une des 33, au hasard). `b.jardins.68` est la seule serre la plus au sud (la suivante est 60 u plus
+haut) mais elle est **hors du carré des parcelles**, de l’autre côté de la rue : ne pas la décrire comme « la
+dernière serre de la rangée du bas » (ce serait `b.jardins.118`, à 240 u). Le vers 6 dit « au parc » (le
+terrain de jeux de l’école a lui aussi un toboggan). Le vers 2 dit « au parc qui porte mon nom » : sans lieu,
+il pouvait désigner n’importe laquelle des 9 statues de la ville (le fondateur s’appelle Hector Meule, le
+parc des Meules).
+
+**Indices.** Le palier 1 (« Chaque quartier cache au moins une aiguille… ») s’appuie sur le tableau
+ci-dessus : 10 aiguilles pour 9 quartiers, au moins une par quartier (vérifié par la liste des quartiers du
+monde, `npm run world -- districts`). Si une aiguille change de quartier, revoir ce texte. Il ne peut pas
+viser une aiguille précise (un texte statique pour dix réponses) ; il donne donc une méthode et l’échelle
+utile (« bien voir les passants », soit un zoom d’environ 2, où l’aiguille se distingue ; son éclat blanc
+n’est dessiné qu’à partir du zoom 1). Le texte tient en 3 lignes dans le panneau à 360, 390 et 412 px de
+large (≈ 120 caractères au plus). Le palier 2 dit que le projecteur passe à une autre aiguille
+à chaque aiguille trouvée : c’est voulu (voir ci-dessus), et le palier 3 montre d’un coup toutes les
+aiguilles restantes. Le bonus n’ayant qu’une étape, `computeStars` (niveaux d’indice cumulés ≤ nombre
+d’étapes pour garder 2 étoiles) donne : le palier 1 coûte une étoile (3 → 2), le palier 2 une seconde
+(2 → 1), le palier 3 est gratuit (plancher à 1 étoile).
 
 **Entités**
 
@@ -1406,8 +1433,8 @@ un peu à l’écart des autres ») et l’aiguille 9 déplacée devant cette se
 
 - **Question** : Retrouvez les dix aiguilles d’or du Fondateur. Chaque vers du testament désigne un lieu.
 - **Réponses** (`accept`) : `bonus-aiguilles.aiguille.1`, `bonus-aiguilles.aiguille.2`, `bonus-aiguilles.aiguille.3`, `bonus-aiguilles.aiguille.4`, `bonus-aiguilles.aiguille.5`, `bonus-aiguilles.aiguille.6`, `bonus-aiguilles.aiguille.7`, `bonus-aiguilles.aiguille.8`, `bonus-aiguilles.aiguille.9`, `bonus-aiguilles.aiguille.10` — `required: 10`
-- **Indice 1** : Relisez le testament : chaque vers désigne un lieu de Meulebourg. Une aiguille est un petit trait doré : zoomez au maximum.
-- **Indice 2** : Le projecteur éclaire les environs d’une aiguille encore cachée. — _pas de zone : projecteur automatique autour d’une réponse non trouvée_
+- **Indice 1** : Chaque quartier cache au moins une aiguille. Zoomez jusqu’à bien voir les passants : l’aiguille porte une étoile claire.
+- **Indice 2** : Le projecteur éclaire les environs d’une aiguille encore cachée ; une fois celle-ci trouvée, il passe à une autre. — _pas de zone : projecteur automatique autour d’une réponse non trouvée_
 - **Résolution** (`solved`) : Les dix aiguilles d’or sont réunies sur votre bureau. Elles brillent comme au premier jour.
 
 ---
@@ -1553,7 +1580,7 @@ ne se chevauche.
    ou une zone, jamais un intérieur (sauf buste à une fenêtre, `pose: 'window'`).
 2. **Personnage clé = au moins deux signes distinctifs rares** (≤ 5 % des passants : voir les listes
    « Signes distinctifs » générées) **ou** un objet tenu que la foule n’a jamais (sac d’argent, bijou,
-   tarte…). Un personnage reconnaissable seulement par une combinaison banale est une faute.
+   tarte — `people.ts` n’en donne à aucun passant ambiant, `world.test.ts` le vérifie…). Un personnage reconnaissable seulement par une combinaison banale est une faute.
 3. **Deux personnages différents diffèrent d’au moins 3 attributs saillants** (`SALIENT_KEYS` : chapeau,
    haut, couleur du haut, motif, accessoire, coiffure, couleur des cheveux, couleur du bas, visage).
    **Exception : le sosie volontaire**, déclaré dans `LOOKALIKES`, documenté ici (quel attribut, où), qui
@@ -1589,7 +1616,12 @@ ne se chevauche.
     « bonnet noir ». Le contrôle (`content:check`) refuse une couleur de chapeau citée qui ne correspond pas.
     Même exigence pour les objets (« sac d’argent à la main », pas « caisse sous le bras »), les masques
     (« masque de bandit », pas « cagoule »), les bateaux (« bateau », pas « barque »), les poses (un
-    personnage qui pointe désigne quelque chose : ne pas le tourner vers un autre suspect).
+    personnage qui pointe désigne quelque chose : ne pas le tourner vers un autre suspect), et les **bas
+    cachés** : sous un tablier, un manteau ou une robe, le short (ou la jupe sous un manteau) ne se voit pas,
+    le pantalon seulement en bas des jambes. Un texte qui cite « short rouge », « jupe verte »… d’un bas
+    entièrement caché est une **erreur** de `content:check`, d’un bas en partie caché une note ; la liste des
+    « Signes distinctifs » de chaque enquête annote ces bas (« masqué par le tablier, à ne pas citer »). La phrase
+    qui reconnaît elle-même le bas caché (« pantalon orange qui dépasse du long manteau ») passe.
 12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la
@@ -1698,7 +1730,7 @@ Les ids d’entités et d’étapes sont restés **stables** (aucune sauvegarde 
 | # | Où | Problème (preuve) | Correction |
 |---|---|---|---|
 | 1 | **Toutes les étapes** (31 zones) | Le projecteur de l’indice 2 était quasi **centré sur la réponse** (distance centre → réponse : 3 à 47 % du rayon, médiane 23 %) : il équivalait à la révélation (indice 3) et ôtait tout intérêt au palier. | Centre décalé de 25 à 64 u (28 à 48 % du rayon, médiane 43 %), de préférence vers la scène précédente ; la réponse reste **entière** dans le cercle (vérifié sur planches). Règle ajoutée (§ 11.2.8). Rayon de c04 s3 porté à 90 (la fontaine est grande). |
-| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud, un peu à l’écart des autres ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. |
+| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud de toutes, juste à la sortie des parcelles ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. |
 | 3 | Bonus, vers 1 | « Là où le temps a deux aiguilles » : **trois horloges** (gare, Hôtel de Ville, église). | « Là où l’on attend les trains… ». |
 | 4 | Bonus, vers 6 | Le terrain de jeux de l’école a aussi un toboggan. | « … au parc, un bac à sable en cache un. » |
 | 5 | c01 (6 textes) | « Cagoule » : le dessin est un **masque de bandit** (bande noire sur les yeux, avec le bonnet par-dessus). | « Masque de bandit » / « masqué » ; gag conservé. |

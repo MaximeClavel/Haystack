@@ -42,7 +42,7 @@ de ce code : ils sont toujours exacts.
 
 | Commande | Rôle |
 |---|---|
-| `npm run content:check` (ou `npx tsx tools/content/check.ts --verbose`) | construit la ville AVEC les enquêtes, lance `validateAllCases`, puis les règles de la bible : hors chaussée, 80 u entre enquêtes, écarts d’apparence (≥ 3 attributs saillants sauf sosies déclarés), figurants, sosies ambiants, rayons d’indice, occultation des réponses |
+| `npm run content:check` (ou `npx tsx tools/content/check.ts --verbose`) | construit la ville AVEC les enquêtes, lance `validateAllCases`, puis les règles de la bible : hors chaussée, 80 u entre enquêtes, écarts d’apparence (≥ 3 attributs saillants sauf sosies déclarés), figurants, sosies ambiants, rayons d’indice, occultation des réponses, couleur d’un bas caché (tablier, manteau, robe) citée dans un texte |
 | `npx tsx tools/content/probe.ts x,y [x,y…]` | pour chaque point : sol, praticable, passage piéton, caché par un toit, bâtiment, entités ambiantes à moins de 16 u |
 | `node scripts/shot.mjs "/tools/content/preview.html?x=…&y=…&zoom=2&ids=1&only=c03" .shots/x.png` | aperçu de la ville avec les enquêtes ; `ids=1` étiquette les entités d’enquête, `threads=c03` trace les fils rouges, `hint=c03.s4` allume le projecteur de l’indice 2, `mark=id1,id2`, `grid=50` |
 | `npm run content:doc` | régénère ce document |
@@ -196,9 +196,9 @@ traverser la rivière.
 |---|---|---|
 | s1 | désigner une personne | Picotin est décrit par ce qui se voit (casquette de police, uniforme bleu, bermuda beige : plus de moustache, invisible au zoom de jeu) et agite la main ; il est au centre de l’écran de départ |
 | s2 | un personnage apparaît plusieurs fois ; suivre son sens de marche | les deux apparitions du livreur sont à 110 u l’une de l’autre, visibles ensemble ; le `nearMiss` sur la première explique le principe |
-| s3 | désigner un animal / un objet ; les fausses pistes | le chien blanc a la tarte sous le museau ; la tarte, les pigeons et le dormeur ont chacun un message dédié |
+| s3 | désigner un animal / un objet ; les fausses pistes | le chien blanc se tient devant la tarte entière ; la tarte, les pigeons et le dormeur ont chacun un message dédié |
 
-**Amorce loyale** : le briefing signale que le chien de la commissaire, Croquette, a lui aussi disparu ce
+**Amorce loyale** : le briefing signale que le chien blanc de la commissaire, Croquette, a lui aussi disparu ce
 matin (« je suppose que c’est une coïncidence ») ; la résolution de s3 la reprend. Le coupable n’est donc
 plus un deus ex machina.
 
@@ -623,7 +623,7 @@ ne se chevauche.
    ou une zone, jamais un intérieur (sauf buste à une fenêtre, `pose: 'window'`).
 2. **Personnage clé = au moins deux signes distinctifs rares** (≤ 5 % des passants : voir les listes
    « Signes distinctifs » générées) **ou** un objet tenu que la foule n’a jamais (sac d’argent, bijou,
-   tarte…). Un personnage reconnaissable seulement par une combinaison banale est une faute.
+   tarte — `people.ts` n’en donne à aucun passant ambiant, `world.test.ts` le vérifie…). Un personnage reconnaissable seulement par une combinaison banale est une faute.
 3. **Deux personnages différents diffèrent d’au moins 3 attributs saillants** (`SALIENT_KEYS` : chapeau,
    haut, couleur du haut, motif, accessoire, coiffure, couleur des cheveux, couleur du bas, visage).
    **Exception : le sosie volontaire**, déclaré dans `LOOKALIKES`, documenté ici (quel attribut, où), qui
@@ -659,7 +659,12 @@ ne se chevauche.
     « bonnet noir ». Le contrôle (`content:check`) refuse une couleur de chapeau citée qui ne correspond pas.
     Même exigence pour les objets (« sac d’argent à la main », pas « caisse sous le bras »), les masques
     (« masque de bandit », pas « cagoule »), les bateaux (« bateau », pas « barque »), les poses (un
-    personnage qui pointe désigne quelque chose : ne pas le tourner vers un autre suspect).
+    personnage qui pointe désigne quelque chose : ne pas le tourner vers un autre suspect), et les **bas
+    cachés** : sous un tablier, un manteau ou une robe, le short (ou la jupe sous un manteau) ne se voit pas,
+    le pantalon seulement en bas des jambes. Un texte qui cite « short rouge », « jupe verte »… d’un bas
+    entièrement caché est une **erreur** de `content:check`, d’un bas en partie caché une note ; la liste des
+    « Signes distinctifs » de chaque enquête annote ces bas (« masqué par le tablier, à ne pas citer »). La phrase
+    qui reconnaît elle-même le bas caché (« pantalon orange qui dépasse du long manteau ») passe.
 12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la

@@ -103,7 +103,8 @@ export interface EngineMapView extends MapView {
    * Marges masquées par l'interface (barre haute, feuille du bas ou latérale) : les bornes de la caméra
    * se comptent alors dans la zone libre, de sorte que tout bord de la ville puisse être amené hors des
    * barres. Marges toutes nulles = écran entier (comportement par défaut). Si la caméra se retrouve hors
-   * des nouvelles bornes, elle y glisse doucement. Propre au moteur : pas dans le contrat `MapView`.
+   * des nouvelles bornes, ce sont les bornes qui glissent (INSETS_GLIDE_MS) et la caméra suit sans saut.
+   * Propre au moteur : pas dans le contrat `MapView`.
    */
   setInsets(insets: ScreenInsets): void;
 }

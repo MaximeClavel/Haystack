@@ -22,9 +22,10 @@ Contrat complet : `MapView` dans `src/types.ts`. L'objet renvoyé (`EngineMapVie
 |---|---|
 | `debugStats()` | tuiles en cache / épinglées / capacité, tuiles rendues et abandonnées, durée moyenne et max de rendu d'une tuile (dont finalisation), tuiles visibles en attente, niveau affiché / minimal / racine, images/s, durée de la dernière image (dont rendu de tuiles et composition), densité, `offscreen` |
 | `invalidateTiles()` | oublie toutes les tuiles (si le monde a été modifié) ; elles sont refaites progressivement |
+| `setInsets({ top, bottom, left, right })` | marges masquées par l'interface : les bornes de la caméra se comptent dans la zone libre (voir « Caméra et bornes ») |
 
 Exports annexes : fonctions pures de caméra (`computeMinZoom`, `clampCamera`, `screenToWorld`,
-`worldToScreen`, `visibleWorldRect`, `zoomAround`, `fitRectCamera`), `BACKDROP` (couleur de la
+`worldToScreen`, `visibleWorldRect`, `zoomAround`, `fitRectCamera`, type `ScreenInsets`), `BACKDROP` (couleur de la
 « table » autour de la ville), `MARK_STROKE` (couleurs des styles d'anneau, pour l'interface).
 
 ## Fichiers
@@ -56,11 +57,13 @@ Exports annexes : fonctions pures de caméra (`computeMinZoom`, `clampCamera`, `
   le débord de 20 % et le verrouillage « ville entière » s'appliquent à la hauteur libre, centrés au milieu
   de cette zone. Ainsi la rive sud de la ville se remonte toujours au-dessus du panneau de question (à tous
   les zooms, même quand la ville tient presque en hauteur) et le nord descend sous la barre haute. Marges
-  nulles ou absentes = écran entier, calcul inchangé. Si un changement de marges (le panneau grandit) met la
-  caméra hors des nouvelles bornes (ex. la fiche d'indice se replie quand le doigt touche la carte), elle y
-  glisse en `INSETS_GLIDE_MS` (180 ms) ; pendant un glisser ou un pincement, ou en mouvement réduit, elle est
-  ramenée tout de suite, et un vol/une inertie en cours appliquent simplement les nouvelles bornes à chaque
-  image. Le zoom minimal reste celui de l'écran entier.
+  nulles ou absentes = écran entier, calcul inchangé. Si un changement de marges met la caméra hors des
+  nouvelles bornes (ex. la fiche d'indice se replie quand le doigt touche la carte : la butée recule), ce
+  sont les **bornes** qui glissent de l'ancienne à la nouvelle marge en `INSETS_GLIDE_MS` (180 ms) et la
+  caméra est simplement repoussée à chaque image : aucune animation de caméra n'est lancée, donc aucun
+  conflit avec un glisser, un pincement, une inertie ou un vol en cours (essayé : un vol de 180 ms est
+  lui-même borné image par image, il n'apporte rien). Si la caméra reste dans les nouvelles bornes, ou en
+  mouvement réduit, elles s'appliquent tout de suite. Le zoom minimal reste celui de l'écran entier.
 - Hors de la ville : « table » sombre (`BACKDROP`) et ombre portée de la carte.
 
 ## Gestes

@@ -49,7 +49,7 @@ Détail :
 
 ## Vérifications
 
-- `npx tsc --noEmit` : propre. `npx vitest run` : tous les tests passent (17 fichiers, dont `camera.test.ts` : 27 tests, **12 nouveaux** sur les marges). `npm run content:check` : « OK : aucun problème ».
+- `npx tsc --noEmit` : propre. `npx vitest run` : tous les tests passent (17 fichiers, dont `camera.test.ts` : 27 tests, **11 nouveaux** sur les marges). `npm run content:check` : « OK : aucun problème ».
 - **Tests unitaires** (`camera.test.ts`, bloc « bornes avec les marges de l'interface ») : résultat identique sans marges (absentes, `undefined` ou nulles) sur 24 caméras ; bord sud
   au-dessus du panneau et bord nord sous la barre à **tous** les zooms (minimal, 0,1, 0,15, 0,188, 0,2, 0,25, 0,3, 0,5, 1, 2, 4) sur 390 × 844 (panneau 224 px, Q4 de c03) et 412 × 915
   (177 px) ; régression : sans marges, vers 0,19, la rive sud reste > 100 px sous le panneau ; débord = 20 % de la **zone libre** ; zoom minimal : ville centrée dans la zone libre
@@ -70,7 +70,9 @@ Détail :
   entrelacée sur la même machine (copie du dépôt avec les fichiers du moteur de `HEAD`, 2 passes chacun) : ×1 TOTAL p95 16,8 / 16,8 ms (base) contre 16,8 / 16,8 ms (corrigé) ; ×4 TOTAL p95
   66,7 / 66,7 ms contre 66,7 / 66,7 ms. (Le ×4 est plus bruité que dans le journal de phase 2, 50 ms, parce que d'autres agents chargent la machine en même temps : les deux variantes le
   sont autant.) Aucune régression.
-- E2E : voir ci-dessous.
+- **E2E complet** : `E2E_PORT=5183 npx playwright test` → **36 réussis** (4,1 min) : les 33 tests existants (dont c00 → c05 et le bonus résolus au doigt, explorer, minicarte, gestes) + les 3 nouveaux
+  de `09-camera-marges.spec.ts`. Un premier passage sur les 33 tests existants, avant l'ajout du spec 09, avait déjà donné 33/33. Vérification de sensibilité : en neutralisant l'appel
+  `map.setInsets(insets)` de `mapHost.ts`, les trois tests du spec 09 échouent (bord sud à 782 et 816 px pour un panneau à 668 px ; saut de caméra absent) ; remis en place ensuite.
 
 ## Test de bout en bout ajouté
 

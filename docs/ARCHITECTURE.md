@@ -110,10 +110,14 @@ Chaque module a son README détaillé : `src/art/README.md`, `src/world/README.m
     durée moyenne et maximale d'une tuile (dont finalisation), niveau affiché / minimal / racine, images/s,
     durée de la dernière image, densité, `offscreen` ;
   - `invalidateTiles()` — oublie toutes les tuiles (si le monde a été modifié) ; elles sont refaites
-    progressivement.
-- Fonctions pures de caméra : `computeMinZoom`, `clampCamera`, `screenToWorld`, `worldToScreen`,
-  `visibleWorldRect`, `zoomAround`, `fitRectCamera` ; `BACKDROP` (couleur de la « table » autour de la ville),
-  `MARK_STROKE` (couleurs des styles d'anneau, pour l'interface).
+    progressivement ;
+  - `setInsets({ top, bottom, left, right })` — marges masquées par l'interface (barre haute, feuille du bas) :
+    les bornes de la caméra se comptent dans la zone libre, de sorte que la rive sud de la ville se remonte
+    toujours au-dessus du panneau de question (appelée par `mapHost.setInsets`, donc par chaque écran).
+- Fonctions pures de caméra : `computeMinZoom`, `clampCamera` (7ᵉ paramètre facultatif : les marges),
+  `screenToWorld`, `worldToScreen`, `visibleWorldRect`, `zoomAround`, `fitRectCamera` (+ type `ScreenInsets`) ;
+  `BACKDROP` (couleur de la « table » autour de la ville), `MARK_STROKE` (couleurs des styles d'anneau, pour
+  l'interface).
 - `onTap` est émis ≈ 220 ms après le lâcher (attente d'un éventuel double-tap). Sous `PICK_MIN_ZOOM`, c'est à
   l'interface de transformer le tap en `flyTo`. Une animation interrompue **résout** sa promesse.
 
@@ -152,8 +156,8 @@ Chaque module a son README détaillé : `src/art/README.md`, `src/world/README.m
 ### `tools/content` (outils des scénaristes, non publiés)
 | Outil | Rôle |
 |---|---|
-| `check.ts` (`npm run content:check`) | `validateAllCases` + règles de la bible : hors chaussée, véhicules sur chaussée ou parking, 80 u entre enquêtes, écarts d'apparence, sosies ambiants, rayons d'indice, recouvrements. Doit afficher « OK : aucun problème » |
-| `gen.ts` (`npm run content:doc`) | Régénère `docs/CONTENT.md` |
+| `check.ts` (`npm run content:check`) | `validateAllCases` + règles de la bible : hors chaussée, véhicules sur chaussée ou parking, 80 u entre enquêtes, écarts d'apparence, sosies ambiants, rayons d'indice, recouvrements, couleur d'un bas caché par un tablier / un manteau / une robe citée dans un texte (`hidden.ts`). Doit afficher « OK : aucun problème » |
+| `gen.ts` (`npm run content:doc`) | Régénère `docs/CONTENT.md` (les signes distinctifs d'un bas caché y sont annotés « masqué … ») |
 | `preview.html` / `preview.ts` | Aperçu des scènes dans la vraie ville (`only=`, `ids=`, `mark=`, `hint=`, `threads=`, `grid=`) |
 | `probe.ts` | Sonde de placement : `npx tsx tools/content/probe.ts x,y …` |
 
@@ -208,6 +212,7 @@ une fois par un toast et sur l'accueil).
 | 2026-10-14 | — | Phases 1 et 2 (intégration) : **aucun changement**. Contrôlé par `git log` : `src/types.ts`, `src/config.ts`, `src/art/bounds.ts`, `src/world/layoutSpec.ts` sont identiques depuis la phase 0. Les ajouts d'API (`EngineMapView.debugStats/invalidateTiles`, option `opts` de `CaseSession`, utilitaires du monde) sont propres aux modules, hors contrat. | integration |
 | 2026-10-15 | `src/types.ts` | **Ajouts facultatifs (rétro-compatibles), aucun champ modifié ni retiré** : `CaseProgress.bestStars?: 1 \| 2 \| 3` (meilleur résultat des parties terminées ; sa présence = « résolue au moins une fois », pour que recommencer ne reverrouille pas les enquêtes suivantes) ; `StepDef.label?: string` (libellé court de l'onglet quand plusieurs questions sont ouvertes en parallèle). Les sauvegardes existantes restent valides (`bestStars` est déduit de `stars` d'une partie résolue). Côté code : `src/game` exporte `bestStarsOf`, `restartCaseProgress`, `hasSolved`, `reconcileSave` ; `validateCase` contrôle `label` (non vide, 24 caractères au plus). | correcteur |
 | 2026-10-15 | `src/config.ts`, `src/art/bounds.ts`, `src/world/layoutSpec.ts` | **Aucun changement.** (Le moteur gagne une constante interne `REVEAL_PULSE_MS` dans `src/engine/constants.ts`, non contractuelle.) | correcteur |
+| 2026-10-20 | `src/types.ts`, `src/config.ts`, `src/art/bounds.ts`, `src/world/layoutSpec.ts` | **Aucun changement** (phase 3, correcteurs 2 et intégration). Contrôlé par `git diff --stat 0d7fa04 HEAD` (début de la phase 3) puis `git diff --stat HEAD` sur ces quatre fichiers : vide. Ajouts propres aux modules, hors contrat : moteur — `EngineMapView.setInsets`, 7ᵉ paramètre facultatif de `clampCamera`, type `ScreenInsets`, constante `INSETS_GLIDE_MS` ; interface — `placeName(world, x, y, margin?)`, `placeCaptureMargin`, `investigation/texts.ts` ; monde — seulement des valeurs de contenu (`people.ts`, `names.ts`), même flux pseudo-aléatoire. | integration |
 
 ## 9. Performance (mesures de référence)
 
@@ -234,3 +239,5 @@ premier rendu), sous le seuil de 2 s. L'interface doit afficher un écran de cha
 | `node scripts/shot.mjs "<chemin-url>" sortie.png [--width --height --dpr]` (ou `--batch fichier.json`) | Capture d'une page après `window.__haystackReady` |
 | `node scripts/perf-map.mjs` (`--gestures`, `--startup`, `--rates 1,4`) | Fluidité, contrôles des gestes, durée du démarrage |
 | `npm run world -- <cmd>` | Interroger le monde généré (voir `CLAUDE.md`) |
+| `npm run e2e` (`E2E_PORT=<port>` pour plusieurs suites en même temps) | Tests de bout en bout Playwright, téléphone émulé (`tests/e2e/README.md`) |
+| `node tools/playtest/blind.mjs start <id>` ; `node tools/playtest/selftest.mjs` | Joueur test aveugle (`tools/playtest/README.md`) ; vérification de l'outil (≈ 1 min) |

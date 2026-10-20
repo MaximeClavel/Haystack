@@ -49,7 +49,7 @@ export const DRAG_ZOOM_PX_PER_DOUBLING = 150;
 export const DOUBLE_TAP_ZOOM_MS = 280;
 /** Durée de l'animation des touches + et − (ms). */
 export const KEY_ZOOM_MS = 250;
-/** Glissement doux de la caméra quand un changement de marges de l'interface la remet dans les bornes (ms). */
+/** Durée (ms) du glissement des bornes de la caméra vers de nouvelles marges de l'interface (la caméra, repoussée, suit sans saut). */
 export const INSETS_GLIDE_MS = 180;
 /** Vitesse donnée par une flèche du clavier (px CSS / ms), amortie comme l'inertie. */
 export const KEY_PAN_SPEED = 0.9;
