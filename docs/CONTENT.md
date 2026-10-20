@@ -467,7 +467,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 | difficulté | 2 |
 | déblocage (`unlockAfter`) | `c01` |
 | bonus | non |
-| caméra de départ (`start`) | `{ x: 5250, y: 980, zoom: 1.6 }` |
+| caméra de départ (`start`) | `{ x: 5392, y: 955, zoom: 1.6 }` |
 | étapes | 5 — ouvertes dès le début : `s1` |
 | personnages / entités | 5 / 24 |
 | quartiers | Parc des Meules |
@@ -517,11 +517,22 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
 - **s3** : la scène de la libération est à côté de la camionnette (Lulu, son ballon, un cœur ; Duchesse
   qui saute dehors). Désigner Lulu au bord de l’étang donne un `nearMiss` qui demande le bon moment.
 - **s4** : Duchesse a traversé le boulevard (apparition 3, sur le trottoir sud) ; la suite logique est le
-  concours annoncé dans le briefing, au kiosque à musique, 270 u au sud-ouest.
+  concours annoncé dans le briefing, au kiosque à musique, 270 u au sud-ouest. La résolution de s4 amorce
+  s5 : Barbarie « détale vers l’étang, Picotin aux trousses » (le lieu, sans nommer le bateau ni la
+  réponse).
 - **s5** : Barbarie est debout sur le pont de son bateau « LE BARON » (le bateau à moteur de 90 u du
   vocabulaire : les textes ne parlent ni de « barque » ni de « ramer »), bras levés, en sueur, au milieu de
   l’étang ; on accepte le bateau **et** lui. Les autres apparitions de Barbarie et les canards ont leur
-  `nearMiss`.
+  `nearMiss`. Sans l’amorce de s4, rien ne disait où il fuyait (rejeu de la phase 3 : 35 commandes
+  perdues à chercher un bâtiment, indice obligatoire) ; l’indice 1 (« Pas sur la berge : il a pris le
+  large, et les canards l’ont encerclé ») apporte alors le **type** de la cible (sur l’eau, entourée de
+  canards) sans nommer le bateau, l’indice 2 la zone. La question garde « Où s’est-il réfugié ? » : toute
+  formulation plus précise (« sur quoi », « à bord de quoi ») trahirait le bateau.
+- **Cadrage de départ** : (5392, 955) au zoom 1,6. Le ponton, la baronne et Picotin (à gauche), Barbarie
+  accroupi avec sa baguette et Duchesse (à droite) tiennent à l’écran à 360, 390 et 412 px de large ; la
+  première réponse était auparavant hors écran à droite (rejeu : 8 commandes perdues), alors qu’elle est
+  visible dès le départ dans c00, c01, c03, c04 et c05. Barbarie qui porte son carton (s2, 5370 × 1190)
+  reste sous le panneau de question, et le bateau de s5 hors cadre.
 - Un personnage qui **pointe** est lu comme un indice : la baronne a donc les bras au ciel (`handsup`) et
   non plus le doigt tendu vers l’ouest, à l’opposé du ravisseur.
 - La ville possède déjà un bateau ambiant nommé « LE COLVERT » sur l’étang : c’est pourquoi le ravisseur
@@ -636,7 +647,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
   - `lm.kiosque` → « Le kiosque à musique, oui. Mais Duchesse est juste à côté, devant le jury. »
 - **Indice 1** : Elle a traversé le boulevard vers le sud. Une cane de concours sait où elle doit être cet après-midi.
 - **Indice 2** : Regardez près du kiosque à musique. — zone `{ x: 4990, y: 1470, radius: 110 }`
-- **Résolution** (`solved`) : Au concours, devant le jury ! Duchesse s’est présentée toute seule, à l’heure.
+- **Résolution** (`solved`) : Au concours, devant le jury ! Duchesse s’est présentée toute seule, à l’heure. Barbarie, lui, a compris que la partie était perdue : il détale vers l’étang, Picotin aux trousses.
 - **Fils rouges** (`thread`) : `c02.duchesse.2` → `c02.duchesse.3` ; `c02.duchesse.3` → `c02.duchesse.4`
 
 ##### Étape `s5` — après : `s4` (`after` omis)
@@ -652,7 +663,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
   - `c02.canard.6` → « Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent. »
   - `c02.canard.7` → « Un canard parmi d’autres. Regardez plutôt ce qu’ils encerclent. »
   - `z.etang` → « L’étang, oui. Mais où, au juste ? Cherchez ce qui flotte au milieu. »
-- **Indice 1** : Il a filé vers le nord, là où les canards font la loi.
+- **Indice 1** : Pas sur la berge : il a pris le large, et les canards l’ont encerclé.
 - **Indice 2** : Regardez au milieu de l’étang. — zone `{ x: 5375, y: 675, radius: 120 }`
 - **Résolution** (`solved`) : Au milieu de l’étang, à bord de son bateau « LE BARON » — il l’a baptisé comme son canard —, encerclé par des canards furieux. Il n’ose plus avancer.
 - **Fils rouges** (`thread`) : `c02.camionnette` → `c02.barbarie.3`
@@ -730,7 +741,11 @@ chemise** — deux attributs très visibles.
 - **s1–s2** : le fourgon est vide, la « malade » est allongée à côté, Picotin penché sur elle.
 - **s3** accepte l’une ou l’autre des deux apparitions de Lapince en fuite (devant le bar, ou près du
   garage) : le joueur peut le rattraper où il veut. Le client du bar qui pointe du doigt aide à le
-  repérer.
+  repérer. La résolution de s2 amorce s3 (« Pendant ce temps, Lapince s’éclipsait par les ruelles du
+  sud » : direction, sans nommer le bar ni la rue) ; l’indice 1 apporte alors l’information nouvelle :
+  le bar, sa rue (la pastille de lieu affiche « Rue du Fer-à-Cheval ») et le témoin (client à
+  casquette rouge qui montre un coureur du doigt) ; l’indice 2 donne la zone. Sans cette amorce, le
+  rejeu de la phase 3 a dû acheter l’indice 1 (« vers le sud ») pour une question sans ancrage spatial.
 - **s4** : deux agents gardent le Pont Central (figurants) ; désigner le pont donne un `nearMiss`. Le
   bateau rouge porte **Lola debout sur le pont**, reconnaissable (robe rose à pois, béret, lunettes
   noires) : la fausse évanouie de la gare. On accepte le bateau et Lola. La rivière porte plusieurs
@@ -821,7 +836,7 @@ chemise** — deux attributs très visibles.
   - `z.pont-central` → « Le pont est gardé depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ? »
 - **Indice 1** : Quelqu’un a fait un malaise très opportun, tout près du fourgon.
 - **Indice 2** : Regardez sur le parvis, juste au-dessus du fourgon. — zone `{ x: 1095, y: 1815, radius: 70 }`
-- **Résolution** (`solved`) : Une dame s’est « évanouie » sur le parvis : lunettes noires, béret, robe rose à pois. Tous les agents ont couru à son secours… Un évanouissement bien commode.
+- **Résolution** (`solved`) : Une dame s’est « évanouie » sur le parvis : lunettes noires, béret, robe rose à pois. Tous les agents ont couru à son secours… Un évanouissement bien commode. Pendant ce temps, Lapince s’éclipsait par les ruelles du sud.
 - **Fils rouges** (`thread`) : `c03.lola.1` → `c03.fourgon`
 
 ##### Étape `s3` — après : `s2` (`after` omis)
@@ -833,7 +848,7 @@ chemise** — deux attributs très visibles.
   - `c03.client` → « Un client du Fer à Cheval, très agité. Regardez plutôt ce qu’il montre du doigt. »
   - `c03.lola.1` → « La fausse malade est encore sur le parvis. Lapince, lui, a déjà pris la poudre d’escampette. »
   - `c03.lapince.3` → « C’est bien lui, mais beaucoup plus loin, de l’autre côté de la rivière. Retrouvez d’abord le début de sa fuite. »
-- **Indice 1** : Il est parti vers le sud, par les petites rues du quartier de la Gare. Le témoin est un client du bar Le Fer à Cheval.
+- **Indice 1** : Cherchez le bar Le Fer à Cheval, dans la rue du même nom : un client à casquette rouge y montre un coureur du doigt.
 - **Indice 2** : Regardez devant la terrasse du Fer à Cheval. — zone `{ x: 875, y: 2220, radius: 90 }`
 - **Résolution** (`solved`) : Le revoilà, qui file vers le sud — devant le Fer à Cheval, puis en se faufilant près du Garage Pistons. Il se dirige vers la rivière.
 - **Fils rouges** (`thread`) : `c03.fourgon` → `c03.lapince.1` ; `c03.lapince.1` → `c03.lapince.2`
@@ -1350,7 +1365,7 @@ visible :
 > Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un.
 > Un ange veille sur les morts, et sur une aiguille.
 > Sur le Pont Central, une aiguille regarde couler la Fenaison.
-> Aux jardins ouvriers, elle pousse devant la serre la plus au sud de toutes, juste à la sortie des parcelles.
+> Aux jardins ouvriers, elle pousse devant la serre du coin, là où le chemin des Arrosoirs rejoint celui des Serres.
 > La capitainerie garde tout ce qui entre au port… même une aiguille. »
 >
 > Zoomez bien : une aiguille d’or n’est qu’un petit trait doré.
@@ -1377,7 +1392,7 @@ dix lieux couvrent les neuf quartiers :
 | 6 | « Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un. » | bac à sable de l’aire de jeux | Parc |
 | 7 | « Un ange veille sur les morts, et sur une aiguille. » | au pied de l’ange est du cimetière | Arts |
 | 8 | « Sur le Pont Central, une aiguille regarde couler la Fenaison. » | trottoir est du Pont Central, côté nord | Fenaison |
-| 9 | « Aux jardins ouvriers, elle pousse devant la serre la plus au sud de toutes, juste à la sortie des parcelles. » | devant la serre la plus au sud (`b.jardins.68`, 2029 × 4699), près du chemin des Serres | Jardins |
+| 9 | « Aux jardins ouvriers, elle pousse devant la serre du coin, là où le chemin des Arrosoirs rejoint celui des Serres. » | devant la serre du coin (`b.jardins.68`, 2029 × 4699), au carrefour du chemin des Arrosoirs et du chemin des Serres | Jardins |
 | 10 | « La capitainerie garde tout ce qui entre au port… même une aiguille. » | devant la porte de la capitainerie | Port |
 
 **Indice 2 sans zone** (exception documentée à la règle « l’indice 2 a une zone ») : avec dix réponses
@@ -1386,16 +1401,22 @@ dispersées, une zone fixe montrerait toujours la même aiguille, même trouvée
 aiguille trouvée.
 
 Les aiguilles n° 1, 2, 7 et 9 dépendent d’éléments de décor : le cadran de la gare et la statue sont des
-lieux remarquables (fixes) ; l’ange du cimetière (`a.o.517`, 4890 × 3246) et la serre la plus au sud
+lieux remarquables (fixes) ; l’ange du cimetière (`a.o.517`, 4890 × 3246) et la serre du coin
 (`b.jardins.68`) sont ambiants mais stables pour la graine de la ville — si le générateur change,
 revérifier par capture.
 
 **Un vers = un seul lieu.** La ville compte trois horloges (gare, Hôtel de Ville, église Saint-Foin) et
-33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre la plus au sud
-de toutes, juste à la sortie des parcelles ») et l’aiguille 9 déplacée devant cette serre-là (elle était
-devant l’une des 33, au hasard). `b.jardins.68` est la seule serre la plus au sud (la suivante est 60 u plus
-haut) mais elle est **hors du carré des parcelles**, de l’autre côté de la rue : ne pas la décrire comme « la
-dernière serre de la rangée du bas » (ce serait `b.jardins.118`, à 240 u). Le vers 6 dit « au parc » (le
+33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre du coin, là où
+le chemin des Arrosoirs rejoint celui des Serres ») et l’aiguille 9 placée devant cette serre-là (elle était
+devant l’une des 33, au hasard). `b.jardins.68` est la serre du carrefour : le chemin des Arrosoirs (vertical,
+axe x 1955) s’arrête en T sur le chemin des Serres (horizontal, axe y 4740), et la serre occupe le coin de la
+parcelle voisine (emprise 1994–2064 × 4655–4699, à 85 u du carrefour ; la suivante, `b.jardins.118`, est à
+197 u, dans le carré des parcelles). Centrée sur le carrefour au zoom 1,5, la pastille de lieu affiche
+« Chemin des Arrosoirs / Chemin des Serres » : le critère se vérifie à l’écran. C’est aussi la serre la plus
+au sud (la suivante est 60 u plus haut), mais une première version (« la plus au sud de toutes, juste à la
+sortie des parcelles ») était invérifiable parmi 33 serres en grille (rejeu de la phase 3 : 35 commandes
+perdues, aiguille introuvable sans projecteur) : on ne décrit pas cette serre comme « la dernière de la
+rangée du bas » (ce serait `b.jardins.118`) ni par une direction seule. Le vers 6 dit « au parc » (le
 terrain de jeux de l’école a lui aussi un toboggan). Le vers 2 dit « au parc qui porte mon nom » : sans lieu,
 il pouvait désigner n’importe laquelle des 9 statues de la ville (le fondateur s’appelle Hector Meule, le
 parc des Meules).
@@ -1631,7 +1652,9 @@ ne se chevauche.
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la
     Fenaison, trois porteurs de tarte à l’écran en c04… Sinon on précise le texte (« là où l’on attend les
-    trains », « la serre la plus au sud »), on déplace l’entité ou on ajoute un `nearMiss`.
+    trains », « la serre du coin, là où le chemin des Arrosoirs rejoint celui des Serres »), on déplace l’entité
+    ou on ajoute un `nearMiss`. Le critère doit se **vérifier à l’écran** : un superlatif parmi une trentaine
+    d’objets en grille (« la plus au sud ») ne se contrôle pas, un nom de rue affiché par la pastille de lieu, si.
 13. **Ce que le texte affirme du décor ambiant se vérifie** (`npm run world -- near x y r`) : « à côté des
     taxis » alors qu’il n’y en a pas fait chercher un taxi qui n’existe pas. Les références au décor ambiant
     (bus, ambulances) sont à revérifier si la graine de la ville change.
@@ -1735,7 +1758,7 @@ Les ids d’entités et d’étapes sont restés **stables** (aucune sauvegarde 
 | # | Où | Problème (preuve) | Correction |
 |---|---|---|---|
 | 1 | **Toutes les étapes** (31 zones) | Le projecteur de l’indice 2 était quasi **centré sur la réponse** (distance centre → réponse : 3 à 47 % du rayon, médiane 23 %) : il équivalait à la révélation (indice 3) et ôtait tout intérêt au palier. | Centre décalé de 25 à 64 u (28 à 48 % du rayon, médiane 43 %), de préférence vers la scène précédente ; la réponse reste **entière** dans le cercle (vérifié sur planches). Règle ajoutée (§ 11.2.8). Rayon de c04 s3 porté à 90 (la fontaine est grande). |
-| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud de toutes, juste à la sortie des parcelles ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. |
+| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud de toutes, juste à la sortie des parcelles ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. Repris après le rejeu à l’aveugle (critère invérifiable à l’écran) : « la serre du coin, là où le chemin des Arrosoirs rejoint celui des Serres ». |
 | 3 | Bonus, vers 1 | « Là où le temps a deux aiguilles » : **trois horloges** (gare, Hôtel de Ville, église). | « Là où l’on attend les trains… ». |
 | 4 | Bonus, vers 6 | Le terrain de jeux de l’école a aussi un toboggan. | « … au parc, un bac à sable en cache un. » |
 | 5 | c01 (6 textes) | « Cagoule » : le dessin est un **masque de bandit** (bande noire sur les yeux, avec le bonnet par-dessus). | « Masque de bandit » / « masqué » ; gag conservé. |

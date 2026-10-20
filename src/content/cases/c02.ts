@@ -40,7 +40,7 @@ export const c02: CaseDef = {
     'Cet après-midi, au kiosque à musique, se tient le Grand Concours de la Plus Belle Cane. La grande favorite : Duchesse, la cane au plumage entièrement doré de la baronne Adélaïde de la Botte. Problème : ce matin, Duchesse a disparu de l’étang aux Canards.\n\n' +
     'La baronne vous attend au bord de l’étang, au pied du ponton, avec votre coéquipier Picotin. Elle offre une récompense, sa gratitude éternelle et sa recette de canard à l’orange — non, pardon, pas celle-là.\n\n' +
     'Retrouvez Duchesse avant le concours.\n\n— Commissaire Odile Fétu',
-  start: { x: 5250, y: 980, zoom: 1.6 },
+  start: { x: 5392, y: 955, zoom: 1.6 },
   characters: [
     { id: 'c02.picotin', name: 'Brigadier Gaston Picotin', role: 'votre coéquipier', appearance: PICOTIN },
     { id: 'c02.baronne', name: 'Adélaïde de la Botte', role: 'la propriétaire de Duchesse', appearance: BARONNE },
@@ -160,7 +160,7 @@ export const c02: CaseDef = {
         { text: 'Elle a traversé le boulevard vers le sud. Une cane de concours sait où elle doit être cet après-midi.' },
         { text: 'Regardez près du kiosque à musique.', area: { x: 4990, y: 1470, radius: 110 } },
       ],
-      solved: 'Au concours, devant le jury ! Duchesse s’est présentée toute seule, à l’heure.',
+      solved: 'Au concours, devant le jury ! Duchesse s’est présentée toute seule, à l’heure. Barbarie, lui, a compris que la partie était perdue : il détale vers l’étang, Picotin aux trousses.',
       thread: [['c02.duchesse.2', 'c02.duchesse.3'], ['c02.duchesse.3', 'c02.duchesse.4']],
     },
     {
@@ -178,7 +178,7 @@ export const c02: CaseDef = {
         { id: 'z.etang', feedback: 'L’étang, oui. Mais où, au juste ? Cherchez ce qui flotte au milieu.' },
       ],
       hints: [
-        { text: 'Il a filé vers le nord, là où les canards font la loi.' },
+        { text: 'Pas sur la berge : il a pris le large, et les canards l’ont encerclé.' },
         { text: 'Regardez au milieu de l’étang.', area: { x: 5375, y: 675, radius: 120 } },
       ],
       solved: 'Au milieu de l’étang, à bord de son bateau « LE BARON » — il l’a baptisé comme son canard —, encerclé par des canards furieux. Il n’ose plus avancer.',

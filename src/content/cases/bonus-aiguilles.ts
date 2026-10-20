@@ -27,7 +27,7 @@ export const bonusAiguilles: CaseDef = {
     'Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un.\n' +
     'Un ange veille sur les morts, et sur une aiguille.\n' +
     'Sur le Pont Central, une aiguille regarde couler la Fenaison.\n' +
-    'Aux jardins ouvriers, elle pousse devant la serre la plus au sud de toutes, juste à la sortie des parcelles.\n' +
+    'Aux jardins ouvriers, elle pousse devant la serre du coin, là où le chemin des Arrosoirs rejoint celui des Serres.\n' +
     'La capitainerie garde tout ce qui entre au port… même une aiguille. »\n\n' +
     'Zoomez bien : une aiguille d’or n’est qu’un petit trait doré.',
   start: { x: 3200, y: 2400, zoom: 0.12 },
@@ -49,7 +49,8 @@ export const bonusAiguilles: CaseDef = {
     aiguille(7, 4890, 3272),
     // 8. La Fenaison : sur le trottoir est du Pont Central, côté nord
     aiguille(8, 2232, 3712),
-    // 9. Jardins ouvriers : devant la serre la plus au sud de toutes (b.jardins.68, hors du carré des parcelles)
+    // 9. Jardins ouvriers : devant la serre du coin (b.jardins.68, hors du carré des parcelles), là où le chemin des
+    //    Arrosoirs rejoint le chemin des Serres (la pastille de lieu affiche les deux noms au carrefour)
     aiguille(9, 2029, 4710),
     // 10. Port : devant la porte de la Capitainerie
     aiguille(10, 4600, 4338),

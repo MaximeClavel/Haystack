@@ -111,7 +111,7 @@ export const c03: CaseDef = {
         { text: 'Regardez sur le parvis, juste au-dessus du fourgon.', area: { x: 1095, y: 1815, radius: 70 } },
       ],
       solved:
-        'Une dame s’est « évanouie » sur le parvis : lunettes noires, béret, robe rose à pois. Tous les agents ont couru à son secours… Un évanouissement bien commode.',
+        'Une dame s’est « évanouie » sur le parvis : lunettes noires, béret, robe rose à pois. Tous les agents ont couru à son secours… Un évanouissement bien commode. Pendant ce temps, Lapince s’éclipsait par les ruelles du sud.',
       thread: [['c03.lola.1', 'c03.fourgon']],
     },
     {
@@ -128,7 +128,7 @@ export const c03: CaseDef = {
         { id: 'c03.lapince.3', feedback: 'C’est bien lui, mais beaucoup plus loin, de l’autre côté de la rivière. Retrouvez d’abord le début de sa fuite.' },
       ],
       hints: [
-        { text: 'Il est parti vers le sud, par les petites rues du quartier de la Gare. Le témoin est un client du bar Le Fer à Cheval.' },
+        { text: 'Cherchez le bar Le Fer à Cheval, dans la rue du même nom : un client à casquette rouge y montre un coureur du doigt.' },
         { text: 'Regardez devant la terrasse du Fer à Cheval.', area: { x: 875, y: 2220, radius: 90 } },
       ],
       solved: 'Le revoilà, qui file vers le sud — devant le Fer à Cheval, puis en se faufilant près du Garage Pistons. Il se dirige vers la rivière.',
