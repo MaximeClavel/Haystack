@@ -1,6 +1,6 @@
 // Overlays d'une enquête, calculés depuis la session (fonctions pures, sans DOM).
 import type { Circle, Entity, HintResult, Overlay, Pick, Rect, World } from '../../../types';
-import { getHitRect } from '../../../art';
+import { getEntityBounds, getHitRect } from '../../../art';
 import { targetRect, type CaseSession } from '../../../game';
 
 /** Réponses trouvées : cadre vert. */
@@ -60,15 +60,21 @@ export function selectOverlay(world: World, pick: Pick, zoom: number): Overlay {
   return { kind: 'ring', circle: pickCircle(world, pick, zoom), style: 'select' };
 }
 
-/** Rectangle monde montré dans la vignette de confirmation : la cible, bien zoomée. */
+/**
+ * Rectangle monde montré dans la vignette de confirmation : la cible, bien zoomée. Le zoom suit le
+ * rectangle de désignation (le corps), mais la vue est centrée sur l'emprise VISUELLE : parapluie,
+ * haut-de-forme, cheminée ou bulle dépassent du corps, et une vue centrée sur le corps les rognait.
+ * Comme tout le dessin tient dans `getEntityBounds`, la vue contient toujours l'emprise entière.
+ */
 export function thumbRect(entity: Entity | null, point: { x: number; y: number }): Rect {
   const MIN_W = 52;
   const MIN_H = 39;
   if (!entity) return { x: point.x - MIN_W / 2, y: point.y - MIN_H / 2, w: MIN_W, h: MIN_H };
   const r = getHitRect(entity);
-  const w = Math.max(MIN_W, r.w * 1.4);
-  const h = Math.max(MIN_H, r.h * 1.4);
-  return { x: r.x + r.w / 2 - w / 2, y: r.y + r.h / 2 - h / 2, w, h };
+  const b = getEntityBounds(entity);
+  const w = Math.max(MIN_W, r.w * 1.4, b.w);
+  const h = Math.max(MIN_H, r.h * 1.4, b.h);
+  return { x: b.x + b.w / 2 - w / 2, y: b.y + b.h / 2 - h / 2, w, h };
 }
 
 /** Rectangle englobant d'un cercle. */

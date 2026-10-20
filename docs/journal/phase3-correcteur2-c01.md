@@ -72,6 +72,14 @@ brouillons dans `.shots/c01-correcteur2/` (`<largeur>x<hauteur>-0N-….png` et `
   puis 3/6 à x 2716.
 - Étoiles du passage de contrôle : 2 (deux indices volontairement pris pour afficher les textes), sans rapport avec la correction.
 
+### Revérification (après les modifications des autres correcteurs : pastille de lieu, textes UI, c00)
+`c01.ts` était déjà corrigé et sauvegardé (commit intermédiaire 356f00f) ; aucune nouvelle modification de contenu n'a été nécessaire.
+Tout a été rejoué sur l'état actuel du dépôt : `npx tsc --noEmit` passe ; `npx vitest run` 17 fichiers, 351 tests passent ;
+`npm run content:check` finit par `OK : aucun problème.` ; `E2E_PORT=5192 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts`
+1 test passé (1,5 min, c01 résolue au doigt en 3 étoiles) ; le script en jeu réel donne les mêmes lignes qu'au tableau ci-dessus
+(question de Q3 : 2 / 2 / 3 ; indice 1 : 2 / 2 / 2 ; fausse piste de la file : 2 / 2 / 2 ; aucune erreur console, 0 erreur comptée après le
+tap sur `c01.lafouine.3` en Q3 aux trois tailles, reconstitution croissante vers l'est).
+
 ## Limites
 - **`docs/CONTENT.md` n'est pas régénéré** (`npm run content:doc`, fait une seule fois par l'intégration) : il cite encore les anciens
   textes de Q3 (question, indice 1, réussite de Q2) et l'ancien ordre/légendes de la reconstitution. `tools/content/CONTENT.template.md`

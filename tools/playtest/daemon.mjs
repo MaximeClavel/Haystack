@@ -157,6 +157,14 @@ function parseCrop(v) {
   return { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
 }
 
+/** `--nth N` de « press » : rang (à partir de 1) du bouton parmi ceux qui portent le même libellé. */
+function parseNth(v) {
+  if (v === undefined) return undefined;
+  const n = Number(v);
+  if (v === true || !Number.isInteger(n) || n < 1) throw new UsageError('--nth attend un entier à partir de 1 : le rang du bouton, de haut en bas (par exemple press Voir --nth 2)');
+  return n;
+}
+
 const commands = {
   async ping() {
     return 'pong';
@@ -177,9 +185,16 @@ const commands = {
     for (let k = 2; existsSync(file); k++) file = join(dir, `${name}-${k}.png`);
     const size = await takeScreenshot(page, file, { grid: flags.grid === true, crop });
     shotCount++;
-    const what = crop
-      ? `zone agrandie (${crop.x}, ${crop.y}) ${crop.w}×${crop.h} px, image de ${size.w}×${size.h} px de coordonnées écran × densité`
-      : `écran complet ${size.w}×${size.h} px (1 pixel de l'image = 1 pixel de coordonnée)`;
+    let what;
+    if (crop) {
+      const z = size.zone;
+      const clipped = z.w !== Math.round(crop.w) || z.h !== Math.round(crop.h) || z.x !== Math.round(crop.x) || z.y !== Math.round(crop.y);
+      const zone = `(${z.x}, ${z.y}) ${z.w}×${z.h} px d'écran${clipped ? ' (zone ramenée aux bords de l\'écran)' : ''}`;
+      what =
+        size.factor > 1
+          ? `zone agrandie ${zone} → image de ${size.w}×${size.h} px (agrandie ×${size.factor} ; les détails réels sont ceux de l'écran, l'agrandissement est lissé)`
+          : `zone ${zone} → image de ${size.w}×${size.h} px (déjà assez grande : pas d'agrandissement ; les détails réels sont ceux de l'écran)`;
+    } else what = `écran complet ${size.w}×${size.h} px (1 pixel de l'image = 1 pixel de coordonnée)`;
     return `Capture n°${shotCount} : ${file}\n${what}${flags.grid === true ? ' — grille rose : lignes tous les ' + (crop ? '10 à 50' : '50') + ' px, valeurs en coordonnées écran' : ''}.\nLisez ce fichier avec l'outil Read.`;
   },
 
@@ -234,11 +249,12 @@ const commands = {
     return formatButtons(ui);
   },
 
-  async press({ positional }) {
+  async press({ positional, flags }) {
     const label = positional.join(' ').trim();
+    const nth = parseNth(flags.nth);
     const mark = await toastMark();
-    const b = await pressButton(page, label);
-    return `Bouton « ${b.name} » touché en (${b.x}, ${b.y}).\n${await afterGesture(mark)}`;
+    const b = await pressButton(page, label, nth);
+    return `Bouton « ${b.name} »${nth !== undefined ? ` (n° ${nth} de haut en bas)` : ''} touché en (${b.x}, ${b.y}).\n${await afterGesture(mark)}`;
   },
 
   async status() {
@@ -259,8 +275,9 @@ const commands = {
       lines.push('Erreurs : 0 · Indices utilisés : 0');
     }
     lines.push(`Durée écoulée : ${dur} · Captures prises : ${shotCount} · Commandes : ${commandCount}`);
+    // Toujours affichée (même à zéro) : sans elle, on ne peut pas distinguer « aucun incident » de « incidents non comptés ».
     const inc = pageIncidents.errors + pageIncidents.failedRequests;
-    if (inc > 0) lines.push(`Incidents techniques de la page : ${inc} (voir daemon.log ; à signaler à l'organisateur)`);
+    lines.push(inc > 0 ? `Incidents techniques de la page : ${inc} (voir daemon.log ; à signaler à l'organisateur)` : 'Incidents techniques de la page : 0');
     return lines.join('\n');
   },
 
@@ -269,6 +286,12 @@ const commands = {
     return 'Arrêt demandé.';
   },
 };
+
+/** Options d'une commande à noter au journal (hors --case / --player, répétés à chaque commande). */
+function loggedFlags(flags) {
+  const kept = Object.entries(flags ?? {}).filter(([k]) => k !== 'case' && k !== 'player');
+  return kept.length ? Object.fromEntries(kept) : undefined;
+}
 
 let queue = Promise.resolve();
 
@@ -294,7 +317,7 @@ function runCommand(cmd, args) {
       throw err;
     } finally {
       try {
-        appendFileSync(jsonlFile, JSON.stringify({ t: stamp(), cmd, args: args?.positional ?? [], ms: Date.now() - t0, ok, error: ok ? undefined : errMsg }) + '\n');
+        appendFileSync(jsonlFile, JSON.stringify({ t: stamp(), cmd, args: args?.positional ?? [], flags: loggedFlags(args?.flags), ms: Date.now() - t0, ok, error: ok ? undefined : errMsg }) + '\n');
       } catch {}
     }
   });
@@ -374,6 +397,12 @@ async function main() {
   cdp = await context.newCDPSession(page);
   page.on('console', (msg) => {
     if (msg.type() === 'error') {
+      // « Failed to load resource… » double une requête échouée ou une réponse HTTP ≥ 400, déjà comptées plus bas :
+      // on la note au journal mais on ne la compte pas une seconde fois.
+      if (/^Failed to load resource/i.test(msg.text())) {
+        log(`[page:ressource] ${msg.text().slice(0, 300)} (déjà comptée par la requête)`);
+        return;
+      }
       pageIncidents.errors++;
       log(`[page:error] ${msg.text().slice(0, 300)}`);
     } else if (msg.type() === 'warning') {

@@ -1,6 +1,7 @@
 // Petits textes et calculs d'affichage (français), partagés par les écrans.
-import type { CaseDef, CaseProgress, Entity, SaveData, World } from '../types';
+import type { CaseDef, CaseProgress, Entity, Rect, SaveData, World } from '../types';
 import { bestStarsOf, hasSolved, requiredOf } from '../game';
+import { worldMeta } from '../world/meta';
 
 /** Numéro de dossier affiché : « 00 », « 01 »… ; « ★ » pour un bonus. */
 export function caseNumber(def: CaseDef): string {
@@ -72,19 +73,83 @@ export function targetLabel(e: Entity | null): string {
   }
 }
 
-/** Nom du lieu sous un point : lieu remarquable s'il y en a un, sinon le quartier. */
-export function placeName(world: World, x: number, y: number): string {
-  let best: { name: string; area: number } | null = null;
-  for (const lm of world.landmarks) {
-    const r = lm.rect;
-    if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) {
-      const area = r.w * r.h;
-      if (!best || area < best.area) best = { name: lm.name, area };
-    }
+/**
+ * Au-dessous de cette surface (u²), un lieu remarquable (bâtiment, pont, parvis, chantier, kiosque…) passe
+ * avant le nom de la rue ; au-dessus (parc, marché, grand-place, étang, cimetière…) c'est la rue qui l'emporte.
+ */
+const SMALL_PLACE_AREA = 200_000;
+/** Rues de remplissage du générateur (« Rue n°124 ») : sans intérêt pour le joueur, jamais affichées. */
+const FILL_STREET = /^Rue n°\d+$/;
+/** Au plus deux noms de rue à un carrefour. */
+const MAX_STREET_NAMES = 2;
+/** Marge de capture maximale, en unités monde (zoom ≤ 1). */
+const MAX_CAPTURE_MARGIN = 48;
+
+/**
+ * Marge de capture (unités monde) de la pastille de lieu : environ 48 px d'écran autour du centre de la
+ * zone libre, plafonnée à 48 u quand la carte est dézoomée. Sans elle, un pont de 80 u de large n'est
+ * nommé que si son axe passe à moins de 40 u du centre.
+ */
+export function placeCaptureMargin(zoom: number): number {
+  return Math.min(MAX_CAPTURE_MARGIN, MAX_CAPTURE_MARGIN / Math.max(zoom, 0.01));
+}
+
+/** Distance d'un point à un rectangle (0 s'il est dedans, bords compris). */
+function distanceToRect(r: Rect, x: number, y: number): number {
+  return Math.hypot(Math.max(r.x - x, 0, x - (r.x + r.w)), Math.max(r.y - y, 0, y - (r.y + r.h)));
+}
+
+/** Rues nommées autour d'un point (les plus proches d'abord, au plus deux) : ni diagonales ni « Rue n°N ». */
+function streetNamesAt(world: World, x: number, y: number, margin: number): string[] {
+  const meta = worldMeta(world);
+  if (!meta) return [];
+  const hits: { name: string; dist: number }[] = [];
+  for (const s of meta.streets) {
+    // Les rues en biais ont pour rectangle leur boîte englobante : il n'a aucun sens ici.
+    if (s.axis === 'd' || FILL_STREET.test(s.name)) continue;
+    const dist = distanceToRect(s.rect, x, y);
+    if (dist <= margin) hits.push({ name: s.name, dist });
   }
+  hits.sort((a, b) => a.dist - b.dist); // tri stable : à égalité, ordre du plan des rues
+  const names: string[] = [];
+  for (const h of hits) if (!names.includes(h.name)) names.push(h.name);
+  return names.slice(0, MAX_STREET_NAMES);
+}
+
+/**
+ * Nom du lieu sous un point (pastille de lieu). Par ordre de priorité : petit lieu remarquable
+ * (bâtiment, pont…), rue nommée (deux à un carrefour), grand lieu (parc, marché…), quartier.
+ * Le quartier est ajouté après un lieu ou une rue (« Cinéma Le Rex · Les Halles »), sauf s'il porte le
+ * même nom (« Parc des Meules ») ou à un carrefour (libellé trop long).
+ *
+ * `margin` (unités monde) agrandit chaque emprise de lieu ou de rue : les lieux étroits restent nommés
+ * quand ils sont dans la vue sans être exactement sous le centre. Voir `placeCaptureMargin`.
+ */
+export function placeName(world: World, x: number, y: number, margin = 0): string {
+  const m = Math.max(0, margin);
+  type Found = { name: string; dist: number; area: number };
+  // Meilleur lieu de chaque classe : celui qui contient le point d'abord, puis le plus proche ;
+  // à égalité, la plus petite emprise.
+  const closer = (a: Found, b: Found | null): boolean => !b || a.dist < b.dist || (a.dist === b.dist && a.area < b.area);
+  let small: Found | null = null;
+  let large: Found | null = null;
+  for (const lm of world.landmarks) {
+    const dist = distanceToRect(lm.rect, x, y);
+    if (dist > m) continue;
+    const area = lm.rect.w * lm.rect.h;
+    const found: Found = { name: lm.name, dist, area };
+    if (area < SMALL_PLACE_AREA) {
+      if (closer(found, small)) small = found;
+    } else if (closer(found, large)) large = found;
+  }
+  const streets = streetNamesAt(world, x, y, m);
   const d = world.districts.find((q) => x >= q.rect.x && x < q.rect.x + q.rect.w && y >= q.rect.y && y < q.rect.y + q.rect.h);
-  if (best && d) return `${best.name} · ${d.name}`;
-  return best?.name ?? d?.name ?? 'Meulebourg';
+
+  const main = small?.name ?? (streets.length > 0 ? streets.join(' / ') : (large?.name ?? null));
+  if (main === null) return d?.name ?? 'Meulebourg';
+  const crossroads = !small && streets.length > 1;
+  if (!d || crossroads || d.name === main) return main;
+  return `${main} · ${d.name}`;
 }
 
 /** Nom du quartier seul (liste des punaises). */

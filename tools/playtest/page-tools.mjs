@@ -8,6 +8,7 @@
 // aucune coordonnée du monde, aucun identifiant d'entité.
 
 import { devices } from '@playwright/test';
+import { writeFileSync } from 'node:fs';
 
 /** Clé de sauvegarde du jeu (src/config.ts : STORAGE_KEY). */
 export const STORAGE_KEY = 'haystack:v1';
@@ -427,28 +428,57 @@ export const fold = (s) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-/** Trouve le bouton visible portant ce libellé (exact d'abord, puis partiel). Lève GestureError sinon. */
-export function findButton(ui, label) {
+/** Ordre de lecture : de haut en bas, puis de gauche à droite. */
+const readingOrder = (a, b) => a.y - b.y || a.x - b.x;
+
+/** Libellé tel qu'on le tape dans une commande (entre guillemets s'il contient des espaces). */
+const asArgument = (label) => (/\s/.test(label) ? `"${label}"` : label);
+
+/**
+ * Trouve le bouton visible portant ce libellé (exact d'abord, puis partiel). Lève GestureError sinon.
+ * `nth` (entier ≥ 1, facultatif) : rang du bouton parmi les candidats, de haut en bas puis de gauche à
+ * droite — pour les libellés identiques (les « Voir » du carnet). Sans `nth`, plusieurs candidats = erreur
+ * qui donne le centre de chacun et la commande à taper.
+ */
+export function findButton(ui, label, nth) {
   const q = fold(label);
   if (!q) throw new GestureError('« press » attend le libellé d\'un bouton, par exemple press "Désigner"');
   const names = (b) => [fold(b.name), fold(b.text)];
   const exact = ui.buttons.filter((b) => names(b).includes(q));
   const partial = ui.buttons.filter((b) => names(b).some((n) => n.includes(q)));
   const pick = exact.length ? exact : partial;
-  const uniq = pick.filter((b, i) => pick.findIndex((o) => o.x === b.x && o.y === b.y) === i);
-  if (uniq.length === 1) return uniq[0];
+  const uniq = pick.filter((b, i) => pick.findIndex((o) => o.x === b.x && o.y === b.y) === i).sort(readingOrder);
   if (uniq.length === 0) {
     throw new GestureError(
       `aucun bouton visible ne s'appelle « ${label} ».\nBoutons visibles : ${ui.buttons.map(buttonLabel).join(' · ') || 'aucun'}`,
     );
   }
-  throw new GestureError(`« ${label} » est ambigu, précisez le libellé. Candidats : ${uniq.map(buttonLabel).join(' · ')}`);
+  const spots = uniq.map((b) => `(${b.x}, ${b.y})`).join(', ');
+  if (nth !== undefined) {
+    if (!Number.isInteger(nth) || nth < 1) throw new GestureError('--nth attend un entier à partir de 1 : le rang du bouton, de haut en bas');
+    if (nth > uniq.length) {
+      throw new GestureError(`« ${label} » n'existe que ${uniq.length} fois (--nth ${nth} demandé), de haut en bas : ${spots}.`);
+    }
+    return uniq[nth - 1];
+  }
+  if (uniq.length === 1) return uniq[0];
+  const arg = asArgument(label);
+  if (uniq.every((b) => fold(b.name) === fold(uniq[0].name))) {
+    throw new GestureError(
+      `« ${label} » existe ${uniq.length} fois, de haut en bas : ${spots}. Choisissez avec \`press ${arg} --nth 2\`, ou touchez-le avec \`tap x y\`.`,
+    );
+  }
+  // Libellés différents (le texte cherché n'est qu'un morceau de chacun, ou le texte affiché est le même) :
+  // on les nomme en entier, pour qu'un libellé plus précis suffise.
+  throw new GestureError(
+    `« ${label} » correspond à ${uniq.length} boutons, de haut en bas : ${uniq.map((b) => `${buttonLabel(b)} (${b.x}, ${b.y})`).join(' · ')}. Précisez le libellé, ou choisissez avec \`press ${arg} --nth 2\` (rang dans cette liste), ou touchez-le avec \`tap x y\`.`,
+  );
 }
 
 /** Touche un bouton par son libellé (tap réel au centre du bouton). Renvoie le bouton touché. */
-export async function pressButton(page, label) {
+export async function pressButton(page, label, nth) {
   const ui = await readUi(page);
-  const b = findButton(ui, label);
+  const b = findButton(ui, label, nth);
   if (b.disabled) throw new GestureError(`le bouton « ${b.name} » est inactif (verrouillé ou grisé) : il ne répond pas au toucher`);
   await tapAt(page, b.x, b.y);
   return b;
@@ -536,14 +566,58 @@ function drawGrid({ step, labelEvery, region }) {
   document.body.appendChild(c);
 }
 
+/** Plus petit côté (en pixels de l'image) d'une capture `--crop` : en dessous, la zone est agrandie. */
+export const CROP_MIN_SIDE_PX = 480;
+/** Plus grand côté toléré après agrandissement (au-delà, les lecteurs d'images réduisent et le gain disparaît). */
+const CROP_MAX_SIDE_PX = 1800;
+
+/** Facteur ENTIER d'agrandissement d'une capture de wPx × hPx pixels : plus petit côté ≥ CROP_MIN_SIDE_PX si possible. */
+export function cropFactor(wPx, hPx) {
+  let k = Math.max(1, Math.ceil(CROP_MIN_SIDE_PX / Math.max(1, Math.min(wPx, hPx))));
+  while (k > 1 && Math.max(wPx, hPx) * k > CROP_MAX_SIDE_PX) k--;
+  return k;
+}
+
+/**
+ * Agrandit un PNG d'un facteur entier k, avec lissage. Le travail se fait dans une page VIERGE (about:blank,
+ * ouverte puis refermée) : aucun accès au jeu, donc rien qu'un joueur ne verrait pas (anti-triche intact).
+ */
+async function upscalePng(page, png, k) {
+  const helper = await page.context().newPage();
+  try {
+    const b64 = await helper.evaluate(
+      async ({ b64, k }) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth * k;
+        c.height = img.naturalHeight * k;
+        const g = c.getContext('2d');
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(img, 0, 0, c.width, c.height);
+        return c.toDataURL('image/png').split(',')[1];
+      },
+      { b64: png.toString('base64'), k },
+    );
+    return Buffer.from(b64, 'base64');
+  } finally {
+    await helper.close().catch(() => {});
+  }
+}
+
 /**
  * Capture écran. Sans `crop` : tout l'écran, à l'échelle CSS (1 pixel de l'image = 1 pixel de coordonnée).
- * Avec `crop` {x,y,w,h} : zoom sur cette zone, à la résolution réelle de l'écran (plus de détails).
+ * Avec `crop` {x,y,w,h} : la zone, prise à la densité réelle de l'écran puis AGRANDIE d'un facteur entier (lissé)
+ * pour que son plus petit côté fasse au moins CROP_MIN_SIDE_PX (les vrais détails restent ceux de l'écran).
  * `grid` : superpose une grille de repérage (lignes tous les 50 px, valeurs tous les 100 ; en détail, plus fine).
+ * Renvoie { w, h } (taille de l'image écrite) ; avec `crop`, aussi { zone, factor } (zone effectivement capturée,
+ * en pixels écran, et facteur d'agrandissement par rapport à la capture à la densité de l'écran).
  */
 export async function takeScreenshot(page, file, { grid = false, crop = null } = {}) {
   const { w: W, h: H } = viewportOf(page);
-  const opts = { path: file, type: 'png', scale: 'css' };
+  const opts = { type: 'png', scale: 'css' };
   let region = null;
   if (crop) {
     const x = Math.max(0, Math.min(W - 10, crop.x));
@@ -554,16 +628,29 @@ export async function takeScreenshot(page, file, { grid = false, crop = null } =
     region = { x, y, w: cw, h: ch };
     opts.clip = { x, y, width: cw, height: ch };
     opts.scale = 'device';
-  }
+  } else opts.path = file;
   if (grid) {
     const span = region ? Math.max(region.w, region.h) : Math.max(W, H);
     const step = span <= 160 ? 10 : span <= 330 ? 25 : 50;
     await page.evaluate(drawGrid, { step, labelEvery: step * 2, region });
   }
+  let png;
   try {
-    await page.screenshot(opts);
+    png = await page.screenshot(opts);
   } finally {
     if (grid) await page.evaluate(() => document.getElementById('__pt_grid')?.remove()).catch(() => {});
   }
-  return region ? { w: Math.round(region.w), h: Math.round(region.h) } : { w: W, h: H };
+  if (!region) return { w: W, h: H };
+  // Taille réelle de la capture (en-tête PNG : largeur et hauteur en pixels de l'appareil).
+  const devW = png.readUInt32BE(16);
+  const devH = png.readUInt32BE(20);
+  const factor = cropFactor(devW, devH);
+  if (factor > 1) png = await upscalePng(page, png, factor);
+  writeFileSync(file, png);
+  return {
+    w: devW * factor,
+    h: devH * factor,
+    zone: { x: Math.round(region.x), y: Math.round(region.y), w: Math.round(region.w), h: Math.round(region.h) },
+    factor,
+  };
 }

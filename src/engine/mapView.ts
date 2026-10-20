@@ -15,12 +15,14 @@ import {
   screenToWorld,
   worldToScreen,
   zoomAround,
+  type ScreenInsets,
   type Viewport,
   type WorldSize,
 } from './camera';
 import {
   BACKDROP,
   DOUBLE_TAP_ZOOM_MS,
+  INSETS_GLIDE_MS,
   REVEAL_PULSE_MS,
   DRAG_ZOOM_PX_PER_DOUBLING,
   FRAME_BUDGET_BUSY_MS,
@@ -97,12 +99,43 @@ export interface EngineMapView extends MapView {
   debugStats(): MapDebugStats;
   /** Oublie toutes les tuiles (ex. le monde a été modifié) ; elles sont refaites progressivement. */
   invalidateTiles(): void;
+  /**
+   * Marges masquées par l'interface (barre haute, feuille du bas ou latérale) : les bornes de la caméra
+   * se comptent alors dans la zone libre, de sorte que tout bord de la ville puisse être amené hors des
+   * barres. Marges toutes nulles = écran entier (comportement par défaut). Si la caméra se retrouve hors
+   * des nouvelles bornes, elle y glisse doucement. Propre au moteur : pas dans le contrat `MapView`.
+   */
+  setInsets(insets: ScreenInsets): void;
 }
 
 interface Flight {
   plan: FlightPlan;
   start: number | null;
   resolve: () => void;
+}
+
+/** Mêmes marges (à 0,5 px près : les rectangles mesurés dans la page ont des décimales) ? */
+function sameInsets(a: ScreenInsets | undefined, b: ScreenInsets | undefined): boolean {
+  if (!a || !b) return a === b;
+  return (
+    Math.abs(a.top - b.top) < 0.5 &&
+    Math.abs(a.bottom - b.bottom) < 0.5 &&
+    Math.abs(a.left - b.left) < 0.5 &&
+    Math.abs(a.right - b.right) < 0.5
+  );
+}
+
+const NO_INSETS: ScreenInsets = { top: 0, bottom: 0, left: 0, right: 0 };
+
+/** Marges intermédiaires entre `a` et `b` (k ∈ [0, 1]) ; `b` absent = aucune marge. */
+function lerpInsets(a: ScreenInsets, b: ScreenInsets | undefined, k: number): ScreenInsets {
+  const t = b ?? NO_INSETS;
+  return {
+    top: a.top + (t.top - a.top) * k,
+    bottom: a.bottom + (t.bottom - a.bottom) * k,
+    left: a.left + (t.left - a.left) * k,
+    right: a.right + (t.right - a.right) * k,
+  };
 }
 
 function currentDpr(): number {
@@ -132,6 +165,12 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
   /** Instant du dernier setOverlays (la pulsation des overlays « reveal » dure REVEAL_PULSE_MS). */
   let overlaysSince = 0;
   let reducedMotion = false;
+  /** Marges masquées par l'interface appliquées à l'image courante (undefined = écran entier libre) : voir setInsets. */
+  let safe: ScreenInsets | undefined;
+  /** Marges demandées : celles que `safe` atteint à la fin du glissement (sans lui, les mêmes). */
+  let safeGoal: ScreenInsets | undefined;
+  /** Glissement des bornes de la caméra vers `safeGoal` (marge de départ ; `start` fixé à la première image). */
+  let insetsAnim: { from: ScreenInsets; start: number | null } | null = null;
   let destroyed = false;
   /** Faux pendant createMapView : aucun rappel (onCameraChange…) n'est émis avant le retour. */
   let constructed = false;
@@ -166,7 +205,7 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
    * ----------------------------------------------------------------------- */
 
   function applyCamera(c: CameraState): void {
-    const next = clampCamera(c, vp, ws, minZoom, MAX_ZOOM);
+    const next = clampCamera(c, vp, ws, minZoom, MAX_ZOOM, undefined, safe);
     if (!sameCamera(next, camera)) {
       camera = next;
       cameraDirty = true;
@@ -192,7 +231,7 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
 
   function startFlight(to: CameraState, duration?: number, ease?: (t: number) => number): Promise<void> {
     stopMotion();
-    const target = clampCamera(to, vp, ws, minZoom, MAX_ZOOM);
+    const target = clampCamera(to, vp, ws, minZoom, MAX_ZOOM, undefined, safeGoal);
     if (reducedMotion || duration === 0 || vp.width <= 0 || vp.height <= 0 || sameCamera(target, camera)) {
       applyCamera(target);
       requestFrame();
@@ -221,6 +260,18 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
   }
 
   function stepMotion(now: number, dt: number): void {
+    if (insetsAnim) {
+      // Les bornes glissent vers les nouvelles marges ; la caméra qui en sort est repoussée avec elles.
+      if (insetsAnim.start === null) insetsAnim.start = now;
+      const t = (now - insetsAnim.start) / INSETS_GLIDE_MS;
+      if (t >= 1) {
+        safe = safeGoal;
+        insetsAnim = null;
+      } else {
+        safe = lerpInsets(insetsAnim.from, safeGoal, easeOutCubic(t));
+      }
+      applyCamera(camera);
+    }
     if (flight) {
       if (flight.start === null) flight.start = now;
       const t = flight.plan.duration > 0 ? (now - flight.start) / flight.plan.duration : 1;
@@ -337,8 +388,8 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
     const after = buildPlan(level, visible, !interacting && !moving());
     pendingVisible = after.missingVisible;
     const animated = hasAnimatedOverlay(overlays, reducedMotion) && performance.now() - overlaysSince < REVEAL_PULSE_MS;
-    idle = !moving() && pendingVisible === 0;
-    const more = moving() || animated || after.plan.length > 0;
+    idle = !moving() && insetsAnim === null && pendingVisible === 0;
+    const more = moving() || insetsAnim !== null || animated || after.plan.length > 0;
 
     frames++;
     lastFrameMs = performance.now() - t0;
@@ -484,7 +535,7 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
     } else if (wasAtMin) {
       camera = { ...camera, zoom: minZoom };
     }
-    camera = clampCamera(camera, vp, ws, minZoom, MAX_ZOOM);
+    camera = clampCamera(camera, vp, ws, minZoom, MAX_ZOOM, undefined, safe);
     cameraDirty = true;
     // Redessin immédiat : changer la taille du canevas l'efface (sauf pendant la construction,
     // pour ne pas appeler onCameraChange avant que createMapView ait rendu la main).
@@ -759,6 +810,25 @@ export function createMapView(opts: MapViewOptions): EngineMapView {
       }
       const cssWidth = target.clientWidth > 0 ? target.clientWidth : tw / dpr;
       renderWorldRect(tctx, world, r, tw, th, lodForZoom(cssWidth / r.w));
+    },
+    setInsets(i: ScreenInsets): void {
+      if (destroyed) return;
+      const next = i.top > 0 || i.bottom > 0 || i.left > 0 || i.right > 0 ? { top: i.top, bottom: i.bottom, left: i.left, right: i.right } : undefined;
+      if (sameInsets(safeGoal, next)) return;
+      const from = safe ?? NO_INSETS;
+      safeGoal = next;
+      insetsAnim = null;
+      // La caméra reste dans les nouvelles bornes : rien à faire glisser, elles s'appliquent tout de suite.
+      const stays = sameCamera(clampCamera(camera, vp, ws, minZoom, MAX_ZOOM, undefined, next), camera);
+      if (stays || reducedMotion || vp.width <= 0 || vp.height <= 0) {
+        safe = next;
+        applyCamera(camera);
+      } else {
+        // Sinon (ex. la fiche d'indice se replie : la butée recule), les bornes glissent en INSETS_GLIDE_MS et
+        // la caméra suit sans saut ; aucune animation de caméra, donc aucun conflit avec un geste en cours.
+        insetsAnim = { from: { ...from }, start: null };
+      }
+      requestFrame();
     },
     getMinZoom: () => minZoom,
     getMaxZoom: () => MAX_ZOOM,

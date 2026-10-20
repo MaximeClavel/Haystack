@@ -160,6 +160,163 @@ describe('bornes', () => {
   });
 });
 
+describe('bornes avec les marges de l’interface (insets)', () => {
+  const min = computeMinZoom(phone, world);
+  // Barre haute 62 px, panneau de question 224 px (Q4 de c03 sur 390×844).
+  const ui = { top: 62, bottom: 224, left: 0, right: 0 };
+  const southEdge = (cam: { x: number; y: number; zoom: number }, vp = phone): number =>
+    worldToScreen(cam, vp, { x: 0, y: WORLD_HEIGHT }).y;
+  const northEdge = (cam: { x: number; y: number; zoom: number }, vp = phone): number =>
+    worldToScreen(cam, vp, { x: 0, y: 0 }).y;
+
+  it('sans marges (absentes ou nulles), le résultat est identique au calcul d’origine', () => {
+    const zero = { top: 0, bottom: 0, left: 0, right: 0 };
+    for (const zoom of [min, 0.1, 0.19, 0.5, 1, 4]) {
+      for (const [x, y] of [
+        [3200, 2400],
+        [-1e6, -1e6],
+        [1e6, 1e6],
+        [120, 4700],
+      ]) {
+        const base = clampCamera({ x, y, zoom }, phone, world, min);
+        expect(clampCamera({ x, y, zoom }, phone, world, min, undefined, undefined, undefined)).toEqual(base);
+        expect(clampCamera({ x, y, zoom }, phone, world, min, undefined, undefined, zero)).toEqual(base);
+      }
+    }
+  });
+
+  it('le bord sud de la ville se remonte au-dessus du panneau, à tous les zooms', () => {
+    const freeBottom = phone.height - ui.bottom;
+    for (const zoom of [min, 0.1, 0.15, 0.188, 0.2, 0.25, 0.3, 0.5, 1, 2, 4]) {
+      const c = clampCamera({ x: 3200, y: 1e6, zoom }, phone, world, min, undefined, undefined, ui);
+      expect(southEdge(c)).toBeLessThanOrEqual(freeBottom + 1e-6);
+      expect(c.zoom).toBe(Math.max(min, zoom));
+    }
+    // Régression : sans marges, vers 0,19 le centre est quasi verrouillé et la rive sud reste sous le panneau.
+    const old = clampCamera({ x: 3200, y: 1e6, zoom: 0.19 }, phone, world, min);
+    expect(southEdge(old)).toBeGreaterThan(freeBottom + 100);
+  });
+
+  it('le bord nord de la ville se descend sous la barre haute, à tous les zooms', () => {
+    for (const zoom of [min, 0.1, 0.188, 0.25, 0.5, 1, 4]) {
+      const c = clampCamera({ x: 3200, y: -1e6, zoom }, phone, world, min, undefined, undefined, ui);
+      expect(northEdge(c)).toBeGreaterThanOrEqual(ui.top - 1e-6);
+    }
+    const old = clampCamera({ x: 3200, y: -1e6, zoom: 0.19 }, phone, world, min);
+    expect(northEdge(old)).toBeLessThan(ui.top - 20);
+  });
+
+  it('zoomé, le bord de la ville entre d’au plus 20 % de la zone libre (et non de l’écran)', () => {
+    const fh = phone.height - ui.top - ui.bottom;
+    const south = clampCamera({ x: 3200, y: 1e6, zoom: 1 }, phone, world, min, undefined, undefined, ui);
+    expect(southEdge(south)).toBeCloseTo(phone.height - ui.bottom - 0.2 * fh, 6);
+    const north = clampCamera({ x: 3200, y: -1e6, zoom: 1 }, phone, world, min, undefined, undefined, ui);
+    expect(northEdge(north)).toBeCloseTo(ui.top + 0.2 * fh, 6);
+  });
+
+  it('même garantie sur un autre téléphone (412×915, panneau de 177 px)', () => {
+    const vp = { width: 412, height: 915 };
+    const m = computeMinZoom(vp, world);
+    const insets = { top: 62, bottom: 177, left: 0, right: 0 };
+    for (const zoom of [m, 0.15, 0.188, 0.2, 0.25, 0.5, 1, 4]) {
+      const s = clampCamera({ x: 3200, y: 1e6, zoom }, vp, world, m, undefined, undefined, insets);
+      expect(southEdge(s, vp)).toBeLessThanOrEqual(vp.height - insets.bottom + 1e-6);
+      const n = clampCamera({ x: 3200, y: -1e6, zoom }, vp, world, m, undefined, undefined, insets);
+      expect(northEdge(n, vp)).toBeGreaterThanOrEqual(insets.top - 1e-6);
+    }
+  });
+
+  it('au zoom minimal, la ville est centrée dans la zone libre (centre verrouillé)', () => {
+    const c = clampCamera({ x: 0, y: 99999, zoom: min }, phone, world, min, undefined, undefined, ui);
+    const mid = worldToScreen(c, phone, { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 });
+    expect(mid.x).toBeCloseTo(phone.width / 2, 6);
+    expect(mid.y).toBeCloseTo(ui.top + (phone.height - ui.top - ui.bottom) / 2, 6);
+    // Toute entrée donne le même résultat : le centre ne peut plus bouger.
+    const other = clampCamera({ x: 5000, y: -3, zoom: min }, phone, world, min, undefined, undefined, ui);
+    expect(other).toEqual(c);
+  });
+
+  it('monde plus petit que la zone libre : centré dans cette zone, quelle que soit la caméra demandée', () => {
+    const small = { width: 1000, height: 800 };
+    const vp = { width: 800, height: 1000 };
+    const insets = { top: 100, bottom: 300, left: 40, right: 0 }; // zone libre : x de 40 à 800, y de 100 à 700
+    const centers = [
+      [0, 0],
+      [1e6, -1e6],
+      [500, 400],
+    ];
+    // À 0,4 la ville (400×320) tient largement dans la zone libre (760×600) : plus aucun défilement possible.
+    for (const zoom of [0.4, 0.5]) {
+      const ref = clampCamera({ x: 500, y: 400, zoom }, vp, small, 0.3, undefined, undefined, insets);
+      const mid = worldToScreen(ref, vp, { x: 500, y: 400 });
+      expect(mid.x).toBeCloseTo(40 + 760 / 2, 6);
+      expect(mid.y).toBeCloseTo(100 + 600 / 2, 6);
+      for (const [x, y] of centers) {
+        const c = clampCamera({ x, y, zoom }, vp, small, 0.3, undefined, undefined, insets);
+        expect(c.x).toBeCloseTo(ref.x, 6);
+        expect(c.y).toBeCloseTo(ref.y, 6);
+      }
+    }
+    // À 1 la ville (1000×800) dépasse la zone libre en largeur et en hauteur : la ville peut défiler.
+    const a = clampCamera({ x: -1e6, y: -1e6, zoom: 1 }, vp, small, 0.3, undefined, undefined, insets);
+    const b = clampCamera({ x: 1e6, y: 1e6, zoom: 1 }, vp, small, 0.3, undefined, undefined, insets);
+    expect(b.x).toBeGreaterThan(a.x + 100);
+    expect(b.y).toBeGreaterThan(a.y + 100);
+  });
+
+  it('marges asymétriques : chaque côté a sa propre limite', () => {
+    const insets = { top: 10, bottom: 300, left: 100, right: 20 };
+    const fw = phone.width - insets.left - insets.right; // 270
+    const fh = phone.height - insets.top - insets.bottom; // 534
+    const at = (x: number, y: number) => clampCamera({ x, y, zoom: 1 }, phone, world, min, undefined, undefined, insets);
+    const edgeX = (c: { x: number; y: number; zoom: number }, wx: number) => worldToScreen(c, phone, { x: wx, y: 0 }).x;
+    expect(edgeX(at(-1e6, 2400), 0)).toBeCloseTo(insets.left + 0.2 * fw, 6);
+    expect(edgeX(at(1e6, 2400), WORLD_WIDTH)).toBeCloseTo(phone.width - insets.right - 0.2 * fw, 6);
+    expect(northEdge(at(3200, -1e6))).toBeCloseTo(insets.top + 0.2 * fh, 6);
+    expect(southEdge(at(3200, 1e6))).toBeCloseTo(phone.height - insets.bottom - 0.2 * fh, 6);
+  });
+
+  it('une caméra déjà dans les bornes n’est pas modifiée et le résultat est stable', () => {
+    const cam = { x: 1234, y: 2345, zoom: 1.5 };
+    // Exactement la même caméra (aucun aller-retour arrondi par le décalage des marges).
+    expect(clampCamera(cam, phone, world, min, undefined, undefined, ui)).toEqual(cam);
+    for (const wild of [
+      { x: -1e6, y: 1e6, zoom: 0.19 },
+      { x: 2e6, y: -2e6, zoom: 3 },
+    ]) {
+      const once = clampCamera(wild, phone, world, min, undefined, undefined, ui);
+      const twice = clampCamera(once, phone, world, min, undefined, undefined, ui);
+      expect(twice.x).toBeCloseTo(once.x, 9);
+      expect(twice.y).toBeCloseTo(once.y, 9);
+      expect(twice.zoom).toBe(once.zoom);
+    }
+  });
+
+  it('les marges qui ne laissent aucune place sur un axe sont ignorées sur cet axe', () => {
+    const swallow = { top: 400, bottom: 500, left: 30, right: 0 };
+    const c = clampCamera({ x: 1e6, y: 1e6, zoom: 1 }, phone, world, min, undefined, undefined, swallow);
+    const noY = clampCamera({ x: 1e6, y: 1e6, zoom: 1 }, phone, world, min, undefined, undefined, { ...swallow, top: 0, bottom: 0 });
+    const full = clampCamera({ x: 1e6, y: 1e6, zoom: 1 }, phone, world, min);
+    expect(c.y).toBeCloseTo(full.y, 9);
+    expect(c.x).toBeCloseTo(noY.x, 9);
+    // Les marges absurdes (négatives, NaN, infinies) comptent pour zéro.
+    const junk = { top: -5, bottom: Number.NaN, left: Number.NEGATIVE_INFINITY, right: Number.POSITIVE_INFINITY };
+    expect(clampCamera({ x: 1e6, y: 1e6, zoom: 1 }, phone, world, min, undefined, undefined, junk)).toEqual(
+      clampCamera({ x: 1e6, y: 1e6, zoom: 1 }, phone, world, min),
+    );
+  });
+
+  it('le zoom reste borné et les coordonnées invalides ramenées au centre, comme sans marges', () => {
+    expect(clampCamera({ x: 0, y: 0, zoom: 99 }, phone, world, min, undefined, undefined, ui).zoom).toBe(MAX_ZOOM);
+    expect(clampCamera({ x: 0, y: 0, zoom: Number.NaN }, phone, world, min, undefined, undefined, ui).zoom).toBe(min);
+    const c = clampCamera({ x: Number.NaN, y: Number.NaN, zoom: 1 }, phone, world, min, undefined, undefined, ui);
+    expect(Number.isFinite(c.x) && Number.isFinite(c.y)).toBe(true);
+    expect(c.x).toBeCloseTo(WORLD_WIDTH / 2, 6);
+    // Sans coordonnée valide, la caméra est au centre du monde (le centre de la zone libre est alors décalé).
+    expect(c.y).toBeCloseTo(WORLD_HEIGHT / 2, 6);
+  });
+});
+
 describe('fitRectCamera', () => {
   it('cadre le rectangle avec la marge demandée', () => {
     const min = computeMinZoom(phone, world);

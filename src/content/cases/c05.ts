@@ -108,7 +108,7 @@ export const c05: CaseDef = {
         { text: 'Devant l’entrée de l’hôpital, près des ambulances.', area: { x: 5810, y: 3150, radius: 90 } },
       ],
       solved:
-        'Blouse blanche et masque… mais un haut-de-forme, un parapluie et le pantalon orange de la troupe ! L’assassin est l’un des comédiens. Retenez bien ces détails.',
+        'Blouse blanche et masque… mais un haut-de-forme, un parapluie et le pantalon orange de la troupe ! L’assassin est l’un des comédiens. Retenez bien ces détails : le carnet les gardera pour vous.',
     },
     {
       id: 's3',
@@ -116,11 +116,15 @@ export const c05: CaseDef = {
       after: ['s1'],
       question: 'Pétronille Doublure, la doublure de Bérénice, jure avoir répété « la scène de la mort » au calme pendant l’entracte. Trouvez-la.',
       accept: ['c05.petronille.1'],
+      nearMiss: [
+        { id: 'z.cimetiere', feedback: 'Le cimetière, oui. Mais ce n’est pas ce qu’on cherche : une femme qui déclame, partition en main.' },
+      ],
       hints: [
-        { text: 'Où répète-t-on le mieux la scène de la mort ? Dans l’endroit le plus calme du quartier des Arts.' },
+        { text: 'Où répète-t-on la scène de la mort ? Au plus calme du quartier des Arts. Cherchez un haut-de-forme et une partition.' },
         { text: 'Au cimetière, sur l’allée centrale.', area: { x: 4640, y: 3225, radius: 110 } },
       ],
-      solved: 'Au cimetière, entre deux tombes, Pétronille déclame la mort de l’héroïne. Haut-de-forme et pantalon orange… mais elle s’appuie sur une canne.',
+      solved:
+        'Au cimetière, entre deux tombes, Pétronille déclame la mort de l’héroïne. Haut-de-forme, pantalon orange qui dépasse du long manteau vert… mais elle s’appuie sur une canne.',
     },
     {
       id: 's4',
@@ -133,7 +137,7 @@ export const c05: CaseDef = {
         { id: 'lm.musee', feedback: 'Le Musée des Beaux-Arts, oui. Mais c’est Hector qu’on cherche, sur le parvis.' },
       ],
       hints: [
-        { text: 'Quel bâtiment du quartier des Arts abrite le plus de belles choses ? Marbre, colonnes, statues…' },
+        { text: 'Quel bâtiment du quartier des Arts abrite le plus de belles choses ? Marbre, colonnes, statues… Il y est en bonne compagnie.' },
         { text: 'Sur le parvis du Musée des Beaux-Arts.', area: { x: 4890, y: 2520, radius: 110 } },
       ],
       solved: 'Devant le musée, Hector se console déjà avec une admiratrice. Pantalon orange et parapluie… mais un chapeau melon.',
@@ -142,7 +146,7 @@ export const c05: CaseDef = {
       id: 's5',
       label: 'Gontran',
       after: ['s1'],
-      question: 'Gontran Lamèche, le doyen de la troupe, jure qu’il lisait son journal pendant l’entracte. Trouvez-le.',
+      question: 'Gontran Lamèche, le doyen de la troupe, jure qu’il n’a pas bougé à l’entracte : il lisait son journal. Trouvez-le.',
       accept: ['c05.gontran.1'],
       nearMiss: [
         { id: 'c05.berenice.1', feedback: 'Bérénice ne lira plus rien ce soir. Cherchez celui qui lit.' },
@@ -176,7 +180,7 @@ export const c05: CaseDef = {
     {
       id: 's7',
       after: ['s6'],
-      question: 'Gontran file vers le port pour embarquer sur le dernier bateau. Retrouvez-le avant le départ !',
+      question: 'Gontran file discrètement au port pour embarquer sur « L’Entracte », le dernier bateau. Retrouvez-le avant le départ !',
       accept: ['c05.gontran.3'],
       nearMiss: [
         {
@@ -189,7 +193,7 @@ export const c05: CaseDef = {
         { id: 'c05.bateau', feedback: 'Le bateau « L’Entracte » attend son dernier passager. Il n’est pas encore à bord.' },
       ],
       hints: [
-        { text: 'Il a traversé la Fenaison par le Pont du Parc, puis longé les quais vers l’est, jusqu’au bateau « L’Entracte ».' },
+        { text: 'Il a franchi le Pont du Parc, à l’entrée ouest du port, puis longé les quais vers l’est, sans aller jusqu’au bout.' },
         { text: 'Tout près du bateau, quelqu’un se cache entre deux caisses.', area: { x: 5480, y: 3940, radius: 100 } },
       ],
       solved: 'Accroupi entre deux caisses, à trois pas de la passerelle, le parapluie à la main. Picotin l’attendait — pour une fois, au bon endroit.',

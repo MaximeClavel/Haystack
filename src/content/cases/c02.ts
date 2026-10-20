@@ -113,7 +113,7 @@ export const c02: CaseDef = {
         },
         {
           id: 'c02.barque',
-          feedback: 'Barbarie est bien à bord… mais les bras en l’air et sans carton : ce n’est pas ce moment-là de l’histoire. Suivez plutôt le carton.',
+          feedback: 'Barbarie est à bord… mais les bras en l’air et sans carton : ce n’est pas ce moment-là de l’histoire. Suivez plutôt le carton.',
         },
         {
           id: 'c02.bigarade.1',

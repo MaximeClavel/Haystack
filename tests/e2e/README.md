@@ -41,6 +41,7 @@ npx playwright show-trace test-results/<test>/trace.zip         # trace d'un éc
 | `06-parcours-console.spec.ts` | Tous les écrans dans une même page : approche de loin, panneau repliable, carnet (notes, punaise posée puis retirée) — sans erreur console |
 | `07-corrections.spec.ts` | Corrections issues des revues (R1…R12, M1…M6) : recommencer, réponse d'une autre question ouverte, nom du lieu, bouton Retour, double tap, notes, petit écran, testament du bonus |
 | `08-retours-joueurs-ui.spec.ts` | Corrections de l'interface issues des joueurs test aveugles : « N pistes ouvertes » et suite du fil (c04), indice replié (« relire », zone accessible), « Non merci » sous le bouton Indice, toast du bonus avec le début du vers, carnet (rubrique vide, « Voir » nommés), fin du bonus sans bande noire, « Comment jouer », difficulté au briefing, onglets de c05 à 360 px |
+| `09-camera-marges.spec.ts` | Bornes de la caméra et marges de l'interface (c03, 390 × 844 et 412 × 915) : à tous les zooms la rive sud passe au-dessus du panneau de question et le nord sous la barre haute ; dézoom au doigt puis glissé vers le sud ; un changement de taille du panneau fait glisser les bornes sans saut de caméra |
 | `tools/planche.mjs` | Planche contact des captures de cibles (voir ci-dessous) |
 
 ## « Chaque réponse est désignable » (test 04)

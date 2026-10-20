@@ -531,14 +531,14 @@ dix lieux couvrent les neuf quartiers :
 | # | Vers du testament | Lieu | Quartier |
 |---|---|---|---|
 | 1 | « Là où l’on attend les trains, le temps a deux aiguilles : j’en ai mis une troisième. » | sur le cadran de l’horloge de la gare (en hauteur : `z` 139) | Gare |
-| 2 | « Ma main levée en tient une, et ne la lâche pas. » | dans la main levée de la Statue du Fondateur (`z` 36) | Parc |
+| 2 | « Au parc qui porte mon nom, ma main levée en tient une, et ne la lâche pas. » | dans la main levée de la Statue du Fondateur (`z` 36) | Parc |
 | 3 | « Le boucher a ses crochets ; à sa porte, mon aiguille. » | devant la Boucherie Tendron | Halles |
 | 4 | « La police perd ses affaires : cherchez entre ses voitures. » | devant le commissariat, entre deux voitures de police | Vieille Ville |
 | 5 | « À l’école, on apprend à compter : commencez dans la cour. » | cour de l’école Jules-Botte, au pied de la façade | Faubourg |
 | 6 | « Les enfants creusent pour trouver des trésors : au parc, un bac à sable en cache un. » | bac à sable de l’aire de jeux | Parc |
 | 7 | « Un ange veille sur les morts, et sur une aiguille. » | au pied de l’ange est du cimetière | Arts |
 | 8 | « Sur le Pont Central, une aiguille regarde couler la Fenaison. » | trottoir est du Pont Central, côté nord | Fenaison |
-| 9 | « Aux jardins ouvriers, elle pousse devant la serre la plus au sud, un peu à l’écart des autres. » | devant la serre la plus au sud (`b.jardins.68`, 2029 × 4699), près du chemin des Serres | Jardins |
+| 9 | « Aux jardins ouvriers, elle pousse devant la serre la plus au sud de toutes, juste à la sortie des parcelles. » | devant la serre la plus au sud (`b.jardins.68`, 2029 × 4699), près du chemin des Serres | Jardins |
 | 10 | « La capitainerie garde tout ce qui entre au port… même une aiguille. » | devant la porte de la capitainerie | Port |
 
 **Indice 2 sans zone** (exception documentée à la règle « l’indice 2 a une zone ») : avec dix réponses
@@ -552,9 +552,26 @@ lieux remarquables (fixes) ; l’ange du cimetière (`a.o.517`, 4890 × 3246) et
 revérifier par capture.
 
 **Un vers = un seul lieu.** La ville compte trois horloges (gare, Hôtel de Ville, église Saint-Foin) et
-33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre la plus au sud,
-un peu à l’écart des autres ») et l’aiguille 9 déplacée devant cette serre-là (elle était devant l’une des
-33, au hasard). Le vers 6 dit « au parc » (le terrain de jeux de l’école a lui aussi un toboggan).
+33 serres : les vers 1 et 9 ont été précisés (« Là où l’on attend les trains… », « la serre la plus au sud
+de toutes, juste à la sortie des parcelles ») et l’aiguille 9 déplacée devant cette serre-là (elle était
+devant l’une des 33, au hasard). `b.jardins.68` est la seule serre la plus au sud (la suivante est 60 u plus
+haut) mais elle est **hors du carré des parcelles**, de l’autre côté de la rue : ne pas la décrire comme « la
+dernière serre de la rangée du bas » (ce serait `b.jardins.118`, à 240 u). Le vers 6 dit « au parc » (le
+terrain de jeux de l’école a lui aussi un toboggan). Le vers 2 dit « au parc qui porte mon nom » : sans lieu,
+il pouvait désigner n’importe laquelle des 9 statues de la ville (le fondateur s’appelle Hector Meule, le
+parc des Meules).
+
+**Indices.** Le palier 1 (« Chaque quartier cache au moins une aiguille… ») s’appuie sur le tableau
+ci-dessus : 10 aiguilles pour 9 quartiers, au moins une par quartier (vérifié par la liste des quartiers du
+monde, `npm run world -- districts`). Si une aiguille change de quartier, revoir ce texte. Il ne peut pas
+viser une aiguille précise (un texte statique pour dix réponses) ; il donne donc une méthode et l’échelle
+utile (« bien voir les passants », soit un zoom d’environ 2, où l’aiguille se distingue ; son éclat blanc
+n’est dessiné qu’à partir du zoom 1). Le texte tient en 3 lignes dans le panneau à 360, 390 et 412 px de
+large (≈ 120 caractères au plus). Le palier 2 dit que le projecteur passe à une autre aiguille
+à chaque aiguille trouvée : c’est voulu (voir ci-dessus), et le palier 3 montre d’un coup toutes les
+aiguilles restantes. Le bonus n’ayant qu’une étape, `computeStars` (niveaux d’indice cumulés ≤ nombre
+d’étapes pour garder 2 étoiles) donne : le palier 1 coûte une étoile (3 → 2), le palier 2 une seconde
+(2 → 1), le palier 3 est gratuit (plancher à 1 étoile).
 
 **Entités**
 
@@ -751,7 +768,7 @@ Les ids d’entités et d’étapes sont restés **stables** (aucune sauvegarde 
 | # | Où | Problème (preuve) | Correction |
 |---|---|---|---|
 | 1 | **Toutes les étapes** (31 zones) | Le projecteur de l’indice 2 était quasi **centré sur la réponse** (distance centre → réponse : 3 à 47 % du rayon, médiane 23 %) : il équivalait à la révélation (indice 3) et ôtait tout intérêt au palier. | Centre décalé de 25 à 64 u (28 à 48 % du rayon, médiane 43 %), de préférence vers la scène précédente ; la réponse reste **entière** dans le cercle (vérifié sur planches). Règle ajoutée (§ 11.2.8). Rayon de c04 s3 porté à 90 (la fontaine est grande). |
-| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud, un peu à l’écart des autres ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. |
+| 2 | Bonus, vers 9 | « devant une serre » : **33 serres** aux jardins ouvriers, énigme sans solution unique. | Vers précisé (« la serre la plus au sud de toutes, juste à la sortie des parcelles ») et aiguille 9 déplacée devant `b.jardins.68`, la serre la plus au sud. |
 | 3 | Bonus, vers 1 | « Là où le temps a deux aiguilles » : **trois horloges** (gare, Hôtel de Ville, église). | « Là où l’on attend les trains… ». |
 | 4 | Bonus, vers 6 | Le terrain de jeux de l’école a aussi un toboggan. | « … au parc, un bac à sable en cache un. » |
 | 5 | c01 (6 textes) | « Cagoule » : le dessin est un **masque de bandit** (bande noire sur les yeux, avec le bonnet par-dessus). | « Masque de bandit » / « masqué » ; gag conservé. |

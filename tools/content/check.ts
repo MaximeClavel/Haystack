@@ -8,7 +8,10 @@
 //    - personnages d'enquête : au moins 3 attributs saillants d'écart (sauf sosies déclarés
 //      et personnages récurrents, qui doivent alors être identiques) ;
 //    - aucun passant ambiant à moins de 3 attributs d'un personnage (règle anti-sosie du monde) ;
-//    - rayon des zones d'indice entre 60 et 450 u ; caméra de départ proche de la première scène.
+//    - rayon des zones d'indice entre 60 et 450 u ; caméra de départ proche de la première scène ;
+//    - couleur d'un chapeau citée dans un texte : celle qu'on voit à l'écran ;
+//    - couleur d'un bas (short, pantalon, jupe) citée dans un texte alors qu'un tablier, un manteau ou une robe le cache :
+//      erreur si le bas est entièrement caché, note s'il n'en dépasse qu'une partie (voir tools/content/hidden.ts).
 import type { Entity, PersonEntity, World } from '../../src/types';
 import { buildWorld, appearanceDistance, groundAt, onCrosswalk, isHiddenByRoof } from '../../src/world';
 import { validateAllCases } from '../../src/game/validate';
@@ -16,6 +19,7 @@ import { compareDrawOrder, getEntityBounds, getHitRect } from '../../src/art/bou
 import { targetCenter } from '../../src/game/geometry';
 import { CASES as DRAFT_CASES } from '../../src/content';
 import { LOOKALIKES, RECURRING } from '../../src/content/meta';
+import { describeAlert, hiddenBottomAlerts, selfTest as hiddenBottomSelfTest, type PersonRef } from './hidden';
 
 const verbose = process.argv.includes('--verbose');
 const t0 = Date.now();
@@ -179,6 +183,31 @@ for (const c of DRAFT_CASES) {
           if (m[1].toLowerCase() !== color) problems.push(`[${c.id}] « ${m[0]} » : un ${hat} est ${color} à l'écran`);
         }
       }
+    }
+  }
+}
+
+// Couleur d'un bas citée dans un texte alors qu'un tablier, un manteau ou une robe le cache : le joueur cherche
+// un détail qu'il ne peut pas voir (« short rouge » sous un tablier). Erreur si tout est caché, note si le bas dépasse en partie.
+problems.push(...hiddenBottomSelfTest());
+for (const c of DRAFT_CASES) {
+  const people: PersonRef[] = [
+    ...c.characters.map((ch) => ({ id: ch.id, appearance: ch.appearance })),
+    ...c.entities.filter((e): e is PersonEntity => e.kind === 'person' && !e.character).map((e) => ({ id: e.id, appearance: e.appearance })),
+  ];
+  const texts: { where: string; text: string }[] = [
+    { where: 'briefing', text: c.intro },
+    { where: 'épilogue', text: c.epilogue },
+    ...c.replay.map((r) => ({ where: `reconstitution ${r.id}`, text: r.caption })),
+  ];
+  for (const s of c.steps) {
+    texts.push({ where: `${s.id} question`, text: s.question }, { where: `${s.id} résolution`, text: s.solved });
+    s.hints.forEach((h, k) => texts.push({ where: `${s.id} indice ${k + 1}`, text: h.text }));
+    for (const n of s.nearMiss ?? []) texts.push({ where: `${s.id} fausse piste ${n.id}`, text: n.feedback });
+  }
+  for (const { where, text } of texts) {
+    for (const a of hiddenBottomAlerts(text, people)) {
+      (a.level === 'total' ? problems : notes).push(`[${c.id}] ${where} : ${describeAlert(a)}`);
     }
   }
 }

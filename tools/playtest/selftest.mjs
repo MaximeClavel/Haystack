@@ -11,6 +11,8 @@
 //   état de caméra, donc mêmes coordonnées d'écran. Si les deux pages divergeaient, la feuille « Désigner »
 //   n'apparaîtrait pas dans l'outil et le test échouerait.
 // Partie D — « stop » nettoie : plus aucun processus, plus de fichier d'état, serveur fermé.
+// Au passage : « status » affiche toujours la ligne d'incidents techniques (0 ici), les captures `--crop` sont
+// agrandies (côté ≥ 480 px), `press <libellé> --nth N` départage des boutons de même libellé.
 // Pendant tout le test, aucune sortie de l'outil ne doit contenir d'identifiant d'entité, d'indice, de texte de
 // réussite à venir, d'épilogue ou de légende de reconstitution (contrôle de fuite).
 // À la fin : durée moyenne par commande.
@@ -23,8 +25,10 @@ import { join } from 'node:path';
 import { ROOT, sessionDir } from './common.mjs';
 import {
   contextOptionsFor,
+  cropFactor,
   doubleTapAt,
   dragTouch,
+  findButton,
   fold,
   pinchTouch,
   pressButton,
@@ -293,6 +297,7 @@ async function main() {
 
     r = await blind('status');
     check(new RegExp(`Questions résolues : 0 sur ${N}`).test(r.out) && /Phase : en cours/.test(r.out) && /Erreurs : 0 · Indices utilisés : 0/.test(r.out), '« status » (début) est cohérent', r.out.split('\n').slice(1, 4).join(' / '));
+    check(r.out.trimEnd().split('\n').at(-1) === 'Incidents techniques de la page : 0', '« status » (début) affiche toujours la ligne « Incidents techniques de la page : 0 »', r.out.trimEnd().split('\n').at(-1));
 
     // Un tap sur la carte : feuille de confirmation OU approche (« Rapprochez-vous »).
     const spot = await emptySpotOnScreen();
@@ -362,9 +367,48 @@ async function main() {
     r = await blind('shot', 'selftest-detail', '--crop', '100,300,120,120');
     shotsTaken++;
     const crop = pngInfo(shotPath(r.out) ?? '');
-    check(r.code === 0 && crop.isPng && crop.width === 315 && crop.height === 315, '« shot --crop » agrandit une zone à la densité réelle', `${crop.width}×${crop.height}`);
+    // 120×120 px d'écran à la densité 2,625 = 315×315 ; facteur entier 2 pour atteindre 480 px de côté → 630×630.
+    check(r.code === 0 && crop.isPng && crop.width === 630 && crop.height === 630, '« shot --crop » agrandit une zone (côté ≥ 480 px, facteur entier)', `${crop.width}×${crop.height}`);
+    check(/zone agrandie \(100, 300\) 120×120 px d'écran → image de 630×630 px \(agrandie ×2 ; les détails réels sont ceux de l'écran, l'agrandissement est lissé\)/.test(r.out), '« shot --crop » annonce la zone, la taille réelle de l\'image et le facteur', r.out.split('\n')[1]);
+    r = await blind('shot', 'selftest-detail-minuscule', '--crop', '150,300,20,20', '--grid');
+    shotsTaken++;
+    const tiny = pngInfo(shotPath(r.out) ?? '');
+    check(r.code === 0 && tiny.isPng && Math.min(tiny.width, tiny.height) >= 480 && tiny.width === tiny.height, '« shot --crop » d\'une toute petite zone (avec grille) donne tout de même une image d\'au moins 480 px', `${tiny.width}×${tiny.height}`);
+    r = await blind('shot', 'selftest-detail-large', '--crop', '0,0,412,915');
+    shotsTaken++;
+    const wide = pngInfo(shotPath(r.out) ?? '');
+    check(r.code === 0 && wide.isPng && Math.abs(wide.width - 412 * 2.625) <= 1 && /pas d'agrandissement/.test(r.out), '« shot --crop » d\'une grande zone n\'est pas agrandi davantage', `${wide.width}×${wide.height}`);
     r = await blind('wait', 300);
     check(r.code === 0 && /Attendu 300 ms/.test(r.out), '« wait » fonctionne');
+
+    // Fonctions pures : facteur d'agrandissement des captures et choix d'un bouton parmi des libellés identiques.
+    check(cropFactor(140, 140) === 4 && cropFactor(184, 184) === 3 && cropFactor(40, 40) === 12 && cropFactor(580, 600) === 1, 'cropFactor : 140→×4, 184→×3, 40→×12, 580×600→×1');
+    check(cropFactor(100, 2000) === 1 && cropFactor(200, 1000) === 1 && cropFactor(300, 700) === 2, 'cropFactor : une zone très allongée ne produit pas d\'image démesurée (≤ 1800 px)');
+    const fake = {
+      buttons: [
+        { name: 'Voir la réponse de la question 2', text: 'Voir', x: 330, y: 520 },
+        { name: 'Voir la réponse de la question 1', text: 'Voir', x: 330, y: 400 },
+        { name: 'Voir la réponse de la question 3', text: 'Voir', x: 330, y: 640 },
+        { name: 'Continuer', text: 'Continuer', x: 200, y: 800 },
+      ],
+    };
+    const same = { buttons: [1, 2, 3].map((k) => ({ name: 'Voir', text: 'Voir', x: 330, y: 280 + k * 120 })) };
+    const msgOf = (fn) => {
+      try {
+        fn();
+        return '';
+      } catch (e) {
+        return e.message;
+      }
+    };
+    check(findButton(fake, 'Voir', 2).y === 520 && findButton(fake, 'Voir', 1).y === 400 && findButton(fake, 'Voir', 3).y === 640, 'findButton : --nth compte de haut en bas (indépendamment de l\'ordre du DOM)');
+    check(findButton(fake, 'Voir la réponse de la question 3').y === 640 && findButton(fake, 'Continuer').y === 800, 'findButton : un libellé précis ou unique reste accepté sans --nth');
+    let msg = msgOf(() => findButton(fake, 'Voir'));
+    check(/3 boutons/.test(msg) && /\(330, 400\)/.test(msg) && /\(330, 640\)/.test(msg) && /--nth 2/.test(msg) && /tap x y/.test(msg), 'findButton : « Voir » ambigu → les candidats avec leur centre, `--nth` et `tap x y` proposés', msg.slice(0, 90));
+    msg = msgOf(() => findButton(same, 'Voir'));
+    check(/« Voir » existe 3 fois, de haut en bas : \(330, 400\), \(330, 520\), \(330, 640\)\. Choisissez avec `press Voir --nth 2`, ou touchez-le avec `tap x y`\./.test(msg), 'findButton : trois « Voir » identiques → message « existe 3 fois… » exact', msg);
+    check(/n'existe que 3 fois \(--nth 5 demandé\)/.test(msgOf(() => findButton(same, 'Voir', 5))) && /entier/.test(msgOf(() => findButton(same, 'Voir', 0))), 'findButton : --nth hors limites ou invalide → message clair');
+    check(/`press "oui, un indice" --nth 2`/.test(msgOf(() => findButton({ buttons: [{ name: 'Oui, un indice', text: 'Oui, un indice', x: 1, y: 2 }, { name: 'Oui, un indice', text: 'Oui, un indice', x: 1, y: 9 }] }, 'oui, un indice'))) , 'findButton : un libellé à espaces est proposé entre guillemets');
 
     /* ---------------------------------------------------------------- C : gestes */
     section('B. Gestes (code du démon, mesurés sur la page oracle)');
@@ -438,16 +482,41 @@ async function main() {
       await pressButton(oracle.page, label);
       await oracleIdle();
       check(r.code === 0, `étape ${i + 1} : « press ${label} » réussit`, r.err.trim());
+      if (i === 1) {
+        // Carnet avec deux réponses trouvées : deux boutons « Voir ». Sans --nth, refus informatif ; ouverture/fermeture
+        // reproduites sur la page oracle (aucun vol de caméra : la suite du parcours reste synchrone).
+        r = await blind('press', 'Ouvrir le carnet');
+        await pressButton(oracle.page, 'Ouvrir le carnet');
+        await oracleIdle();
+        r = await blind('press', 'Voir');
+        check(r.code === 1 && /(existe 2 fois|correspond à 2 boutons)/.test(r.err) && /\(\d+, \d+\)/.test(r.err) && /--nth 2/.test(r.err), '« press Voir » avec deux « Voir » dans le carnet est refusé en listant leur position et `--nth`', r.err.trim().slice(0, 140));
+        r = await blind('press', 'Voir', '--nth', 3);
+        check(r.code === 1 && /n'existe que 2 fois \(--nth 3 demandé\)/.test(r.err), '« press Voir --nth 3 » (il n\'y en a que 2) est refusé clairement', r.err.trim().slice(0, 120));
+        r = await blind('press', 'Fermer le carnet');
+        await pressButton(oracle.page, 'Fermer le carnet');
+        await oracleIdle();
+        check(r.code === 0 && /Aucune feuille ouverte/.test(r.out), 'le carnet se referme (étape 2)');
+      }
     }
     check(/Conclure/.test(lastCard), 'la dernière carte propose « Conclure l\'enquête »');
     r = await blind('text');
     check(/Affaire classée/.test(r.out) && /fin d.enquête/.test(r.out), '« text » affiche l\'écran de fin « Affaire classée »');
     r = await blind('status');
     check(new RegExp(`Questions résolues : ${N} sur ${N}`).test(r.out) && /terminée/.test(r.out) && /Étoiles : 3 sur 3/.test(r.out) && /Erreurs : 1 /.test(r.out), `« status » final : ${N} sur ${N}, terminée, 3 étoiles (1 erreur volontaire tolérée)`, r.out.split('\n').slice(2, 4).join(' / '));
+    check(r.out.trimEnd().split('\n').at(-1) === 'Incidents techniques de la page : 0', '« status » (fin) : aucun incident technique de la page', r.out.trimEnd().split('\n').at(-1));
     r = await blind('shot', 'selftest-fin');
     shotsTaken++;
     r = await blind('status');
     check(new RegExp(`Captures prises : ${shotsTaken} `).test(r.out), '« status » compte les captures', `${shotsTaken}`);
+
+    // Fin d'enquête : le carnet liste les réponses, chacune avec un bouton « Voir » ; `--nth` choisit le n-ième de haut en bas.
+    await blind('press', 'Ouvrir le carnet');
+    const voirList = await blind('buttons');
+    const voirs = [...voirList.out.matchAll(/« Voir[^»]*»[^\n]*centre \((\d+), (\d+)\)/g)].map((m) => ({ x: Number(m[1]), y: Number(m[2]) })).sort((a, b) => a.y - b.y);
+    check(voirs.length >= 2, 'le carnet de fin d\'enquête montre au moins deux boutons « Voir »', `${voirs.length}`);
+    r = await blind('press', 'Voir', '--nth', 2);
+    const touched = /touché en \((\d+), (\d+)\)/.exec(r.out);
+    check(r.code === 0 && /\(n° 2 de haut en bas\)/.test(r.out) && !!touched && voirs.length >= 2 && Number(touched[1]) === voirs[1].x && Number(touched[2]) === voirs[1].y && /Aucune feuille ouverte/.test(r.out), '« press Voir --nth 2 » touche le deuxième « Voir » du carnet (de haut en bas) et le referme', r.out.split('\n')[0]);
 
     /* ---------------------------------------------------------------- D : arrêt propre */
     section('D. Arrêt propre');
@@ -467,7 +536,7 @@ async function main() {
     check(r.code !== 0 && /aucune partie en cours/.test(r.err), 'une commande après « stop » échoue clairement', r.err.trim().slice(0, 100));
     check(existsSync(join(dir, 'commands.jsonl')) && existsSync(join(dir, 'daemon.log')), 'journaux conservés (daemon.log, commands.jsonl)');
     const log = readFileSync(join(dir, 'daemon.log'), 'utf8');
-    check(!/\[page:(error|exception)\]/.test(log), 'aucune erreur de page dans daemon.log', (log.match(/\[page:[^\n]*/g) ?? []).slice(0, 2).join(' | '));
+    check(!/\[page:(error|exception|ressource|HTTP|requête échouée)/.test(log), 'aucune erreur de page, ressource en échec ou réponse HTTP ≥ 400 dans daemon.log', (log.match(/\[page:[^\n]*/g) ?? []).slice(0, 2).join(' | '));
   } catch (err) {
     failures++;
     console.log(`ÉCHEC  exception : ${err?.stack ?? err}`);

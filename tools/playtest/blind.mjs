@@ -6,7 +6,7 @@
 //   node tools/playtest/blind.mjs start <idEnquête> [--player nom] [--port N] [--device pixel7|small]
 //   node tools/playtest/blind.mjs shot [nom] [--grid] [--crop x,y,l,h]
 //   node tools/playtest/blind.mjs tap x y | dtap x y | drag x1 y1 x2 y2 [ms] | pinch x y facteur | wait ms
-//   node tools/playtest/blind.mjs text | buttons | press <libellé> | status
+//   node tools/playtest/blind.mjs text | buttons | press <libellé> [--nth N] | status
 //   node tools/playtest/blind.mjs stop [--all]   |   list
 //
 // Après « start », ajoutez --case <idEnquête> (et --player <nom> s'il y en a un) à chaque commande.
@@ -47,17 +47,21 @@ Démarrer / arrêter
 Voir
   shot [nom]                   capture de tout l'écran dans .shots/playtest/<enquête>/ (à lire avec l'outil Read)
        --grid                  ajoute une grille de repérage (coordonnées écran)
-       --crop x,y,l,h          agrandit une zone (x,y = coin haut gauche, l×h en pixels écran)
+       --crop x,y,l,h          agrandit une zone (x,y = coin haut gauche, l×h en pixels écran) : image d'au moins
+                               480 px de côté, agrandissement lissé (visez au moins 100×100 pour un personnage entier)
   text                         texte visible de l'interface (question, feuilles, messages, boutons)
   buttons                      boutons visibles, avec leur position
-  status                       progression (non spoilante) : questions résolues, erreurs, indices, durée
+  status                       progression (non spoilante) : questions résolues, erreurs, indices, durée, captures,
+                               incidents techniques de la page (toujours affichés, même à 0)
 
 Agir (coordonnées en pixels de l'écran, origine en haut à gauche)
   tap x y                      toucher
   dtap x y                     double toucher (zoom)
   drag x1 y1 x2 y2 [ms]        glisser un doigt (--fling : avec élan)
   pinch x y facteur [ms]       pincer : facteur > 1 zoome, < 1 dézoome
-  press <libellé>             toucher le bouton portant ce libellé (ex. : press Désigner)
+  press <libellé>              toucher le bouton portant ce libellé (ex. : press Désigner)
+       --nth N                 si plusieurs boutons portent le même libellé (les « Voir » du carnet) : le n-ième,
+                               de haut en bas (ex. : press Voir --nth 2)
   wait ms                      attendre
 
 Après « start », ajoutez --case <idEnquête> (et --player <nom>) à chaque commande.

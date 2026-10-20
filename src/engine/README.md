@@ -50,6 +50,17 @@ Exports annexes : fonctions pures de caméra (`computeMinZoom`, `clampCamera`, `
 - Le centre est borné par axe : le bord de la ville peut entrer d'au plus 20 % de l'écran
   (`EDGE_MARGIN`, utile pour dégager un bord de ville des barres d'interface) ; ce débord s'annule
   continûment quand la ville tient sur l'axe — au zoom minimal la ville est centrée et fixe.
+- **Marges de l'interface** : `setInsets({ top, bottom, left, right })` (propre au moteur, hors contrat
+  `MapView` ; appelé par `mapHost.setInsets`) déclare ce que masquent la barre haute et la feuille du
+  bas (ou latérale). Les bornes ci-dessus se comptent alors dans la zone LIBRE (`clampCamera(…, insets)`) :
+  le débord de 20 % et le verrouillage « ville entière » s'appliquent à la hauteur libre, centrés au milieu
+  de cette zone. Ainsi la rive sud de la ville se remonte toujours au-dessus du panneau de question (à tous
+  les zooms, même quand la ville tient presque en hauteur) et le nord descend sous la barre haute. Marges
+  nulles ou absentes = écran entier, calcul inchangé. Si un changement de marges (le panneau grandit) met la
+  caméra hors des nouvelles bornes (ex. la fiche d'indice se replie quand le doigt touche la carte), elle y
+  glisse en `INSETS_GLIDE_MS` (180 ms) ; pendant un glisser ou un pincement, ou en mouvement réduit, elle est
+  ramenée tout de suite, et un vol/une inertie en cours appliquent simplement les nouvelles bornes à chaque
+  image. Le zoom minimal reste celui de l'écran entier.
 - Hors de la ville : « table » sombre (`BACKDROP`) et ombre portée de la carte.
 
 ## Gestes

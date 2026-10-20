@@ -16,6 +16,7 @@ import { districtName, nearestStreet } from '../../src/world/meta';
 import { stepDependencies } from '../../src/game/session';
 import { DISTRICTS } from '../../src/world/layoutSpec';
 import { CASES as DRAFT_CASES } from '../../src/content';
+import { bottomHiding, hidingLabel } from './hidden';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const world: World = buildWorld({ cases: DRAFT_CASES });
@@ -65,6 +66,8 @@ const fr = (v: string): string => FR[v] ?? v;
 
 interface Trait {
   label: string;
+  /** Réserve affichée après le pourcentage (« masqué par le tablier »). */
+  note?: string;
   match: (a: PersonAppearance) => boolean;
 }
 
@@ -76,7 +79,13 @@ function traitsOf(a: PersonAppearance): Trait[] {
     label: `haut ${fr(a.topColor)}${a.topPattern === 'plain' ? '' : ' ' + fr(a.topPattern)}`,
     match: (b) => b.topColor === a.topColor && b.topPattern === a.topPattern,
   });
-  t.push({ label: `bas ${fr(a.bottomColor)}`, match: (b) => b.bottomColor === a.bottomColor });
+  // Un tablier, un manteau ou une robe cache (tout ou partie du) bas : ce n'est pas un signe qu'on puisse citer dans un texte.
+  const hiding = bottomHiding(a.top, a.bottom);
+  t.push({
+    label: `bas ${fr(a.bottomColor)}`,
+    note: hiding ? `${hidingLabel(a)}, ${hiding === 'total' ? 'à ne pas citer' : 'signe peu fiable : dire où il se voit'}` : undefined,
+    match: (b) => b.bottomColor === a.bottomColor,
+  });
   if (a.face !== 'none') t.push({ label: fr(a.face), match: (b) => b.face === a.face });
   if (a.accessory !== 'none') t.push({ label: fr(a.accessory), match: (b) => b.accessory === a.accessory });
   t.push({
@@ -94,7 +103,7 @@ function rareTraits(a: PersonAppearance): string {
     .filter((t) => t.f <= 0.05)
     .sort((x, y) => x.f - y.f);
   if (rows.length === 0) return '— (aucun trait isolé sous 5 % : reconnaissable par la combinaison)';
-  return rows.map((r) => `${r.label} (${(r.f * 100).toFixed(1).replace('.', ',')} %)`).join(', ');
+  return rows.map((r) => `${r.label} (${(r.f * 100).toFixed(1).replace('.', ',')} %${r.note ? ` — ${r.note}` : ''})`).join(', ');
 }
 
 /* ------------------------------------------------------------------ blocs */

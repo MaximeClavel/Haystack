@@ -48,13 +48,15 @@ Dans la suite, `B` désigne `node tools/playtest/blind.mjs` et `--case c00` est 
 |---|---|
 | `B shot [nom]` | Capture de **tout l'écran** du téléphone, enregistrée dans `.shots/playtest/<enquête>/` (le chemin est affiché). **Lisez ensuite le fichier avec l'outil Read.** |
 | `B shot --grid` | Idem avec une **grille de repérage** rose : une ligne tous les 50 px, la valeur des lignes (en pixels écran) est écrite tous les 100 px. Très utile pour viser. |
-| `B shot --crop x,y,l,h` | **Agrandit** la zone dont le coin haut-gauche est (x, y) et de taille l × h pixels écran, avec plus de détails (ex. `--crop 150,300,120,120`). Combinable avec `--grid` (grille plus fine). |
+| `B shot --crop x,y,l,h` | **Agrandit** la zone dont le coin haut-gauche est (x, y) et de taille l × h pixels écran (ex. `--crop 150,300,120,120`) ; l'image fait au moins 480 px de côté (agrandissement lissé : les vrais détails sont ceux de l'écran). Cadrez au moins 100×100 px pour voir un personnage entier. La commande donne la taille exacte de l'image. Combinable avec `--grid` (grille plus fine, qui grossit avec l'image). |
 | `B text` | Le **texte visible** de l'interface : état, message passager, feuille ouverte, question en cours, en-tête, lieu sous le centre de la carte, et la liste des boutons. **Pas** le contenu de la carte : pour la carte, il n'y a que les captures. |
 | `B buttons` | Les boutons visibles avec leur position. |
-| `B status` | Progression : questions résolues sur le total, erreurs, indices utilisés, durée, nombre de captures. Rien de plus (jamais de solution). |
+| `B status` | Progression : questions résolues sur le total, erreurs, indices utilisés, durée, nombre de captures, **incidents techniques de la page** (toujours affichés : « … : 0 » veut dire qu'il n'y en a aucun ; sinon, signalez-les à l'organisateur). Rien de plus (jamais de solution). |
 
-Une capture montre l'écran à l'échelle exacte : **1 pixel de l'image = 1 pixel de coordonnée**. L'origine
+Une capture d'écran complet est à l'échelle exacte : **1 pixel de l'image = 1 pixel de coordonnée**. L'origine
 (0, 0) est en **haut à gauche** ; x va vers la droite, y vers le bas ; l'écran fait 412×915 (ou 390×844).
+Une capture `--crop` est, elle, agrandie : pour y lire des coordonnées d'écran, ajoutez `--grid` (les valeurs
+écrites sur la grille sont en pixels écran).
 
 ## Agir (coordonnées en pixels de l'écran)
 
@@ -65,6 +67,7 @@ Une capture montre l'écran à l'échelle exacte : **1 pixel de l'image = 1 pixe
 | `B drag x1 y1 x2 y2 [ms]` | Glisser un doigt de (x1, y1) à (x2, y2) (400 ms par défaut). La carte suit le doigt exactement ; `--fling` lève le doigt en mouvement (la carte continue sur son élan). |
 | `B pinch x y facteur [ms]` | **Pincer** (deux doigts) centré en (x, y) : facteur 2 = zoom ×2, 0.5 = dézoom de moitié. Les doigts doivent tenir à l'écran : près d'un bord, répétez le geste plusieurs fois. |
 | `B press <libellé>` | Touche le **bouton** qui porte ce libellé : `B press Désigner`, `B press Annuler`, `B press "Oui, un indice"`. Accents, majuscules et apostrophes sont sans importance ; un morceau de libellé suffit s'il est sans ambiguïté. |
+| `B press <libellé> --nth N` | Quand **plusieurs boutons portent le même libellé** (les « Voir » du carnet, un par question résolue), touche le N-ième, **de haut en bas** (`B press Voir --nth 2`). Sans `--nth`, la commande refuse et liste le centre de chaque candidat ; vous pouvez aussi toucher l'un d'eux avec `B tap x y`. |
 | `B wait ms` | Attendre (jusqu'à 20 s). |
 
 Après chaque geste, l'outil attend que la carte se stabilise, puis **résume ce qui est à l'écran** :
@@ -111,7 +114,7 @@ prise ensuite. Pour un bouton de l'interface, préférez `press` à `tap`.
    moment de l'histoire. Notez-les.
 3. **Observez la carte** : `shot --grid`. Repérez les candidats, zoomez (`dtap`, `pinch`), déplacez-vous
    (`drag`), reprenez une capture après chaque geste important. Pour distinguer deux personnages,
-   `shot --crop` sur la zone.
+   `shot --crop` sur la zone (au moins 100×100 px).
 4. Quand vous croyez tenir la cible : `tap x y` en visant **le centre de la cible**, puis `shot` pour
    contrôler la vignette de la feuille de confirmation, puis `press Désigner` (ou `press Annuler` si la
    vignette ne montre pas la bonne chose).
@@ -140,5 +143,8 @@ l'outil ne lit que ce qu'un joueur voit. Si une commande semblait vous en révé
 
 *Pour l'organisateur : `node tools/playtest/selftest.mjs` vérifie l'outil (≈ 1 min) ; `blind.mjs stop --all`
 arrête toutes les parties de la machine ; les journaux de chaque partie (`daemon.log`, `commands.jsonl` : une
-ligne par commande, avec sa durée) et les captures sont dans `.shots/playtest/<enquête>[/<joueur>]/`. Voir
-`docs/journal/phase3-outil-playtest.md`.*
+ligne par commande, avec sa durée) et les captures sont dans `.shots/playtest/<enquête>[/<joueur>]/`. Le compteur
+d'incidents de `status` additionne erreurs de la page, exceptions, requêtes échouées et réponses HTTP ≥ 400, chaque
+ressource en échec n'étant comptée qu'une fois (le message « Failed to load resource » du navigateur, qui double
+la requête, est noté au journal sans être recompté). Voir `docs/journal/phase3-outil-playtest.md` et
+`docs/journal/phase3-correcteur2-outils.md`.*

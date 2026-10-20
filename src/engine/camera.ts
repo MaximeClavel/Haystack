@@ -52,7 +52,29 @@ export function centerRange(visible: number, size: number, margin = EDGE_MARGIN)
   return [lo, hi];
 }
 
-/** Caméra ramenée dans les bornes : zoom dans [minZoom, maxZoom], centre qui ne perd jamais la ville. */
+/** Marges (px CSS) masquées par l'interface sur chaque bord de l'écran (barre haute, feuille du bas…). */
+export interface ScreenInsets {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+/** Marge valide : un nombre fini et positif, sinon zéro. */
+function inset(v: number): number {
+  return Number.isFinite(v) && v > 0 ? v : 0;
+}
+
+/**
+ * Caméra ramenée dans les bornes : zoom dans [minZoom, maxZoom], centre qui ne perd jamais la ville.
+ *
+ * Avec `insets` (facultatif), les bornes se comptent dans la zone LIBRE de l'écran, celle que ne
+ * masquent ni la barre haute ni la feuille du bas : c'est le centre de cette zone (et non celui de
+ * l'écran) que `margin` et le verrouillage « ville entière » encadrent. Le bord sud de la ville peut
+ * ainsi toujours être remonté au-dessus du panneau de question, même quand la ville tient presque
+ * en hauteur à l'écran. Sur un axe où les marges ne laissent aucune place (zone libre < 1 px), elles
+ * sont ignorées ; sans `insets`, le comportement est strictement celui de l'écran entier.
+ */
 export function clampCamera(
   cam: CameraState,
   vp: Viewport,
@@ -60,13 +82,36 @@ export function clampCamera(
   minZoom: number,
   maxZoom: number = MAX_ZOOM,
   margin = EDGE_MARGIN,
+  insets?: ScreenInsets,
 ): CameraState {
   const zoom = clamp(Number.isFinite(cam.zoom) && cam.zoom > 0 ? cam.zoom : minZoom, minZoom, maxZoom);
-  const [x0, x1] = centerRange(vp.width / zoom, world.width, margin);
-  const [y0, y1] = centerRange(vp.height / zoom, world.height, margin);
-  const x = Number.isFinite(cam.x) ? cam.x : world.width / 2;
-  const y = Number.isFinite(cam.y) ? cam.y : world.height / 2;
-  return { x: clamp(x, x0, x1), y: clamp(y, y0, y1), zoom };
+  const cx = Number.isFinite(cam.x) ? cam.x : world.width / 2;
+  const cy = Number.isFinite(cam.y) ? cam.y : world.height / 2;
+  const il = insets ? inset(insets.left) : 0;
+  const ir = insets ? inset(insets.right) : 0;
+  const it = insets ? inset(insets.top) : 0;
+  const ib = insets ? inset(insets.bottom) : 0;
+  const okW = (il > 0 || ir > 0) && vp.width - il - ir >= 1;
+  const okH = (it > 0 || ib > 0) && vp.height - it - ib >= 1;
+  if (!okW && !okH) {
+    // Écran entier libre : calcul d'origine, à l'identique.
+    const [x0, x1] = centerRange(vp.width / zoom, world.width, margin);
+    const [y0, y1] = centerRange(vp.height / zoom, world.height, margin);
+    return { x: clamp(cx, x0, x1), y: clamp(cy, y0, y1), zoom };
+  }
+  const fw = okW ? vp.width - il - ir : vp.width;
+  const fh = okH ? vp.height - it - ib : vp.height;
+  // Décalage (unités monde) entre le centre de la zone libre et celui de l'écran, sur chaque axe.
+  const ox = okW ? (il - ir) / 2 / zoom : 0;
+  const oy = okH ? (it - ib) / 2 / zoom : 0;
+  const [x0, x1] = centerRange(fw / zoom, world.width, margin);
+  const [y0, y1] = centerRange(fh / zoom, world.height, margin);
+  // Un centre déjà dans les bornes est rendu tel quel (pas d'aller-retour arrondi par le décalage).
+  const px = cx + ox;
+  const py = cy + oy;
+  const qx = clamp(px, x0, x1);
+  const qy = clamp(py, y0, y1);
+  return { x: qx === px ? cx : qx - ox, y: qy === py ? cy : qy - oy, zoom };
 }
 
 export function screenToWorld(cam: CameraState, vp: Viewport, p: Vec2): Vec2 {

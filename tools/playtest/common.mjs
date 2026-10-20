@@ -15,7 +15,7 @@ export const COMMAND_TIMEOUT_MS = 30_000;
 export const START_TIMEOUT_MS = 90_000;
 
 /** Options qui prennent une valeur ; toutes les autres options `--x` sont des interrupteurs. */
-export const VALUE_FLAGS = new Set(['case', 'player', 'port', 'device', 'width', 'height', 'dpr', 'crop', 'duration']);
+export const VALUE_FLAGS = new Set(['case', 'player', 'port', 'device', 'width', 'height', 'dpr', 'crop', 'duration', 'nth']);
 
 /** Découpe argv en { positional, flags }. `--x=valeur` et `--x valeur` sont acceptés. */
 export function parseArgs(argv) {

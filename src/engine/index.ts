@@ -13,6 +13,7 @@ export {
   visibleWorldRect,
   zoomAround,
   fitRectCamera,
+  type ScreenInsets,
   type Viewport,
 } from './camera';
 export { BACKDROP } from './constants';

@@ -102,10 +102,10 @@ export const c04: CaseDef = {
         },
       ],
       hints: [
-        { text: 'Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant. Il est parti vers le nord, vers la Grand-Place.' },
+        { text: 'Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant, celui qui avait un sac au dos. Il est parti vers le nord, vers la Grand-Place.' },
         { text: 'Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule.', area: { x: 2735, y: 2330, radius: 140 } },
       ],
-      solved: 'Ludo Taupin, sac au dos, fend la foule de la Grand-Place. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.',
+      solved: 'Ludo Taupin, sac au dos, a traversé la Grand-Place avec le butin. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.',
       thread: [['c04.ludo.1', 'c04.ludo.2']],
     },
     {
@@ -129,11 +129,11 @@ export const c04: CaseDef = {
       id: 's4',
       label: 'Le voisin',
       after: [],
-      question: 'Un voisin a vu quelqu’un s’éloigner de la bijouterie à l’aube, une tarte à la main. Retrouvez cette personne.',
+      question: 'Un voisin a vu quelqu’un s’éloigner de la bijouterie à l’aube, vers la Grand-Place, une tarte à la main. Retrouvez-le.',
       accept: ['c04.octave.1'],
       nearMiss: [
         { id: 'c04.octave.3', feedback: 'C’est le bijoutier, plus tard dans la matinée. Il n’a plus de tarte… Cherchez-le à l’aube, sur la Grand-Place.' },
-        { id: 'c04.picotin.2', feedback: 'Picotin a une tarte, oui. Mais il ne l’avait pas à l’aube : il dormait.' },
+        { id: 'c04.picotin.2', feedback: 'Picotin ? À l’aube, il dormait encore.' },
         { id: 'c04.zita.1', feedback: 'Cette dame porte bien une tarte, mais elle est à la terrasse d’un café, bien loin de la bijouterie. Ce n’est pas elle que le voisin a vue.' },
         { id: 'c04.octave.2', feedback: 'C’est bien le bijoutier, mais les mains vides, plus au nord : la tarte n’est plus là. Cherchez-le à l’aube, près de la Grand-Place.' },
       ],
@@ -141,7 +141,7 @@ export const c04: CaseDef = {
         { text: 'Haut-de-forme, costume violet, une tarte à la main, l’air de ne pas vouloir être vu… Ça ne vous rappelle personne ?' },
         { text: 'Il a traversé l’est de la Grand-Place.', area: { x: 3010, y: 2280, radius: 140 } },
       ],
-      solved: 'Octave Carat en personne, à l’aube, une tarte sous le bras ! Le bijoutier « effondré » avait des choses à cacher.',
+      solved: 'Octave Carat en personne, à l’aube, une tarte plaquée devant le visage ! Il file vers le nord. Le bijoutier « effondré » avait des choses à cacher.',
       thread: [['c04.octave.3', 'c04.octave.1']],
     },
     {
@@ -152,12 +152,12 @@ export const c04: CaseDef = {
       accept: ['c04.zita.1'],
       nearMiss: [
         { id: 'c04.octave.2', feedback: 'C’est Octave, les mains vides : il vient de donner la tarte. À qui ?' },
-        { id: 'c04.octave.1', feedback: 'C’est bien Octave, tarte au bras, mais plus tôt. Suivez-le : à qui va-t-il la confier ?' },
-        { id: 'c04.picotin.2', feedback: 'Picotin a une tarte, lui aussi : il en trouve toujours une. Mais ce n’est pas à lui que le bijoutier l’a confiée.' },
+        { id: 'c04.octave.1', feedback: 'C’est bien Octave, tarte à la main, mais plus tôt. Suivez-le : à qui va-t-il la confier ?' },
+        { id: 'c04.picotin.2', feedback: 'Picotin n’a rien à voir avec ce que le bijoutier a confié : il n’était même pas là.' },
         { id: 'lm.cafe-du-centre', feedback: 'Le Café du Centre, oui. Mais c’est à une personne que le bijoutier a confié la tarte.' },
       ],
       hints: [
-        { text: 'Il a continué vers le nord, jusqu’à une terrasse où l’on sert le café.' },
+        { text: 'Il ne s’est arrêté qu’à une terrasse où l’on sert le café.' },
         { text: 'Regardez devant le Café du Centre.', area: { x: 3200, y: 1820, radius: 90 } },
       ],
       solved: 'À sa sœur, Zita Pistache, à la terrasse du Café du Centre. Elle devait quitter la ville avec… la tarte.',
@@ -166,7 +166,7 @@ export const c04: CaseDef = {
     {
       id: 's6',
       after: ['s3', 's5'],
-      question: 'Le diamant de la vitrine était un faux : le vrai était caché dans la tarte. Mais Zita ne l’a plus ! Où est la tarte à présent ?',
+      question: 'Le diamant de la vitrine était un faux : le vrai était caché dans la tarte. Mais Zita ne l’a plus ! Où est la tarte, sur la place ?',
       accept: ['c04.picotin.2'],
       nearMiss: [
         { id: 'c04.zita.2', feedback: 'Zita, les mains vides. En voyant la police partout, elle s’est débarrassée de la tarte. Juste à côté…' },
@@ -174,7 +174,7 @@ export const c04: CaseDef = {
         { id: 'lm.hotel-de-ville', feedback: 'L’Hôtel de Ville, oui. Mais entre les mains de qui la tarte a-t-elle atterri ?' },
       ],
       hints: [
-        { text: 'Zita a voulu se débarrasser de la tarte au plus vite, en la donnant à la personne la moins soupçonneuse de la ville.' },
+        { text: 'Zita a voulu se débarrasser de la tarte au plus vite, en la donnant à la dernière personne qu’on irait soupçonner.' },
         { text: 'Regardez devant l’Hôtel de Ville.', area: { x: 2760, y: 1790, radius: 90 } },
       ],
       solved: 'Dans les mains de Picotin, qui la trouve « délicieuse, un peu croquante au milieu ». Le vrai diamant était dedans, comme une fève dans la galette.',

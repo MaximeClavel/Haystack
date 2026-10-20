@@ -39,7 +39,7 @@ export const c03: CaseDef = {
   difficulty: 3,
   teaser: 'Un détenu s’est fait la belle devant la gare, en pyjama rayé. Il ne devrait pas aller bien loin, sauf si quelqu’un l’attend.',
   intro:
-    'Ce matin, Achille Lapince, dit « le Hérisson » — cheveux en épis, pyjama rayé bleu et blanc —, devait être transféré à la prison de la Préfecture. Le fourgon s’est arrêté devant la gare. Deux minutes plus tard, il était vide.\n\n' +
+    'Ce matin, Achille Lapince, dit « le Hérisson » — cheveux en épis, pyjama rayé bleu et blanc —, devait être transféré à la prison de la Préfecture. Le fourgon s’est arrêté devant la gare, sous la garde du brigadier Picotin. Deux minutes plus tard, il était vide.\n\n' +
     'Depuis l’alerte, deux agents gardent le Pont Central. Lapince n’a ni argent ni vêtements de rechange, mais il a des amis. Retrouvez-le avant le train de midi.\n\n' +
     '— Commissaire Odile Fétu',
   start: { x: 1060, y: 1810, zoom: 1.5 },
@@ -92,15 +92,19 @@ export const c03: CaseDef = {
         { text: 'Il est garé rue de la Gare, au sud du parvis, juste à côté du bus vert.' },
         { text: 'Un fourgon bleu marine, vide.', area: { x: 1080, y: 1820, radius: 90 } },
       ],
-      solved: 'Le fourgon est vide, portière grande ouverte. Mais où étaient les agents pendant l’évasion ?',
+      solved: 'Le fourgon est vide, portière grande ouverte. Mais que faisaient les agents pendant l’évasion ?',
     },
     {
       id: 's2',
-      question: 'Au moment de l’évasion, les agents étaient occupés ailleurs. Qui a fait diversion ?',
+      question: 'Devant la gare, les agents ont été distraits au moment de l’évasion. Qui a fait diversion ?',
       accept: ['c03.lola.1'],
       nearMiss: [
         { id: 'c03.picotin.1', feedback: 'Picotin évente la dame évanouie de son képi. Il n’a rien vu partir — il ne voit d’ailleurs pas grand-chose.' },
         { id: 'c03.fourgon', feedback: 'Le fourgon, toujours vide. Qui a détourné l’attention des agents ?' },
+        // Le Pont Central, gardé depuis l'alerte, est le leurre que le briefing suggère : ni erreur comptée, ni piste ouverte.
+        { id: 'c03.agent.1', feedback: 'Ces deux-là gardent le pont depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ?' },
+        { id: 'c03.agent.2', feedback: 'Ces deux-là gardent le pont depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ?' },
+        { id: 'z.pont-central', feedback: 'Le pont est gardé depuis l’alerte : l’évasion est déjà passée. Qui a retenu les agents devant la gare ?' },
       ],
       hints: [
         { text: 'Quelqu’un a fait un malaise très opportun, tout près du fourgon.' },
@@ -112,7 +116,7 @@ export const c03: CaseDef = {
     },
     {
       id: 's3',
-      question: 'Lapince a filé à pied, toujours en pyjama rayé. Retrouvez-le dans sa fuite.',
+      question: 'Lapince a quitté le parvis à pied, en pyjama rayé, cheveux en épis. Quelqu’un l’a vu courir : retrouvez-le.',
       accept: ['c03.lapince.1', 'c03.lapince.2'],
       nearMiss: [
         {
@@ -124,7 +128,7 @@ export const c03: CaseDef = {
         { id: 'c03.lapince.3', feedback: 'C’est bien lui, mais beaucoup plus loin, de l’autre côté de la rivière. Retrouvez d’abord le début de sa fuite.' },
       ],
       hints: [
-        { text: 'Il est parti vers le sud, par les petites rues du quartier de la Gare. Un client du bar Le Fer à Cheval l’a vu passer.' },
+        { text: 'Il est parti vers le sud, par les petites rues du quartier de la Gare. Le témoin est un client du bar Le Fer à Cheval.' },
         { text: 'Regardez devant la terrasse du Fer à Cheval.', area: { x: 875, y: 2220, radius: 90 } },
       ],
       solved: 'Le revoilà, qui file vers le sud — devant le Fer à Cheval, puis en se faufilant près du Garage Pistons. Il se dirige vers la rivière.',
@@ -155,7 +159,7 @@ export const c03: CaseDef = {
         { id: 'c03.epouvantail.1', feedback: 'Cet épouvantail a toujours son chapeau.' },
         { id: 'c03.epouvantail.2', feedback: 'Cet épouvantail a toujours son chapeau.' },
         { id: 'c03.epouvantail.3', feedback: 'Cet épouvantail a toujours son chapeau.' },
-        { id: 'c03.lapince.4', feedback: 'Celui-ci a un chapeau… Gardez-le à l’œil quand même.' },
+        { id: 'c03.lapince.4', feedback: 'Cet épouvantail a toujours son chapeau.' },
       ],
       hints: [
         { text: 'Ils se dressent au milieu des potagers, bras levés. Comptez les chapeaux.' },
@@ -183,7 +187,7 @@ export const c03: CaseDef = {
     },
   ],
   epilogue:
-    'Achille Lapince a tenu quarante minutes immobile, les bras en l’air, avant que Picotin ne lui demande l’heure. Il a répondu.\n\n' +
+    'Achille Lapince a tenu quarante minutes immobile, les bras en l’air, avant que le brigadier Picotin ne lui demande l’heure. Il a répondu.\n\n' +
     'Lola Cachou a été arrêtée au quai Sud, à bord de « La Cocotte ». L’épouvantail a récupéré son chapeau, et les jardiniers jurent qu’il a l’air plus fier qu’avant.',
   replay: [
     { id: 'c03.lola.1', caption: 'Devant la gare, Lola fait un malaise spectaculaire. Tous les agents accourent.' },

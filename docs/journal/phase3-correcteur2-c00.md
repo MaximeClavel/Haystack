@@ -85,3 +85,17 @@ Aucun texte ne défile (`scrollHeight <= clientHeight`), aucune erreur console. 
   Le § « La vérité » (« …flaire les fraises et mange la tarte », ce qui se passe après la scène), la légende de la reconstitution
   et l'épilogue restent justes.
 - Le fil rouge de c00 ressemble toujours à la laisse du promeneur voisin (même rouge) : traité par le texte seulement, comme décidé.
+
+## Second passage de contrôle (état du dépôt au commit 356f00f)
+Le périmètre c00 était déjà appliqué et committé (`src/content/cases/c00.ts` identique au commit ; aucun nouveau changement de code
+nécessaire). Chaque texte a été recomparé au `newText` des verdicts : identique, sauf l'adaptation unique de s3.solved (« bien trop » →
+« trop », voir plus haut). Contrôles relancés à froid :
+
+| Commande | Résultat |
+|---|---|
+| `npx tsc --noEmit` | passe |
+| `npx vitest run` | 17 fichiers, 329 tests passent |
+| `npm run content:check` | `OK : aucun problème.` |
+| `scratchpad/c00/verify.mjs` (panneau réel, 390×844, 412×915, 360×740) | mêmes mesures de lignes que le tableau ci-dessus, aucun défilement, aucune erreur console |
+| `E2E_PORT=5191 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts` | 1 test passé (1,5 min), c00 résolue en 6 s |
+| `E2E_PORT=5191 npx playwright test tests/e2e/02-tutoriel.spec.ts` | 1 échec isolé pendant qu'un autre agent éditait `src/ui/*` (pastille, styles), puis 3 passages verts consécutifs ; non lié aux textes de c00 |

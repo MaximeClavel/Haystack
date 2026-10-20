@@ -31,7 +31,7 @@ export interface MapHost {
   onCamera(fn: (c: CameraState) => void): () => void;
   setLayer(layer: OverlayLayer, overlays: Overlay[]): void;
   clearLayers(): void;
-  /** Marges (px CSS) masquées par l'interface sur chaque bord de l'écran. */
+  /** Marges (px CSS) masquées par l'interface sur chaque bord de l'écran (cadrages ET bornes de la caméra du moteur). */
   setInsets(top: number, bottom: number, left?: number, right?: number): void;
   getInsets(): Insets;
   /** Mesure les marges d'après la barre haute et la feuille du bas (à droite en paysage), puis les applique. */
@@ -134,6 +134,8 @@ export function createMapHost(world: World, canvas: HTMLCanvasElement, initial?:
     },
     setInsets(top, bottom, left = 0, right = 0) {
       insets = { top: Math.max(0, top), bottom: Math.max(0, bottom), left: Math.max(0, left), right: Math.max(0, right) };
+      // Le moteur compte aussi ces marges dans les bornes de la caméra (le bas de la ville reste atteignable sous la feuille).
+      map.setInsets(insets);
     },
     getInsets: () => ({ ...insets }),
     measureInsets(topEl, bottomEl) {

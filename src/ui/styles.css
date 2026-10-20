@@ -1797,9 +1797,11 @@ button {
   touch-action: none;
 }
 
+/* La boîte de 44×44 px du ✕ est ENTIÈREMENT hors de la vignette (à gauche en droitier, à droite en gaucher) :
+   débordante, elle mangeait un coin de 28×30 px de la surface de pointage (un tap y fermait la minicarte). */
 .minimap-close {
   position: absolute;
-  top: -12px;
+  top: 0;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -1809,11 +1811,11 @@ button {
 }
 
 .minimap.right .minimap-close {
-  left: -14px;
+  left: -48px;
 }
 
 .minimap.left .minimap-close {
-  right: -14px;
+  right: -48px;
 }
 
 .minimap-close::before {
