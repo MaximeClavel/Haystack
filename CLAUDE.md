@@ -15,7 +15,7 @@ Vite 7 · TypeScript 5.9 strict · Preact 10 (interface) · Canvas 2D (carte) ·
 |---|---|
 | `npm run typecheck` | Vérification des types (doit passer) |
 | `npm test` | Tests unitaires Vitest (`src/**/*.test.ts`, `tests/unit/`) |
-| `npm run e2e` | Tests de bout en bout Playwright (téléphone émulé, ~3 min) ; `E2E_PORT=<port>` pour en lancer plusieurs en même temps |
+| `npm run e2e` | Tests de bout en bout Playwright (téléphone émulé, ~4 min) ; `E2E_PORT=<port>` pour en lancer plusieurs en même temps |
 | `npm run shot -- "<chemin-url>" <sortie.png>` | Capture d'écran d'une page (voir `scripts/shot.mjs`) |
 | `npm run world -- <cmd>` | Interroger le monde généré : `landmarks`, `districts`, `streets [filtre]`, `zones`, `entity <id>`, `rect x y w h`, `near x y [r]`, `ground x y`, `free x y w h [pas]`, `lookalikes <id> [d]`, `stats` (option `--no-cases`) |
 | `npm run content:check` | Contrôle des enquêtes dans la vraie ville (validateur + règles de la bible) : doit finir par « OK : aucun problème » |

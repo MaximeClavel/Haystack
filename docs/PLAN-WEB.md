@@ -84,3 +84,20 @@ revue finale, déploiement GitHub Pages, README et journal finalisés.
 | Indices visuels illisibles ou ambigus | Règle anti-sosies, vérification par capture au zoom de jeu, fausses pistes volontaires |
 | Incohérences entre modules développés en parallèle | Contrats écrits d'avance, agent d'intégration, tests |
 | Enquêtes qui se chevauchent sur la carte | Lieux attribués par la bible, validation automatique des chevauchements |
+
+## 5. État au 20/10/2026
+
+Le plan ci-dessus n'est pas réécrit : voici où chaque phase en est, et ce qui a changé par rapport à ce qui était prévu.
+Détail dans `docs/JOURNAL.md` et `docs/journal/`.
+
+| Phase | État | En bref |
+|---|---|---|
+| 0 — Socle | **Terminée** (14/10) | Vite, TypeScript strict, Preact ; contrats (`src/types.ts`, `src/config.ts`, `src/art/bounds.ts`, `src/world/layoutSpec.ts`), `scripts/shot.mjs`, `scripts/world-query.ts`, `CLAUDE.md`. |
+| 1 — Fondations | **Terminée** (14/10) | Monde, art, moteur de carte et règles livrés. Écarts : deux limites d'usage ont étalé la phase sur trois passages ; les deux scénaristes et l'éditeur ont été remplacés par un seul scénariste qui a écrit directement les sept enquêtes en `CaseDef` (`src/content/cases/`, bible générée `docs/CONTENT.md`) ; `critique` et `direction-artistique` sont passés en phase 3. |
+| 2 — Interface et pilote | **Terminée** (15/10) | Interface complète (accueil, dossiers, enquête, carnet, fin et reconstitution, explorer, minicarte, réglages, manifeste PWA sans service worker), tutoriel jouable, tests de bout en bout, revues UX et code (33 constats vérifiés un par un : 2 écartés, 6 reportés, le reste corrigé ; voir `docs/journal/phase2-correcteur.md`). |
+| 3 — Enquêtes | **Terminée** (20/10) | Les sept enquêtes existaient déjà (phase 1) : la phase a surtout été une **confrontation au jeu réel**. Revue adverse (`critique`), finition graphique, outil de joueur test aveugle (`tools/playtest`), sept joueurs test puis sept rejeux après correction, tri et vérification des constats, douze correcteurs, deux relectures indépendantes, deux lots de finition. Résultat : −50 % de commandes pour résoudre les enquêtes (≈ 1 525 → 768), voir `docs/journal/phase3-bilan-rejeu.md`. 367 tests unitaires, 41 tests de bout en bout, `content:check` « OK : aucun problème ». |
+| 4 — Recette et mise en ligne | **En cours** | Fait : test qui résout toutes les enquêtes au doigt (`tests/e2e/04-…`), mesures de fluidité à CPU ×1 et ×4, README et architecture finalisés (`docs/journal/phase4-documentation.md`), workflow GitHub Pages écrit (`.github/workflows/pages.yml`). Reste : recette finale par l'orchestrateur, fusion de la branche de travail dans `main` (le workflow ne se déclenche que sur `main`) et réglage unique Settings > Pages > Source = « GitHub Actions ». À compléter à la clôture. |
+
+Écarts de périmètre à retenir : la revue de performance prévue en phase 2 a été faite par l'agent d'intégration ; le « test de
+bout en bout qui résout toutes les enquêtes » de la phase 4 existe depuis la phase 2 et tourne à chaque passe ; l'outil de
+joueur test aveugle (non prévu au plan) est devenu la source principale de corrections de la phase 3.

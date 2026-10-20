@@ -34,9 +34,11 @@ que tous les contributeurs (humains ou agents) respectent. Les contrats TypeScri
 | `src/content` | Les enquêtes (données TypeScript) | types | **non** |
 | `src/ui` | Interface, navigation, assemblage | tout | oui |
 | `tools/content` | Outils des scénaristes : contrôle, génération de `docs/CONTENT.md`, aperçu, sonde (non publiés) | world, game, engine, content | `preview` : oui |
+| `tools/playtest` | Joueur test aveugle : pilote le vrai jeu (téléphone émulé) et ne renvoie que des captures et des textes d'interface, jamais de solution (non publié) | Vite, Playwright (pas le code du jeu) | oui (page pilotée) |
 
 Chaque module a son README détaillé : `src/art/README.md`, `src/world/README.md`, `src/engine/README.md`,
-`src/game/README.md`. Ce document ne reprend que ce qui sert à les assembler.
+`src/game/README.md`, `src/ui/README.md` ; côté outils : `tests/e2e/README.md` et `tools/playtest/README.md`.
+Ce document ne reprend que ce qui sert à les assembler.
 
 ## 2. Le monde et sa projection
 
@@ -111,9 +113,13 @@ Chaque module a son README détaillé : `src/art/README.md`, `src/world/README.m
     durée de la dernière image, densité, `offscreen` ;
   - `invalidateTiles()` — oublie toutes les tuiles (si le monde a été modifié) ; elles sont refaites
     progressivement ;
-  - `setInsets({ top, bottom, left, right })` — marges masquées par l'interface (barre haute, feuille du bas) :
-    les bornes de la caméra se comptent dans la zone libre, de sorte que la rive sud de la ville se remonte
-    toujours au-dessus du panneau de question (appelée par `mapHost.setInsets`, donc par chaque écran).
+  - `setInsets({ top, bottom, left, right })` — marges masquées par l'interface (barre haute, feuille du bas ou
+    latérale) : les **bornes de la caméra** se comptent dans la zone libre, de sorte que la rive sud de la ville se
+    remonte toujours au-dessus du panneau de question et que le nord descend sous la barre haute (appelée par
+    `mapHost.setInsets`, donc par chaque écran). Quand les marges changent (fiche d'indice qui se replie, minicarte
+    qui s'ouvre), ce sont les bornes qui glissent en `INSETS_GLIDE_MS` (180 ms) et la caméra est simplement
+    repoussée : aucun vol de caméra n'est lancé. Marges nulles = écran entier, calcul inchangé ; le zoom minimal
+    reste celui de l'écran entier.
 - Fonctions pures de caméra : `computeMinZoom`, `clampCamera` (7ᵉ paramètre facultatif : les marges),
   `screenToWorld`, `worldToScreen`, `visibleWorldRect`, `zoomAround`, `fitRectCamera` (+ type `ScreenInsets`) ;
   `BACKDROP` (couleur de la « table » autour de la ville), `MARK_STROKE` (couleurs des styles d'anneau, pour
@@ -156,10 +162,19 @@ Chaque module a son README détaillé : `src/art/README.md`, `src/world/README.m
 ### `tools/content` (outils des scénaristes, non publiés)
 | Outil | Rôle |
 |---|---|
-| `check.ts` (`npm run content:check`) | `validateAllCases` + règles de la bible : hors chaussée, véhicules sur chaussée ou parking, 80 u entre enquêtes, écarts d'apparence, sosies ambiants, rayons d'indice, recouvrements, couleur d'un bas caché par un tablier / un manteau / une robe citée dans un texte (`hidden.ts`, module pur : les cibles sont jugées sur l'apparence que le monde dessine — celle du personnage quand l'entité en a un —, `drawnAppearance` / `casePeople` / `entityPeople` ; son `selfTest()` s'exécute à chaque `content:check`). Doit afficher « OK : aucun problème » |
+| `check.ts` (`npm run content:check`) | `validateAllCases` + règles de la bible : hors chaussée, véhicules sur chaussée ou parking, 80 u entre enquêtes, écarts d'apparence, sosies ambiants, rayons d'indice, recouvrements, couleur d'un bas caché par un tablier / un manteau / une robe citée dans un texte (`hidden.ts`, module pur : **erreur** si le bas est entièrement caché, **note** s'il n'en dépasse qu'en partie ; un texte d'étape est jugé sur les cibles de l'étape (`accept`), un message de fausse piste sur la cible de la fausse piste ; les cibles sont jugées sur l'apparence que le monde dessine — celle du personnage quand l'entité en a un —, `drawnAppearance` / `casePeople` / `entityPeople` ; son `selfTest()` s'exécute à chaque `content:check`). Doit afficher « OK : aucun problème » (les notes sont des conseils, pas des erreurs) |
 | `gen.ts` (`npm run content:doc`) | Régénère `docs/CONTENT.md` (les signes distinctifs d'un bas caché y sont annotés « masqué … ») |
 | `preview.html` / `preview.ts` | Aperçu des scènes dans la vraie ville (`only=`, `ids=`, `mark=`, `hint=`, `threads=`, `grid=`) |
 | `probe.ts` | Sonde de placement : `npx tsx tools/content/probe.ts x,y …` |
+
+### `tools/playtest` (joueur test aveugle, non publié)
+Un **client** en ligne de commande (`blind.mjs` : `start`, `stop`, `list`, `shot`, `tap`, `dtap`, `drag`, `pinch`,
+`press`, `text`, `buttons`, `status`, `wait`) pilote un **démon** (`daemon.mjs`) qui lance son propre serveur Vite et un
+Chromium Pixel 7 sur un profil neuf, **sans `?debug`** : le joueur test ne reçoit que des captures et le texte visible de
+l'interface (`page-tools.mjs`), jamais une coordonnée du monde, un identifiant ni une solution ; `status` ne renvoie que
+des nombres lus dans la sauvegarde. Plusieurs parties peuvent tourner en même temps (`--case`, `--player` ; ≈ 800 Mo et
+un cœur chacune). `selftest.mjs` vérifie l'outil (84 contrôles, ≈ 1 min). Limite assumée : l'outil garantit que *ses sorties*
+ne révèlent rien, pas que l'agent s'abstienne de lire `src/content/` (le mode d'emploi le lui interdit).
 
 ## 5. Conventions d'identifiants
 
@@ -181,9 +196,21 @@ Les ids d'enquête sont **stables** : la sauvegarde s'appuie dessus.
 - Navigation par état interne (pas de routeur d'URL), mais **le bouton Retour du système fonctionne** :
   l'historique du navigateur ne garde que deux entrées (« base » puis « cur ») ; un Retour est traité comme le
   bouton ‹ de l'interface (fermer le carnet / la feuille / la minicarte, sinon remonter d'un écran), puis « cur »
-  est reposée ; depuis l'accueil, on laisse le navigateur quitter (`src/ui/App.tsx`). Paramètres lus au démarrage :
-  `?debug`, `?ui=0`, `?x=&y=&zoom=`, `?case=<id>`.
-- `?debug` expose `window.__haystack = { world, map, cases, session }` et affiche les coordonnées monde.
+  est reposée ; depuis l'accueil, on laisse le navigateur quitter (`src/ui/App.tsx`). Paramètres lus au démarrage
+  (`src/ui/params.ts`) : `?debug`, `?ui=0`, `?x=&y=&zoom=`, `?case=<id>`, `?screen=<nom>` (`accueil`, `dossiers`,
+  `regles`, `reglages`, `explorer`), `?reduced=1` (mouvement réduit forcé).
+- **Pastille de lieu** (`PlaceChip`, `placeName` dans `src/ui/format.ts`) : sous la barre haute, en exploration comme
+  en enquête, elle nomme ce qui se trouve sous le centre de la zone libre : petit lieu remarquable (bâtiment, pont,
+  parvis…), sinon **rue nommée** (deux noms à un carrefour, jamais les rues de remplissage « Rue n°N »), sinon grand lieu
+  (parc, marché…), puis le quartier. Une marge de capture d'environ 48 px d'écran (`placeCaptureMargin`, plafonnée à 48 u
+  quand la carte est dézoomée) nomme aussi les lieux étroits. L'affichage porte l'apostrophe typographique (’) alors que les
+  noms du monde gardent l'apostrophe droite (contrat `layoutSpec`). La minicarte, elle, ne donne que les noms des quartiers
+  (pas de noms de lieux : ce serait l'indice 2 gratuit).
+- **Marges de l'interface** : chaque écran déclare ce que masquent sa barre haute et sa feuille (`mapHost.setInsets` →
+  `map.setInsets`) ; elles servent aux cadrages (`focus`, `focusRect`) **et** aux bornes de la caméra (voir § 4, moteur).
+- `?debug` expose `window.__haystack = { world, map, host, cases, store, session, route, pickAt, entityCenter, openCase(id),
+  screen(name) }` et affiche les coordonnées monde (dernier appui et entité touchée). Le joueur test aveugle n'utilise
+  jamais `?debug`.
 - Chaque page signale `window.__haystackReady = true` une fois le premier rendu terminé (`map.whenIdle()`).
 - Pages de développement (non publiées) : `dev/gallery.html` (catalogue graphique, contrôle des emprises
   `?section=check`, mesure `?section=perf`), `dev/map.html` (carte brute : `grid=1`, `ids=1`, `demo=1`, `hud=0`,
@@ -218,27 +245,42 @@ une fois par un toast et sur l'accueil).
 ## 9. Performance (mesures de référence)
 
 Machine de développement : conteneur 4 cœurs, Chromium sans GPU (rendu logiciel, donc pessimiste pour la
-composition), Pixel 7 émulé (412 × 839, densité 2). Détail et historique : `docs/journal/phase2-integration.md`.
+composition), Pixel 7 émulé (412 × 839, densité 2). Mesures de référence du **20/10/2026** (fin de la phase 3 : trois
+passes de `scripts/perf-map.mjs`, rien d'autre en cours sur la machine). Détail et historique :
+`docs/journal/phase2-integration.md` (phase 2), `docs/journal/phase3-integration-correcteur2.md` et
+`docs/journal/phase3-integration-correcteur3.md` (phase 3).
 
 | Mesure | CPU ×1 | CPU ×4 (téléphone moyen) | Outil |
 |---|---|---|---|
-| Intervalle d'image p50 / p95 (parcours : vols, glisser, pincer, double-tap) | 16,7 / 16,8 ms | 33 / 50 ms | `node scripts/perf-map.mjs` |
-| Rendu moyen d'une tuile | ≈ 6 ms | ≈ 30 ms | idem |
-| `buildWorld({ cases: CASES })` à froid | ≈ 210 ms | 860–950 ms (médianes) | `node scripts/perf-map.mjs --startup` |
-| Premier rendu complet de la ville entière | ≈ 130 ms | 540–650 ms | idem |
+| Intervalle d'image p50 / p95 (parcours : vols, glisser, pincer, double-tap) | 16,7 / 16,7–16,8 ms | 33,3 / 66,7 ms | `node scripts/perf-map.mjs` |
+| Rendu moyen d'une tuile | ≈ 7–8 ms | ≈ 39–41 ms | idem |
+| `buildWorld({ cases: CASES })` à froid | ≈ 240–270 ms | ≈ 970–1 015 ms (médianes) | `node scripts/perf-map.mjs --startup` |
+| Premier rendu complet de la ville entière | ≈ 150–170 ms | ≈ 750–880 ms | idem |
+| Démarrage complet (construction + premier rendu) | ≈ 0,4 s | **≈ 1,75–1,85 s** | idem |
 
-Objectif sans ralentissement (p95 < 20 ms) atteint ; démarrage au ralenti ×4 ≈ 1,4 à 1,6 s (construction +
-premier rendu), sous le seuil de 2 s. L'interface doit afficher un écran de chargement **avant** d'appeler `buildWorld`
-(calcul synchrone d'environ 0,9 s sur un téléphone moyen).
+Objectif sans ralentissement (p95 < 20 ms) atteint. À CPU ×4 le glisser reste à 60 images/s (p95 16,8 ms) ; pincers,
+double-taps et vols tournent autour de 20 à 30 images/s (p50 33–50 ms). Démarrage à ×4 sous le seuil de 2 s. L'interface
+doit afficher un écran de chargement **avant** d'appeler `buildWorld` (calcul synchrone d'environ 1 s sur un téléphone
+moyen simulé).
+
+**Écart avec la phase 2** (15/10 : CPU ×4 p50 / p95 33 / 50 ms, tuile ≈ 30 ms, démarrage ×4 ≈ 1,4–1,6 s). Les images
+arrivent par pas de 16,7 ms : le p95 à ×4 est passé de 50 à 66,7 ms (un pas de plus) et la tuile de ≈ 30 à ≈ 39–41 ms dès
+les mesures de la direction artistique de la phase 3 (sol, façades, toits, arbres et ombres plus riches, ou bruit de
+machine), puis plus rien n'a bougé avec les correcteurs. Pour le démarrage, l'A/B de
+`docs/journal/phase3-integration-correcteur2.md` (5 pages neuves par révision, même machine, même session) donne 1,83 s
+pour la révision d'avant la direction artistique (`522408c`), 1,75 s pour celle-ci (`0d7fa04`) et 1,74 s pour l'arbre des
+correcteurs : **l'écart avec la phase 2 vient de la machine du jour, pas des correctifs** (la dispersion d'une page à
+l'autre atteint ±100 ms). Toutes ces valeurs sont à refaire sur un vrai téléphone (GPU).
 
 ## 10. Outils de vérification
 
 | Commande | Rôle |
 |---|---|
-| `npm run typecheck`, `npm test` | Types, tests unitaires (monde, moteur, règles, contenu publié) |
-| `npm run content:check` | Contrôle des enquêtes dans la vraie ville |
-| `node scripts/shot.mjs "<chemin-url>" sortie.png [--width --height --dpr]` (ou `--batch fichier.json`) | Capture d'une page après `window.__haystackReady` |
+| `npm run typecheck`, `npm test` | Types, tests unitaires (367 tests : monde, moteur, règles, contenu publié, textes de l'interface) |
+| `npm run content:check` | Contrôle des enquêtes dans la vraie ville ; `npm run content:doc` régénère `docs/CONTENT.md` |
+| `node scripts/shot.mjs "<chemin-url>" sortie.png [--width --height --dpr]` (ou `--batch fichier.json`) ; `npm run shot -- …` | Capture d'une page après `window.__haystackReady` (téléphone 390 × 844, densité 2 par défaut) |
 | `node scripts/perf-map.mjs` (`--gestures`, `--startup`, `--rates 1,4`) | Fluidité, contrôles des gestes, durée du démarrage |
 | `npm run world -- <cmd>` | Interroger le monde généré (voir `CLAUDE.md`) |
-| `npm run e2e` (`E2E_PORT=<port>` pour plusieurs suites en même temps) | Tests de bout en bout Playwright, téléphone émulé (`tests/e2e/README.md`) |
-| `node tools/playtest/blind.mjs start <id>` ; `node tools/playtest/selftest.mjs` | Joueur test aveugle (`tools/playtest/README.md`) ; vérification de l'outil (≈ 1 min) |
+| `npm run e2e` (`E2E_PORT=<port>` pour plusieurs suites en même temps) | Tests de bout en bout Playwright, téléphone émulé : 41 tests en 9 fichiers, ≈ 4 min (`tests/e2e/README.md`) |
+| `node tools/playtest/blind.mjs start <id>` ; `node tools/playtest/selftest.mjs` | Joueur test aveugle (`tools/playtest/README.md`) ; vérification de l'outil (84 contrôles, ≈ 1 min) |
+| `npm run build` | Version de production dans `dist/` (typage vérifié d'abord) ; déployée par `.github/workflows/pages.yml` (typecheck, tests, build) à chaque push sur `main` |
