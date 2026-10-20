@@ -35,7 +35,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'Indices et carnet',
-    text: 'Bloqué ? Un indice éclaire une zone de la carte. Le premier indice vous fait perdre une étoile ; comptez ensuite à peu près un indice par question avant d’en perdre une autre. Le carnet garde le briefing, vos découvertes, vos notes et vos punaises.',
+    text: 'Bloqué ? Un indice éclaire une zone de la carte. Le premier indice vous fait perdre une étoile ; comptez ensuite à peu près un indice par question avant d’en perdre une autre. Le carnet garde le briefing, vos découvertes, notes et punaises.',
     draw: drawHintIllustration,
     alt: 'Une zone de la carte éclairée par un projecteur, et une punaise rouge.',
   },

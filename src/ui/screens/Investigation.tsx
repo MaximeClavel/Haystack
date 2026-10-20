@@ -558,6 +558,7 @@ export function Investigation({ caseId, entry, onExit }: { caseId: string; entry
           setSelection(null);
         }}
         onToggleMini={() => setMiniOpen((m) => !m)}
+        leftHanded={settings.leftHanded}
         onConclude={() => {
           setPhase('end');
           pendingFocus.current = () => fitFound(false);

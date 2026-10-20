@@ -8,6 +8,7 @@ import type { AppStore } from './store';
 import { useSave } from './store';
 import { ServicesContext, type AppServices, type Route, type ToastTone } from './context';
 import type { ScreenName, UrlParams } from './params';
+import { fr } from './format';
 import { Home } from './screens/Home';
 import { Cases } from './screens/Cases';
 import { Investigation } from './screens/Investigation';
@@ -291,7 +292,7 @@ export function App(props: AppProps) {
         >
           {toast && (
             <div key={toast.id} class={`toast ${toast.tone}`} role="status" data-testid="toast">
-              {toast.text}
+              {fr(toast.text)}
             </div>
           )}
         </div>

@@ -19,7 +19,7 @@ import { compareDrawOrder, getEntityBounds, getHitRect } from '../../src/art/bou
 import { targetCenter } from '../../src/game/geometry';
 import { CASES as DRAFT_CASES } from '../../src/content';
 import { LOOKALIKES, RECURRING } from '../../src/content/meta';
-import { describeAlert, hiddenBottomAlerts, selfTest as hiddenBottomSelfTest, type PersonRef } from './hidden';
+import { casePeople, describeAlert, entityPeople, hiddenBottomAlerts, selfTest as hiddenBottomSelfTest, type PersonRef } from './hidden';
 
 const verbose = process.argv.includes('--verbose');
 const t0 = Date.now();
@@ -191,17 +191,12 @@ for (const c of DRAFT_CASES) {
 // un détail qu'il ne peut pas voir (« short rouge » sous un tablier). Erreur si tout est caché, note si le bas dépasse en partie.
 // Les textes d'une étape (question, indices, réussite) parlent de ses cibles, ceux d'une fausse piste de la cible de la fausse piste :
 // ces personnes-là priment sur un autre personnage de l'enquête qui porterait le même bas à découvert.
+// Partout, l'apparence est celle que le monde DESSINE : pour une entité qui a un `character`, celle du personnage
+// (src/world/story.ts), pas celle écrite sur l'entité (voir drawnAppearance dans hidden.ts, couvert par l'autotest).
 problems.push(...hiddenBottomSelfTest());
 for (const c of DRAFT_CASES) {
-  const people: PersonRef[] = [
-    ...c.characters.map((ch) => ({ id: ch.id, appearance: ch.appearance })),
-    ...c.entities.filter((e): e is PersonEntity => e.kind === 'person' && !e.character).map((e) => ({ id: e.id, appearance: e.appearance })),
-  ];
-  const aboutIds = (ids: string[]): PersonRef[] =>
-    ids.flatMap((id) => {
-      const e = c.entities.find((x) => x.id === id);
-      return e && e.kind === 'person' ? [{ id: e.id, appearance: e.appearance }] : [];
-    });
+  const people: PersonRef[] = casePeople(c);
+  const aboutIds = (ids: string[]): PersonRef[] => entityPeople(c, ids);
   const texts: { where: string; text: string; subjects: PersonRef[] }[] = [
     { where: 'briefing', text: c.intro, subjects: [] },
     { where: 'épilogue', text: c.epilogue, subjects: [] },

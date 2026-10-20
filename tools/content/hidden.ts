@@ -8,7 +8,7 @@
 //   - un PANTALON reste visible du genou (tablier, robe) ou du mollet (manteau) aux chevilles ;
 //   - la salopette ne cache rien du bas (sa bavette ne couvre que le buste).
 // Module pur (aucune dépendance au monde ni au DOM).
-import type { BottomKind, Color, PersonAppearance, TopKind } from '../../src/types';
+import type { BottomKind, CaseDef, Color, PersonAppearance, PersonEntity, TopKind } from '../../src/types';
 
 /** `total` : la couleur du bas n'est plus visible ; `partial` : seule une partie (bas des jambes, bord de jupe) dépasse. */
 export type Hiding = 'total' | 'partial';
@@ -104,6 +104,36 @@ export interface PersonRef {
   appearance: PersonAppearance;
 }
 
+/** Ce qu'il faut d'une enquête pour retrouver ses personnes (un CaseDef complet, ou un extrait dans l'autotest). */
+export type CasePeopleSource = Pick<CaseDef, 'characters' | 'entities'>;
+
+/**
+ * Apparence DESSINÉE d'une personne d'enquête. Le monde remplace celle d'une entité qui a un `character` par celle du
+ * personnage (src/world/story.ts, integrateCases) : seule une entité sans personnage garde la sienne. Aucun validateur
+ * n'impose l'égalité des deux, c'est donc celle du personnage qui fait foi (un personnage inconnu ne remplace rien,
+ * comme dans le monde).
+ */
+export function drawnAppearance(c: CasePeopleSource, e: PersonEntity): PersonAppearance {
+  const ch = e.character ? c.characters.find((x) => x.id === e.character) : undefined;
+  return ch ? ch.appearance : e.appearance;
+}
+
+/** Les personnes d'une enquête telles qu'on les voit : ses personnages, puis ses figurants (personnes sans personnage). */
+export function casePeople(c: CasePeopleSource): PersonRef[] {
+  return [
+    ...c.characters.map((ch) => ({ id: ch.id, appearance: ch.appearance })),
+    ...c.entities.filter((e): e is PersonEntity => e.kind === 'person' && !e.character).map((e) => ({ id: e.id, appearance: e.appearance })),
+  ];
+}
+
+/** Les personnes que désignent des ids d'entités (cibles d'une étape, cible d'une fausse piste), avec l'apparence dessinée. */
+export function entityPeople(c: CasePeopleSource, ids: readonly string[]): PersonRef[] {
+  return ids.flatMap((id) => {
+    const e = c.entities.find((x) => x.id === id);
+    return e && e.kind === 'person' ? [{ id: e.id, appearance: drawnAppearance(c, e) }] : [];
+  });
+}
+
 export interface HiddenBottomAlert {
   quote: string;
   level: Hiding;
@@ -186,5 +216,26 @@ export function selfTest(): string[] {
   expect('la cible reconnaît que le bas dépasse', alertsAbout('Pantalon orange qui dépasse du manteau.', [costume, manteau], [manteau]), []);
   expect('« short » seul, sans couleur', levels('Il porte un short.', [livreur]), []);
   expect('couleur citée ailleurs que près du bas', levels('Un short et une casquette rouge.', [livreur]), []);
+
+  // Entité et personnage qui divergent : le monde dessine le PERSONNAGE (story.ts), c'est sur lui que les cibles sont jugées.
+  const enquete = (entityTop: TopKind, characterTop: TopKind): CasePeopleSource => ({
+    characters: [{ id: 'x.perso', name: 'X', appearance: person('x.perso', characterTop, 'trousers', 'orange').appearance }],
+    entities: [
+      { id: 'x.perso.1', kind: 'person', x: 0, y: 0, pose: 'stand', facing: 'right', character: 'x.perso', appearance: person('x.e', entityTop, 'trousers', 'orange').appearance },
+      { id: 'x.figurant', kind: 'person', x: 0, y: 0, pose: 'stand', facing: 'right', appearance: person('x.f', 'coat', 'shorts', 'red').appearance },
+      { id: 'x.prop', kind: 'prop', x: 0, y: 0, prop: 'bin' },
+    ],
+  });
+  const alertsOfTarget = (c: CasePeopleSource, text: string, ids: string[]): string[] =>
+    hiddenBottomAlerts(text, casePeople(c), entityPeople(c, ids)).map((a) => `${a.quote}:${a.level}`);
+  const cacheParLePersonnage = enquete('tshirt', 'coat');
+  const montreParLePersonnage = enquete('coat', 'tshirt');
+  expect('cible : l\'apparence est celle du personnage (manteau), pas celle de l\'entité (t-shirt)', alertsOfTarget(cacheParLePersonnage, 'Un pantalon orange.', ['x.perso.1']), ['pantalon orange:partial']);
+  expect('cible : l\'entité cache le bas, le personnage le montre', alertsOfTarget(montreParLePersonnage, 'Un pantalon orange.', ['x.perso.1']), []);
+  expect('cible : le personnage est ce que dessine le monde', entityPeople(cacheParLePersonnage, ['x.perso.1']).map((p) => p.appearance.top), ['coat']);
+  expect('cible : une entité sans personnage garde sa propre apparence', entityPeople(cacheParLePersonnage, ['x.figurant']).map((p) => p.appearance.top), ['coat']);
+  expect('cible : un personnage inconnu ne remplace rien', entityPeople({ characters: [], entities: cacheParLePersonnage.entities }, ['x.perso.1']).map((p) => p.appearance.top), ['tshirt']);
+  expect('cible : une entité qui n\'est pas une personne, ou un id inconnu, n\'est pas une cible', entityPeople(cacheParLePersonnage, ['x.prop', 'x.absent']), []);
+  expect('personnes de l\'enquête : personnages (leur apparence), puis figurants', casePeople(cacheParLePersonnage).map((p) => `${p.id}:${p.appearance.top}`), ['x.perso:coat', 'x.figurant:coat']);
   return fails;
 }

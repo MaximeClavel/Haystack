@@ -668,7 +668,8 @@ ne se chevauche.
     d’une étape (question, indices, réussite) ou d’une fausse piste, le contrôle juge d’abord la ou les personnes
     visées (cibles de l’étape, cible de la fausse piste) : si l’une porte le bas cité, c’est d’elle qu’il s’agit, même
     si un autre personnage de l’enquête montre le même bas à découvert (c05 : le pantalon orange du comédien en
-    costume se voit, celui de la comédienne sous le manteau beaucoup moins).
+    costume se voit, celui de la comédienne sous le manteau beaucoup moins). L’apparence jugée est celle que le monde
+    dessine : celle du personnage quand l’entité en désigne un, et non celle déclarée sur l’entité.
 12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la

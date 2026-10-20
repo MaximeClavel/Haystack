@@ -5,7 +5,7 @@ import type { CaseDef, HintResult, StepDef, StepProgress } from '../../../types'
 import { REVEAL_TEXT, requiredOf } from '../../../game';
 import { Icon } from '../../icons';
 import { fr } from '../../format';
-import { hintCostText, panelLabel } from './texts';
+import { foundCountLabel, hintCostText, panelLabel } from './texts';
 
 export interface QuestionPanelProps {
   def: CaseDef;
@@ -40,6 +40,8 @@ export interface QuestionPanelProps {
   onTogglePin: () => void;
   onToggleMini: () => void;
   onConclude: () => void;
+  /** Mode gaucher : les actions du bas sont rangées dans l'ordre visuel (Indice près du pouce gauche). */
+  leftHanded: boolean;
 }
 
 const HINT_LEVEL_TEXT: Record<1 | 2 | 3, string> = {
@@ -64,6 +66,51 @@ export function QuestionPanel(p: QuestionPanelProps) {
       hintLines.push(active.hints[1].text);
     if (hint.level >= 3) hintLines.push(REVEAL_TEXT);
   }
+
+  const cancelBtn = (
+    <button key="cancel" type="button" class="btn btn-paper" onClick={p.onHintCancel} data-testid="hint-cancel">
+      Non merci
+    </button>
+  );
+  const confirmBtn = (
+    <button key="confirm" type="button" class="btn btn-primary" onClick={p.onHintConfirm} data-testid="hint-confirm">
+      Oui, un indice
+    </button>
+  );
+  // Barre d'actions : Minicarte, Punaise, Indice de gauche à droite ; en gaucher l'ordre est inversé
+  // (Indice sous le pouce gauche) dans le DOM aussi, pas seulement par le CSS.
+  const miniBtn = (
+    <button
+      key="mini"
+      type="button"
+      class={p.miniOpen ? 'action on' : 'action'}
+      aria-pressed={p.miniOpen}
+      onClick={p.onToggleMini}
+      data-testid="action-minimap"
+    >
+      <Icon name="map" />
+      <span>Minicarte</span>
+    </button>
+  );
+  const pinBtn = (
+    <button
+      key="pin"
+      type="button"
+      class={p.pinMode ? 'action on' : 'action'}
+      aria-pressed={p.pinMode}
+      onClick={p.onTogglePin}
+      data-testid="action-pin"
+    >
+      <Icon name="pin" />
+      <span>Punaise</span>
+    </button>
+  );
+  const hintBtn = (
+    <button key="hint" type="button" class="action hint-action" onClick={p.onHint} data-testid="action-hint">
+      <Icon name="hint" />
+      <span>{level >= 3 ? 'Revoir' : 'Indice'}</span>
+    </button>
+  );
 
   return (
     <section
@@ -90,7 +137,7 @@ export function QuestionPanel(p: QuestionPanelProps) {
             : panelLabel({ stepCount: def.steps.length, index, openCount: open.length })}
         </span>
         {active && required > 1 && (
-          <span class="qcount" aria-label={`${found} trouvées sur ${required}`}>
+          <span class="qcount" role="img" aria-label={foundCountLabel(found, required, def.bonus ? 'aiguille' : 'réponse')}>
             {found}/{required}
           </span>
         )}
@@ -195,41 +242,13 @@ export function QuestionPanel(p: QuestionPanelProps) {
             <p class="hint-ask-stars" data-testid="hint-cost">
               <Icon name="star" size={15} filled /> {fr(hintCostText(p.starsNow, p.starsAfterHint, def.steps.length))}
             </p>
-            <div class="btn-row">
-              <button type="button" class="btn btn-paper" onClick={p.onHintCancel} data-testid="hint-cancel">
-                Non merci
-              </button>
-              <button type="button" class="btn btn-primary" onClick={p.onHintConfirm} data-testid="hint-confirm">
-                Oui, un indice
-              </button>
-            </div>
+            {/* Ordre du DOM = ordre visuel (Tab, lecteur d'écran). Droitier : « Non merci » prend la place du
+                bouton Indice, à droite (un double tap involontaire ne confirme pas) ; gaucher : à gauche. */}
+            <div class="btn-row">{p.leftHanded ? [cancelBtn, confirmBtn] : [confirmBtn, cancelBtn]}</div>
           </div>
         ) : (
           <div class="actions" role="toolbar" aria-label="Actions">
-            <button
-              type="button"
-              class={p.miniOpen ? 'action on' : 'action'}
-              aria-pressed={p.miniOpen}
-              onClick={p.onToggleMini}
-              data-testid="action-minimap"
-            >
-              <Icon name="map" />
-              <span>Minicarte</span>
-            </button>
-            <button
-              type="button"
-              class={p.pinMode ? 'action on' : 'action'}
-              aria-pressed={p.pinMode}
-              onClick={p.onTogglePin}
-              data-testid="action-pin"
-            >
-              <Icon name="pin" />
-              <span>Punaise</span>
-            </button>
-            <button type="button" class="action hint-action" onClick={p.onHint} data-testid="action-hint">
-              <Icon name="hint" />
-              <span>{level >= 3 ? 'Revoir' : 'Indice'}</span>
-            </button>
+            {p.leftHanded ? [hintBtn, pinBtn, miniBtn] : [miniBtn, pinBtn, hintBtn]}
           </div>
         ))}
     </section>

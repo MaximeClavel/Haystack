@@ -1,13 +1,13 @@
 // Textes d'affichage : typographie française, statuts des enquêtes, reprise sur la dernière trouvaille.
 import { describe, expect, it } from 'vitest';
-import type { CaseDef, District, Landmark, Rect, World } from '../types';
+import type { CaseDef, District, Entity, Landmark, Rect, World } from '../types';
 import { getEntityBounds, getHitRect } from '../art';
 import { CaseSession, defaultSave, entityCenter, restartCaseProgress, withCaseProgress } from '../game';
 import { building, caseDef, makeWorld, person, prop, step, tree, vehicle } from '../game/testkit';
 import { buildWorld } from '../world';
 import type { Street } from '../world/layout';
 import { setWorldMeta } from '../world/meta';
-import { caseStatus, fr, lockReason, paragraphs, placeCaptureMargin, placeName, solvedCount } from './format';
+import { apostrophes, caseStatus, districtName, fr, lockReason, paragraphs, placeCaptureMargin, placeName, solvedCount } from './format';
 import { lastFoundId, thumbRect } from './screens/investigation/overlays';
 
 const NB = ' ';
@@ -127,6 +127,8 @@ function placeWorld(withStreets = true): World {
     { id: 'pont', name: 'Pont Central', district: 'centre', kind: 'area', rect: R(200, 500, 40, 200) },
     { id: 'parc', name: 'Parc des Meules', district: 'parc', kind: 'area', rect: R(500, 0, 500, 600) },
     { id: 'kiosque', name: 'Kiosque à musique', district: 'parc', kind: 'point', rect: R(680, 80, 40, 40) },
+    // Nom écrit avec l'apostrophe droite, comme dans le monde généré (contrat `layoutSpec`).
+    { id: 'cour', name: "Cour de l'école", district: 'centre', kind: 'area', rect: R(60, 400, 80, 60) },
   ];
   const world: World = { ...makeWorld(), districts, landmarks };
   if (withStreets) {
@@ -139,6 +141,8 @@ function placeWorld(withStreets = true): World {
         street('Rue Biaise', 'd', R(0, 0, 500, 800)), // en biais : boîte englobante énorme
         street('Avenue du Parc', 'h', R(500, 300, 500, 60)),
         street('Rue Haute', 'h', R(500, 400, 100, 40)), // même nom, autre tronçon
+        street("Rue de l'Aiguillage", 'h', R(0, 700, 300, 40)), // apostrophe droite, comme le monde généré
+        street("Rue de l'Orge", 'v', R(250, 700, 40, 100)),
       ],
       blocks: [],
       spots: [],
@@ -238,6 +242,28 @@ describe('placeName : pastille de lieu', () => {
     const empty = makeWorld();
     expect(placeName(empty, 10, 10)).toBe('Meulebourg');
   });
+
+  it('apostrophe typographique (’) pour les rues et les lieux, jamais l’apostrophe droite', () => {
+    // Les noms du monde sont écrits avec « ' » (layoutSpec, contrat) ; l'affichage les normalise.
+    expect(placeName(w, 50, 720)).toBe('Rue de l’Aiguillage · Quartier Nord');
+    expect(placeName(w, 270, 720)).toBe('Rue de l’Aiguillage / Rue de l’Orge');
+    expect(placeName(w, 100, 430)).toBe('Cour de l’école · Quartier Nord');
+    for (const n of [placeName(w, 50, 720), placeName(w, 270, 720), placeName(w, 100, 430)]) expect(n).not.toContain("'");
+  });
+
+  it('apostrophes : ne touche ni les autres caractères ni les apostrophes déjà typographiques', () => {
+    expect(apostrophes("Rue de l'Orge")).toBe('Rue de l’Orge');
+    expect(apostrophes("Cour de l'école d'à côté")).toBe('Cour de l’école d’à côté');
+    expect(apostrophes('Rue de l’Orge')).toBe('Rue de l’Orge');
+    expect(apostrophes('Rue Haute')).toBe('Rue Haute');
+  });
+
+  it('districtName passe aussi par la normalisation', () => {
+    const d = placeWorld();
+    d.districts[0] = { ...d.districts[0], name: "Quartier de l'Est" };
+    expect(districtName(d, 50, 600)).toBe('Quartier de l’Est');
+    expect(districtName(d, -10, -10)).toBe('Meulebourg');
+  });
 });
 
 describe('placeCaptureMargin : marge de capture en pixels écran', () => {
@@ -332,18 +358,47 @@ describe('thumbRect : vignette de confirmation', () => {
     expect(bad).toEqual([]);
   });
 
-  it('objets, véhicules, arbres et bâtiments : vue au moins aussi grande qu’avant (zoom inchangé)', () => {
-    const ents = [
+  it('zoom de la vignette inchangé : même échelle que l’ancienne formule, pour toutes les sortes d’entités', () => {
+    // Ancienne vue : max(52, 1,4 × corps) × max(39, 1,4 × corps), centrée sur le corps ; renderSnapshot
+    // l'élargit au format du canevas (132 × 99), d'où une échelle min(132 / w, 99 / h). Le correctif de
+    // cadrage (vue centrée sur l'emprise visuelle) ne doit changer que le centrage, pas cette échelle.
+    const THUMB_W = 132;
+    const THUMB_H = 99;
+    const oldScale = (e: Entity): number => {
+      const r = getHitRect(e);
+      return Math.min(THUMB_W / Math.max(52, r.w * 1.4), THUMB_H / Math.max(39, r.h * 1.4));
+    };
+    const newScale = (e: Entity): number => {
+      const v = thumbRect(e, { x: e.x, y: e.y });
+      return Math.min(THUMB_W / v.w, THUMB_H / v.h);
+    };
+    // Entités fabriquées : un exemplaire de chaque sorte, dont des personnes à parapluie et à haut-de-forme.
+    const umbrella = person('t.u', 200, 200);
+    umbrella.appearance = { ...umbrella.appearance, accessory: 'umbrella' };
+    const tophat = person('t.h', 240, 200);
+    tophat.appearance = { ...tophat.appearance, hat: 'tophat' };
+    const made: Entity[] = [
+      person('t.p', 50, 50),
+      umbrella,
+      tophat,
       prop('t.k', 'key', 100, 100),
       vehicle('t.v', 'bus', 300, 300),
       tree('t.t', 500, 400, 60),
       building('t.b', R(600, 300, 120, 80), 90),
     ];
-    for (const e of ents) {
-      const r = getHitRect(e);
-      const v = thumbRect(e, { x: e.x, y: e.y });
-      expect(v.w).toBeGreaterThanOrEqual(Math.max(52, r.w * 1.4) - 1e-9);
-      expect(v.h).toBeGreaterThanOrEqual(Math.max(39, r.h * 1.4) - 1e-9);
-    }
+    for (const e of made) expect(newScale(e), e.id).toBeCloseTo(oldScale(e), 9);
+
+    // Échantillon de la vraie ville : une entité sur quatre de chaque sorte (personnes, objets, arbres,
+    // bâtiments, véhicules), soit plusieurs centaines d'entités ; au moins une de chaque sorte.
+    const world = buildWorld({ cases: [] });
+    const seen = new Map<string, number>();
+    const bad: string[] = [];
+    world.entities.forEach((e, i) => {
+      if (i % 4 !== 0) return;
+      seen.set(e.kind, (seen.get(e.kind) ?? 0) + 1);
+      if (Math.abs(newScale(e) - oldScale(e)) > 1e-9) bad.push(`${e.id} (${e.kind})`);
+    });
+    expect(bad).toEqual([]);
+    for (const kind of ['person', 'prop', 'tree', 'building', 'vehicle']) expect(seen.get(kind) ?? 0, kind).toBeGreaterThan(0);
   });
 });

@@ -126,6 +126,10 @@ function streetNamesAt(world: World, x: number, y: number, margin: number): stri
  * quand ils sont dans la vue sans être exactement sous le centre. Voir `placeCaptureMargin`.
  */
 export function placeName(world: World, x: number, y: number, margin = 0): string {
+  return apostrophes(rawPlaceName(world, x, y, margin));
+}
+
+function rawPlaceName(world: World, x: number, y: number, margin: number): string {
   const m = Math.max(0, margin);
   type Found = { name: string; dist: number; area: number };
   // Meilleur lieu de chaque classe : celui qui contient le point d'abord, puis le plus proche ;
@@ -155,7 +159,16 @@ export function placeName(world: World, x: number, y: number, margin = 0): strin
 /** Nom du quartier seul (liste des punaises). */
 export function districtName(world: World, x: number, y: number): string {
   const d = world.districts.find((q) => x >= q.rect.x && x < q.rect.x + q.rect.w && y >= q.rect.y && y < q.rect.y + q.rect.h);
-  return d?.name ?? 'Meulebourg';
+  return apostrophes(d?.name ?? 'Meulebourg');
+}
+
+/**
+ * Apostrophe typographique (’) à l'affichage : les noms du monde (rues, lieux : `layoutSpec`, contrat) sont
+ * écrits avec l'apostrophe droite (« Rue de l'Aiguillage »), alors que tous les textes de l'interface
+ * utilisent ’. La normalisation se fait ici, à l'affichage, sans toucher au monde généré.
+ */
+export function apostrophes(text: string): string {
+  return text.replace(/'/g, '\u2019');
 }
 
 /**

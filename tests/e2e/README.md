@@ -4,7 +4,7 @@ Le jeu complet, joué **au doigt** sur un Pixel 7 émulé (Chromium préinstall�
 Un seul serveur Vite (port 5179 par défaut, modifiable avec la variable `E2E_PORT` pour lancer plusieurs suites en même temps ; réutilisé s'il tourne déjà), tests exécutés l'un après l'autre.
 
 ```bash
-npm run e2e                                    # toute la suite (≈ 2 min)
+npm run e2e                                    # toute la suite (41 tests, ≈ 4 min)
 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts   # un seul fichier
 npx playwright show-trace test-results/<test>/trace.zip         # trace d'un échec (gardée)
 ```
@@ -40,7 +40,7 @@ npx playwright show-trace test-results/<test>/trace.zip         # trace d'un éc
 | `05-explorer-reglages.spec.ts` | Exploration (glisser, nom du lieu, tap sur un lieu remarquable), minicarte (exploration et enquête), Comment jouer, réglages (mouvement réduit, gaucher, réinitialisation) |
 | `06-parcours-console.spec.ts` | Tous les écrans dans une même page : approche de loin, panneau repliable, carnet (notes, punaise posée puis retirée) — sans erreur console |
 | `07-corrections.spec.ts` | Corrections issues des revues (R1…R12, M1…M6) : recommencer, réponse d'une autre question ouverte, nom du lieu, bouton Retour, double tap, notes, petit écran, testament du bonus |
-| `08-retours-joueurs-ui.spec.ts` | Corrections de l'interface issues des joueurs test aveugles : « N pistes ouvertes » et suite du fil (c04), indice replié (« relire », zone accessible), « Non merci » sous le bouton Indice, toast du bonus avec le début du vers, carnet (rubrique vide, « Voir » nommés), fin du bonus sans bande noire, « Comment jouer », difficulté au briefing, onglets de c05 à 360 px |
+| `08-retours-joueurs-ui.spec.ts` | Corrections de l'interface issues des joueurs test aveugles : « N pistes ouvertes » et suite du fil (c04), indice replié (« relire », zone accessible), « Non merci » sous le bouton Indice, toast du bonus avec le début du vers, carnet (rubrique vide, « Voir » nommés), fin du bonus sans bande noire, « Comment jouer », difficulté au briefing, onglets de c05 à 360 et 320 px, noms accessibles des boutons de la reconstitution, apostrophe typographique de la pastille de lieu, contraste du bouton Indice (≥ 3:1 calculé sur les couleurs réelles), « Comment jouer » sans défilement à 320 × 568 |
 | `09-camera-marges.spec.ts` | Bornes de la caméra et marges de l'interface (c03, 390 × 844 et 412 × 915) : à tous les zooms la rive sud passe au-dessus du panneau de question et le nord sous la barre haute ; dézoom au doigt puis glissé vers le sud ; un changement de taille du panneau fait glisser les bornes sans saut de caméra |
 | `tools/planche.mjs` | Planche contact des captures de cibles (voir ci-dessous) |
 

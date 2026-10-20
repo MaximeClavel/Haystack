@@ -153,7 +153,7 @@ export const c05: CaseDef = {
         { id: 'c05.picotin.1', feedback: 'Picotin veille sur la victime. Cherchez plutôt celui qui lit son journal.' },
       ],
       hints: [
-        { text: 'Il n’est pas allé bien loin : il est resté sur le parvis du théâtre.' },
+        { text: 'Il est resté sur le parvis, à quelques pas de Bérénice : cherchez un costume rouge.' },
         { text: 'À l’est du parvis, un monsieur lit son journal sans lever les yeux.', area: { x: 5725, y: 2495, radius: 90 } },
       ],
       solved:

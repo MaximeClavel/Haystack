@@ -101,7 +101,7 @@ export const c01: CaseDef = {
         { id: 'c01.lafouine.3', feedback: 'Vous l’avez retrouvé, mais c’est la caisse qu’on cherche. Revenez sur ses pas.' },
       ],
       hints: [
-        { text: 'Il a traversé la rue des Étals, celle qui longe le marché.' },
+        { text: 'Cherchez le sac d’argent : il dépasse de quelque chose de vert, sur le trottoir est de la rue des Étals.' },
         { text: 'Regardez au coin de la rue des Étals et de la rue du Cinéma.', area: { x: 3215, y: 595, radius: 80 } },
       ],
       solved: 'La recette dépasse d’une poubelle, au coin de la rue. Il comptait venir la rechercher après la séance.',

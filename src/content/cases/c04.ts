@@ -153,7 +153,7 @@ export const c04: CaseDef = {
       nearMiss: [
         { id: 'c04.octave.2', feedback: 'C’est Octave, les mains vides : il vient de donner la tarte. À qui ?' },
         { id: 'c04.octave.1', feedback: 'C’est bien Octave, tarte à la main, mais plus tôt. Suivez-le : à qui va-t-il la confier ?' },
-        { id: 'c04.picotin.2', feedback: 'Picotin n’a rien à voir avec ce que le bijoutier a confié : il n’était même pas là.' },
+        { id: 'c04.picotin.2', feedback: 'Ce n’est pas à Picotin que le bijoutier a confié la tarte : il n’était même pas là.' },
         { id: 'lm.cafe-du-centre', feedback: 'Le Café du Centre, oui. Mais c’est à une personne que le bijoutier a confié la tarte.' },
       ],
       hints: [

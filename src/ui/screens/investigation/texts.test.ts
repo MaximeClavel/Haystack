@@ -6,6 +6,7 @@ import { computeStars } from '../../../game';
 import { CASES } from '../../../content';
 import {
   confirmLabel,
+  foundCountLabel,
   foundToastText,
   hintCostText,
   panelLabel,
@@ -152,6 +153,20 @@ describe('libellés du panneau et de la feuille de confirmation', () => {
     expect(confirmLabel({ stepCount: 6, index: 3, openCount: 2 })).toBe('Question 4 sur 6');
     expect(confirmLabel({ stepCount: 6, index: 0, openCount: 1, label: 'La bijouterie' })).toBe('Question 1 sur 6');
     expect(confirmLabel({ stepCount: 1, index: 0, openCount: 1 })).toBe('Votre mission');
+  });
+});
+
+describe('foundCountLabel : nom accessible du compteur « n/m »', () => {
+  it('accord en nombre : 0 et 1 au singulier, 2 et plus au pluriel', () => {
+    expect(foundCountLabel(0, 10, 'aiguille')).toBe('0 aiguille trouvée sur 10');
+    expect(foundCountLabel(1, 10, 'aiguille')).toBe('1 aiguille trouvée sur 10');
+    expect(foundCountLabel(2, 10, 'aiguille')).toBe('2 aiguilles trouvées sur 10');
+    expect(foundCountLabel(10, 10, 'aiguille')).toBe('10 aiguilles trouvées sur 10');
+  });
+
+  it('une autre enquête à réponses multiples parle de réponses, pas d’aiguilles', () => {
+    expect(foundCountLabel(1, 3, 'réponse')).toBe('1 réponse trouvée sur 3');
+    expect(foundCountLabel(2, 3, 'réponse')).toBe('2 réponses trouvées sur 3');
   });
 });
 

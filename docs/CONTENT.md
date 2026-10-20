@@ -427,7 +427,7 @@ d’œil : leur texte n’est pas lisible au zoom de jeu et n’entre dans aucun
   - `c01.lafouine.2` → « Le voleur, les mains vides : il vient de se débarrasser de la caisse, quelque part derrière lui. »
   - `c01.lafouine.1` → « C’est bien lui, mais plus tôt : il tenait encore le sac. Où l’a-t-il laissé en chemin ? »
   - `c01.lafouine.3` → « Vous l’avez retrouvé, mais c’est la caisse qu’on cherche. Revenez sur ses pas. »
-- **Indice 1** : Il a traversé la rue des Étals, celle qui longe le marché.
+- **Indice 1** : Cherchez le sac d’argent : il dépasse de quelque chose de vert, sur le trottoir est de la rue des Étals.
 - **Indice 2** : Regardez au coin de la rue des Étals et de la rue du Cinéma. — zone `{ x: 3215, y: 595, radius: 80 }`
 - **Résolution** (`solved`) : La recette dépasse d’une poubelle, au coin de la rue. Il comptait venir la rechercher après la séance.
 - **Fils rouges** (`thread`) : `c01.lafouine.1` → `c01.caisse` ; `c01.caisse` → `c01.lafouine.2`
@@ -1065,7 +1065,7 @@ chemise** — deux attributs très visibles.
 - **Fausses pistes** (`nearMiss`) :
   - `c04.octave.2` → « C’est Octave, les mains vides : il vient de donner la tarte. À qui ? »
   - `c04.octave.1` → « C’est bien Octave, tarte à la main, mais plus tôt. Suivez-le : à qui va-t-il la confier ? »
-  - `c04.picotin.2` → « Picotin n’a rien à voir avec ce que le bijoutier a confié : il n’était même pas là. »
+  - `c04.picotin.2` → « Ce n’est pas à Picotin que le bijoutier a confié la tarte : il n’était même pas là. »
   - `lm.cafe-du-centre` → « Le Café du Centre, oui. Mais c’est à une personne que le bijoutier a confié la tarte. »
 - **Indice 1** : Il ne s’est arrêté qu’à une terrasse où l’on sert le café.
 - **Indice 2** : Regardez devant le Café du Centre. — zone `{ x: 3200, y: 1820, radius: 90 }`
@@ -1275,7 +1275,7 @@ visible :
 - **Fausses pistes** (`nearMiss`) :
   - `c05.berenice.1` → « Bérénice ne lira plus rien ce soir. Cherchez celui qui lit. »
   - `c05.picotin.1` → « Picotin veille sur la victime. Cherchez plutôt celui qui lit son journal. »
-- **Indice 1** : Il n’est pas allé bien loin : il est resté sur le parvis du théâtre.
+- **Indice 1** : Il est resté sur le parvis, à quelques pas de Bérénice : cherchez un costume rouge.
 - **Indice 2** : À l’est du parvis, un monsieur lit son journal sans lever les yeux. — zone `{ x: 5725, y: 2495, radius: 90 }`
 - **Résolution** (`solved`) : Gontran lit tranquillement son journal à quelques pas de la victime, sans un regard pour elle. Haut-de-forme, parapluie, pantalon orange.
 
@@ -1625,7 +1625,8 @@ ne se chevauche.
     d’une étape (question, indices, réussite) ou d’une fausse piste, le contrôle juge d’abord la ou les personnes
     visées (cibles de l’étape, cible de la fausse piste) : si l’une porte le bas cité, c’est d’elle qu’il s’agit, même
     si un autre personnage de l’enquête montre le même bas à découvert (c05 : le pantalon orange du comédien en
-    costume se voit, celui de la comédienne sous le manteau beaucoup moins).
+    costume se voit, celui de la comédienne sous le manteau beaucoup moins). L’apparence jugée est celle que le monde
+    dessine : celle du personnage quand l’entité en désigne un, et non celle déclarée sur l’entité.
 12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la

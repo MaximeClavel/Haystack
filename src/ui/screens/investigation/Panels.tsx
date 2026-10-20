@@ -229,7 +229,13 @@ export function ReplayBar(props: {
         ))}
       </div>
       <div class="btn-row">
-        <button type="button" class="btn btn-paper" onClick={props.onPrev} disabled={index === 0} aria-label="Moment précédent">
+        <button
+          type="button"
+          class="btn btn-paper"
+          onClick={props.onPrev}
+          disabled={index === 0}
+          aria-label="Précédent : moment précédent"
+        >
           <Icon name="chevronLeft" />
           <span>Précédent</span>
         </button>
@@ -238,7 +244,7 @@ export function ReplayBar(props: {
             type="button"
             class="btn btn-primary"
             onClick={props.onNext}
-            aria-label="Moment suivant"
+            aria-label="Suivant : moment suivant"
             data-testid="replay-next"
           >
             <span>Suivant</span>

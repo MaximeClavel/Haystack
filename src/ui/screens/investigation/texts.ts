@@ -132,6 +132,16 @@ export function verseFor(def: CaseDef, stepId: string, foundId: string): string 
   return k >= 0 ? (tv.verses[k] ?? null) : null;
 }
 
+/**
+ * Nom accessible du compteur « 3/10 » d'une question à plusieurs réponses : « 0 aiguille trouvée sur 10 »,
+ * « 1 aiguille trouvée sur 10 », « 2 aiguilles trouvées sur 10 » (accord comme dans le carnet). Le bonus
+ * compte des aiguilles ; toute autre enquête à réponses multiples parle de « réponses ».
+ */
+export function foundCountLabel(found: number, required: number, noun: 'aiguille' | 'réponse'): string {
+  const many = found > 1;
+  return `${found} ${noun}${many ? 's' : ''} trouvée${many ? 's' : ''} sur ${required}`;
+}
+
 /** Toast d'une trouvaille intermédiaire : « Bien vu ! 3 sur 10 », suivi du début du vers quand il y en a un. */
 export function foundToastText(found: number, required: number, verse: string | null): string {
   const base = `Bien vu ! ${found} sur ${required}`;
