@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meulebourg — vue d'ensemble</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #2b2622;
+        color: #f3ecdc;
+        font: 12px/1.3 system-ui, sans-serif;
+      }
+      #wrap {
+        position: relative;
+        display: inline-block;
+      }
+      canvas {
+        display: block;
+      }
+      #info {
+        position: fixed;
+        right: 4px;
+        bottom: 4px;
+        background: rgba(43, 38, 34, 0.85);
+        padding: 4px 6px;
+        border-radius: 4px;
+        white-space: pre;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrap"><canvas id="view"></canvas></div>
+    <div id="info"></div>
+    <script type="module" src="/src/dev/overview.ts"></script>
+  </body>
+</html>
