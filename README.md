@@ -173,7 +173,8 @@ le nombre de commandes nécessaires (≈ 1 525 → 768 pour les sept enquêtes),
 - **Pas de mode hors ligne** (aucun service worker) ; la sauvegarde est celle d'un navigateur sur un appareil, sans
   synchronisation. Une navigation privée joue sans sauvegarde (le jeu le signale).
 - **Performance.** Mesurée dans un conteneur sans GPU : à CPU ×4 (téléphone d'entrée de gamme simulé), les pincers et les
-  vols de caméra sont moins fluides et le démarrage prend ≈ 1,8 s ; à re-mesurer sur de vrais téléphones. Le paquet JavaScript
+  vols de caméra sont moins fluides et la carte est complète vers 1,7 s (≈ 3,3 s avant que tous les détails soient dessinés,
+  écran de chargement dès 0,1 s) ; à re-mesurer sur de vrais téléphones. Le paquet JavaScript
   (≈ 500 kB, 166 kB compressés) fait avertir Vite.
 - **Textes liés au décor ambiant.** Quelques textes d'enquête citent des éléments de la foule ou du décor (un bus vert, des
   ambulances, une serre) : changer la graine de la ville impose de rejouer `content:check` et de relire ces textes.

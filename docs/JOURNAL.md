@@ -108,6 +108,11 @@ dans `docs/journal/phase1-<agent>.md`.
   - `feat/jeu-web` : tout le jeu (13 commits à ce jour).
   - Ordre recommandé : fusionner `feat/jeu-web` dans `main` (ce qui inclut le plan) ; la branche
     `docs/plan-implementation` devient alors inutile et peut être supprimée. Pas de conflit attendu.
+  - **Vérifié le 20/10/2026** (`git rev-list`, `git merge-base --is-ancestor`, `git merge-tree`) : `feat/jeu-web` a **40 commits d'avance**
+    sur `main` (280 fichiers, +57 063 lignes) ; `main` n'a **aucun** commit propre (fusion en **avance rapide** possible, essai à blanc **sans
+    conflit**) ; `docs/plan-implementation` (1 commit, `eba3a53`) est **déjà un ancêtre** de `feat/jeu-web`. Après la fusion, `main` porte
+    `pages.yml`, ce qui déclenche la première publication (réglage préalable : *Settings > Pages > Source = « GitHub Actions »*, voir « Phase 4 »).
+    La branche `docs/plan-implementation` pourra être supprimée ensuite sans perte.
 
 ### Phase 2 — terminée (15/10/2026)
 - Les 6 agents ont terminé après reprise. **Revues** : 33 constats (14 de code, 19 d'expérience), dont 10 majeurs
@@ -211,7 +216,23 @@ contrat (`docs/ARCHITECTURE.md` § 8).
   (105 vérifications horaires en attente, rien de perdu) et a repris le 19/10 avec la direction artistique et les joueurs test.
 
 ### Phase 4 — recette et mise en ligne
-En cours. Documentation finale écrite par l'agent `documentation` (README en vitrine avec quatre captures `docs/screenshots/readme-*.png`,
-architecture § 9 alignée sur les mesures du 20/10, état d'avancement dans `docs/PLAN-WEB.md` ; compte rendu
-`docs/journal/phase4-documentation.md`). *À compléter par l'orchestrateur : recette finale, revue, fusion dans `main`, réglage de Pages et
-première mise en ligne.*
+Documentation finale écrite par l'agent `documentation` (README en vitrine avec quatre captures `docs/screenshots/readme-*.png`,
+architecture § 9, état d'avancement dans `docs/PLAN-WEB.md` ; compte rendu `docs/journal/phase4-documentation.md`).
+
+**Recette de la version de production** (`docs/journal/phase4-recette.md`, build servi sous `/Haystack/` et à la racine) : 0 requête en
+échec, 0 erreur console, manifeste et icônes corrects, tutoriel joué au doigt sur les deux bases, 19 sauvegardes corrompues et un
+`localStorage` qui lève une exception sans plantage, jeu chargé jouable hors ligne, aucun défilement horizontal de 320 à 915 px.
+Défauts relevés : **D1** (déploiement, voir ci-dessous) ; **D2** démarrage à CPU ×4 : `__haystackReady` ≈ 3,3 s (carte visuellement
+complète ≈ 1,7 s, écran de chargement dès 0,13 s) — les « 1,5 s » annoncés plus haut ne comptaient ni le paquet ni l'interface, chiffres
+corrigés dans `docs/ARCHITECTURE.md` § 9 ; D3 `?debug` et `?case=` actifs en production (expose les réponses : acceptable pour un jeu
+entre amis, à retirer si le jeu devait être compétitif) ; D4 le toast « sauvegarde impossible » recouvre « Bien vu ! » (navigation privée
+seulement) ; D5 icône `maskable` sans marge de sécurité ; D6 `user-scalable=no` (les gestes sont gérés par le jeu) et sourcemap publiée.
+D3 à D6 non corrigés (mineurs).
+
+**Mise en ligne — état au 20/10/2026.** `main` ne contient que « Initial commit » (README seul) ; tout le jeu et le workflow
+`.github/workflows/pages.yml` sont sur `feat/jeu-web`, donc **le workflow n'a jamais tourné**. Le dépôt GitHub exécute une
+publication « Deploy from a branch » (Jekyll) sur `feat/jeu-web`, qui publie les sources et non le build. Pour mettre en ligne, il
+faut, par le propriétaire du dépôt : (1) *Settings > Pages > Source = « GitHub Actions »* ; (2) fusionner `feat/jeu-web` dans `main`
+(avance rapide possible, essai de fusion sans conflit) ; (3) vérifier la première exécution de « Mise en ligne » puis l'URL
+`https://maximeclavel.github.io/Haystack/` (accueil, c00, hors ligne). Le dépôt doit être public (ou le plan GitHub le permettre).
+**Ces étapes n'ont pas été faites par l'orchestrateur** : elles modifient la branche principale et publient le site.

@@ -256,12 +256,19 @@ passes de `scripts/perf-map.mjs`, rien d'autre en cours sur la machine). Détail
 | Rendu moyen d'une tuile | ≈ 7–8 ms | ≈ 39–41 ms | idem |
 | `buildWorld({ cases: CASES })` à froid | ≈ 240–270 ms | ≈ 970–1 015 ms (médianes) | `node scripts/perf-map.mjs --startup` |
 | Premier rendu complet de la ville entière | ≈ 150–170 ms | ≈ 750–880 ms | idem |
-| Démarrage complet (construction + premier rendu) | ≈ 0,4 s | **≈ 1,75–1,85 s** | idem |
+| Démarrage « construction + premier rendu » (serveur de développement, modules préchargés) | ≈ 0,4 s | **≈ 1,75–1,85 s** | idem |
+| Version de production servie : écran de chargement affiché | ≈ 0,05 s | ≈ 0,13 s | `docs/journal/phase4-recette.md` |
+| Version de production : carte visuellement complète (paquet + interface + ville) | ≈ 0,5 s | **≈ 1,7 s** | idem |
+| Version de production : `__haystackReady` (carte **au repos**, tous les détails de tuiles rendus) | 0,54–0,70 s | **≈ 3,3 s** (4G : 3,9 s ; 4G lente : 4,6 s) | idem |
 
 Objectif sans ralentissement (p95 < 20 ms) atteint. À CPU ×4 le glisser reste à 60 images/s (p95 16,8 ms) ; pincers,
-double-taps et vols tournent autour de 20 à 30 images/s (p50 33–50 ms). Démarrage à ×4 sous le seuil de 2 s. L'interface
+double-taps et vols tournent autour de 20 à 30 images/s (p50 33–50 ms). Démarrage à ×4 : la carte est complète à l'œil vers
+1,7 s (sous le seuil de 2 s) avec un écran de chargement dès 0,13 s ; le drapeau `__haystackReady` (définition plus stricte :
+carte au repos) n'arrive qu'à ≈ 3,3 s, le rendu progressif des détails de tuiles occupant le fil d'exécution entre 1,8 et 3,3 s.
+Les mesures « 1,4–1,85 s » des phases précédentes ne comptaient ni l'analyse du paquet ni l'interface. L'interface
 doit afficher un écran de chargement **avant** d'appeler `buildWorld` (calcul synchrone d'environ 1 s sur un téléphone
-moyen simulé).
+moyen simulé). Pistes si le démarrage devait être amélioré : découper ou différer la tâche de ≈ 1 s de `buildWorld` pendant
+l'écran de chargement, différer le rendu des détails de tuiles après le premier affichage.
 
 **Écart avec la phase 2** (15/10 : CPU ×4 p50 / p95 33 / 50 ms, tuile ≈ 30 ms, démarrage ×4 ≈ 1,4–1,6 s). Les images
 arrivent par pas de 16,7 ms : le p95 à ×4 est passé de 50 à 66,7 ms (un pas de plus) et la tuile de ≈ 30 à ≈ 39–41 ms dès
