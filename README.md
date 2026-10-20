@@ -7,8 +7,7 @@ la réponse est quelque part dans la foule : un même personnage apparaît plusi
 de son histoire, et un fil rouge relie vos trouvailles. Sept enquêtes, du tutoriel à l'affaire la plus ardue,
 sans compte, sans installation, sans serveur : la progression reste dans le navigateur.
 
-*Projet récréatif, entre amis. Ville, personnages, enquêtes et interface sont générés ou écrits avec Claude Code
-(un orchestrateur et des sous-agents) ; le journal de bord raconte la fabrication.*
+*Projet récréatif, entre amis. Le journal de bord raconte la fabrication du jeu, phase par phase.*
 
 <table>
   <tr>
@@ -34,9 +33,9 @@ sans compte, sans installation, sans serveur : la progression reste dans le navi
 L'écran « Comment jouer » du jeu résume l'essentiel en quatre étapes ; en voici le détail.
 
 - **Se déplacer.** Pincez pour zoomer, glissez pour vous déplacer, double tap pour rapprocher la vue (à l'ordinateur :
-  molette, glisser à la souris, clavier). Une pastille en haut à gauche donne le nom du lieu ou de la rue sous le centre de
-  l'écran, et la **minicarte** (bouton du bas) montre toute la ville, ses quartiers et la zone visible : touchez-la pour
-  vous y rendre.
+  molette, glisser à la souris, clavier). Une pastille nomme le lieu ou la rue sous le centre de l'écran, et la
+  **minicarte** (bouton « Minicarte » du panneau de question) montre toute la ville, ses quartiers et la zone visible :
+  touchez-la pour vous y rendre.
 - **Désigner.** Chaque question demande une personne, un objet ou un lieu. Touchez-le : une vignette montre ce que le jeu
   a retenu, puis « Désigner » valide (si la carte est trop dézoomée, le jeu vous rapproche d'abord).
   Une **fausse piste** (« Pas tout à fait… ») vous oriente sans rien coûter ; une **erreur** compte, mais jusqu'à deux
@@ -46,8 +45,8 @@ L'écran « Comment jouer » du jeu résume l'essentiel en quatre étapes ; en v
   trouvé. Certaines affaires ouvrent plusieurs pistes en parallèle (onglets au-dessus de la question).
 - **Indices.** Bloqué ? Un indice se paie en étoiles, le jeu annonce son coût avant de le donner. Niveau 1 : un conseil
   écrit. Niveau 2 : une zone de la carte est éclairée au projecteur. Niveau 3 : la réponse est montrée.
-- **Étoiles.** ★★★ : aucun indice et au plus 2 erreurs. ★★ : pas de réponse révélée, en moyenne au plus un niveau d'indice
-  par question, au plus 6 erreurs. ★ sinon. L'écran de fin dit pourquoi vous avez cette note ; « Recommencer » garde votre
+- **Étoiles.** Trois étoiles : aucun indice et au plus 2 erreurs. Deux : pas de réponse révélée, en moyenne au plus un niveau
+  d'indice par question, au plus 6 erreurs. Une sinon. L'écran de fin dit pourquoi vous avez cette note ; « Recommencer » garde votre
   meilleur résultat.
 - **Carnet, punaises, notes.** Le carnet (en haut à droite) garde le briefing, les questions résolues (avec « Voir » pour
   retourner sur la scène), les personnages identifiés, vos notes et vos **punaises** : posez-en sur la carte pour marquer un
@@ -123,14 +122,14 @@ fonctionne aussi bien à la racine que sous `/Haystack/`). Le jeu n'a pas de ser
   erreur console fait échouer le test. À lancer sur une machine où Chromium est disponible pour Playwright (sur une autre
   machine : `npx playwright install chromium`).
 - **Contrôle de contenu** (`npm run content:check`) : les enquêtes sont vérifiées *dans la vraie ville* : réponses
-  désignables et hors chaussée, 80 unités entre deux enquêtes, pas de sosie ambigu d'un personnage clé, rayons des indices,
+  désignables et hors chaussée, 80 unités entre deux enquêtes, sosies ambiants d'un personnage clé repérés, rayons des indices,
   recouvrements, et cohérence entre ce que dit un texte et ce que le dessin montre (par exemple la couleur d'un pantalon
   que le tablier cache).
 - **Joueur test aveugle** (`tools/playtest/`) : un agent qui ne connaît ni les solutions ni le code joue une enquête à
   partir de captures d'écran seulement, et rend un compte rendu. Il a servi à la phase 3 (sept enquêtes, puis sept rejeux
   après correction) : voir [`docs/journal/phase3-bilan-rejeu.md`](docs/journal/phase3-bilan-rejeu.md).
-- **Fluidité** (`node scripts/perf-map.mjs`) : objectif atteint sur le conteneur de développement (images toutes les
-  16,7 ms à 95 %, même avec un CPU ralenti ×4 le glisser reste à 60 images/s) ; mesures dans
+- **Fluidité** (`node scripts/perf-map.mjs`) : sur le conteneur de développement, 95 % des images arrivent en 16,8 ms au
+  plus (60 images/s) ; avec un CPU ralenti ×4 (téléphone moyen simulé) le glisser reste à 60 images/s. Mesures dans
   [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) § 9.
 
 ## Organisation des dossiers
@@ -155,7 +154,7 @@ Détails : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) et le README de chaque
 
 ## État du projet
 
-**Fait.** Le jeu est jouable de bout en bout : ville générée (≈ 8 300 entités, 37 lieux remarquables, 9 quartiers), moteur de
+**Fait.** Le jeu est jouable de bout en bout : ville générée (≈ 8 300 entités, 39 lieux remarquables, 9 quartiers), moteur de
 carte à tuiles, interface complète, sept enquêtes validées dans la vraie ville, sauvegarde locale, workflow de mise en ligne.
 La phase 3 a confronté les enquêtes à des joueurs test aveugles, puis les a corrigées : les rejeux ont **réduit de moitié**
 le nombre de commandes nécessaires (≈ 1 525 → 768 pour les sept enquêtes), voir
@@ -184,6 +183,6 @@ le nombre de commandes nécessaires (≈ 1 525 → 768 pour les sept enquêtes),
   des noms de bateaux qui ont changé depuis.
 
 **Pistes.** Apprendre le pincer et le glisser dans le tutoriel ; plus de variété dans les mécaniques de réponse (aucune
-enquête n'attend encore une zone) et un second déguisement dans c05 ; plaques de rue sur la minicarte ; mode hors ligne ;
-essais sur de vrais téléphones ; de nouvelles affaires dans les quartiers peu visités. `docs/PLAN.md` garde la vision
-long terme d'une application native.
+réponse n'est encore une zone de la carte) et un second déguisement dans c05 ; plaques de rue sur la minicarte ; mode
+hors ligne ; essais sur de vrais téléphones ; de nouvelles affaires. `docs/PLAN.md` garde la vision long terme d'une
+application native.

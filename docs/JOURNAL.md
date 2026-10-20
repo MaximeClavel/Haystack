@@ -137,3 +137,81 @@ dans `docs/journal/phase1-<agent>.md`.
 - Joueurs test aveugles lancés en trois vagues (3 parties en parallèle au plus : ≈ 800 Mo et un cœur chacune) :
   c01–c03, puis c04–c05 et le bonus, puis c00. Chaque joueur écrit `docs/journal/phase3-joueur-<enquête>.md`.
   Ensuite : `correcteur-2` sur leurs constats, puis phase 4.
+
+## 2026-10-20 — Fin de la phase 3
+Résumé : les sept enquêtes ont été jouées **à l'aveugle** deux fois, corrigées entre les deux passages, et le nombre de commandes
+nécessaires pour les résoudre a été **divisé par deux** (≈ 1 525 → 768). Bilan chiffré : `docs/journal/phase3-bilan-rejeu.md`.
+
+### Joueurs test aveugles (19/10, premier passage)
+- 7 testeurs neufs, un par enquête (c00 à c05, bonus), trois parties en parallèle au plus (≈ 800 Mo et un cœur chacune), plus un
+  second testeur sur c04 (295 commandes et 21 minutes pour le premier). Chacun ne lit que
+  `tools/playtest/README.md`, voit des captures d'un téléphone émulé et agit au doigt ; comptes rendus `phase3-joueur-<enquête>.md`.
+- Les sept enquêtes ont été résolues, en 4 à 24 minutes, mais avec des frictions réelles : critères de recherche invisibles ou non
+  localisables (c00 Q2, c01 Q3, c04 Q4 à Q6, c05 Q3 et Q7), indices redondants (c05 Q3 et Q4), bonus à 536 commandes, règle des
+  étoiles mal comprise, noms de rues absents de la pastille de lieu, défilement de c03 bloqué par le panneau.
+
+### Triage et vérification sur le vrai jeu
+- Plus de quatre-vingts constats instruits. Aucun n'a été appliqué sur la foi du testeur : chacun a été **reproduit sur le vrai jeu**
+  par un vérificateur en lecture seule (cause racine, reproduction, correctif minimal, texte exact), puis arbitré par l'orchestrateur
+  (`docs/journal/phase3-arbitrage-orchestrateur.md`, 20/10 à 5 h).
+- Arbitrages de conception : **aucune règle du jeu ne change** (étoiles, paliers d'indice, désignation) : on les explique mieux
+  (horizon du coût d'un indice, ligne « pourquoi cette note », écran « Comment jouer ») ; noms de rues dans la pastille de lieu
+  (oui), noms de lieux sur la minicarte (non : ce serait l'indice 2 gratuit) ; plus aucune tarte portée par la foule ;
+  règle du projecteur gratuit du bonus gardée et dite dans le texte du palier 2 ; sprites non agrandis (exigerait `bounds.ts`).
+  Reportés : seuil de désignation sans tolérance, re-tap avalé pendant un vol, plaques de rue sur la minicarte.
+
+### Correctifs (douze correcteurs, 20/10)
+- **Monde** : 22 passants ne tiennent plus de tarte (16 baguettes, 6 bouteilles : la tarte redevient un signe distinctif de c04),
+  deux bateaux ambiants « SAINTE-PAILLE » renommés « LA FANEUSE » ; mêmes ids, mêmes positions (instantané avant/après).
+- **Enquêtes** (c00 à c05, bonus) : textes de question, d'indice, de réussite et fausses pistes (`nearMiss`) réécrits à partir des
+  verdicts ; signalement du livreur et du chien Croquette en c00, vers 2 et 9 du bonus, indices redondants remplacés. Les textes sont mesurés dans le
+  vrai panneau à 390, 412 et 360 px (trois lignes au plus).
+- **Interface** : coût d'un indice avec son horizon, ligne « pourquoi cette note » à l'écran de fin, « N pistes ouvertes » en c04
+  et c05, pastille de lieu avec les noms de rues et une marge de capture (ponts, ruelles), carnet et compteur du bonus,
+  vignette de confirmation sur l'emprise visuelle de la cible.
+- **Caméra** : les marges de l'interface comptent désormais dans les bornes (la rive sud de la ville remonte au-dessus du panneau de
+  question) ; les bornes glissent en 180 ms quand le panneau change de taille. Gestes 30/30, fluidité inchangée.
+- **Outils** : `content:check` signale la couleur d'un bas caché par un tablier, un manteau ou une robe citée dans un texte ;
+  joueur test : ligne d'incidents toujours affichée, `--crop` agrandi, `press --nth`.
+
+### Relectures et finitions
+- Deux relectures indépendantes (code et textes), puis un lot final de défauts prouvés : apostrophes typographiques de la pastille,
+  toasts typographiés, ordre du DOM = ordre visuel en mode gaucher, noms accessibles (reconstitution, compteur du bonus), contraste du
+  bouton Indice, « Comment jouer » sans défilement à 320 × 568, trois textes (c01, c04, c05) et l'autotest du contrôle du bas caché.
+- Trois passes d'intégration (`d57a900`, `efc028b`, `cb30fe5`) : aucun contrat touché, `docs/CONTENT.md` régénéré, documentation alignée.
+
+### Résultats avant / après (rejeux à l'aveugle, testeurs neufs, 20/10 au soir)
+| | Avant | Après |
+|---|---|---|
+| Commandes, sept enquêtes | ≈ 1 525 | **768** (−50 %) |
+| c00 Tutoriel | 70 commandes, 4,1 min | 22 commandes, 2,1 min |
+| c01 La Main dans le sac | 106 commandes, 1 indice, 2★ | 56 commandes, 0 indice, 3★ |
+| c05 Rideau ! | ≈ 250 commandes, 6 indices, 2★ | 143 commandes, 0 indice, 3★ |
+| Bonus | 536 commandes, 1★ | 195 commandes, 1★ |
+
+Deux enquêtes sont passées de 0 à 1 indice (c02 Q5, c03 Q3 : pas d'amorce de lieu après l'étape précédente) : traité par un dernier
+lot de textes (`phase3-correcteur4.md`, c02, c03, vers 9 du bonus, cadrage de départ de c02), **non rejoué**. Un testeur par enquête et par
+passage : beaucoup de variance, à lire comme un ordre de grandeur. Restent difficiles par construction : c04 (cibles de 8 à 25 px dans la
+foule), le bonus (10 aiguilles de 8 px) ; le tutoriel n'enseigne ni le pincer ni le glisser.
+
+### Contrôles de fin de phase
+367 tests unitaires (17 fichiers), 41 tests de bout en bout (≈ 4,2 min, sept enquêtes résolues au doigt en 6 à 14 s chacune),
+`content:check` « OK : aucun problème » (9 notes, dont 2 « pantalon orange » de c05 laissées à l'arbitrage), `tsc` propre, build OK (dernière passe d'intégration).
+Fluidité à CPU ×1 : p95 16,8 ms ; à CPU ×4 : p95 66,7 ms, tuile ≈ 40 ms ; démarrage ×4 ≈ 1,75–1,85 s contre 1,4–1,6 s en phase 2 :
+l'A/B de `phase3-integration-correcteur2.md` montre que l'écart vient de la machine du jour, pas des correctifs. Aucun changement de
+contrat (`docs/ARCHITECTURE.md` § 8).
+
+### Incidents
+- Limites d'usage répétées : l'outil de joueur test a été interrompu le 15/10 puis repris ; une première tentative du correcteur c02 a
+  été coupée par une limite (ses changements sont dans le commit intermédiaire `356f00f`, relus puis gardés) ; plusieurs missions ont
+  été relancées sur un arbre déjà corrigé ; des commits de sauvegarde « Phase 3 (en cours) » ont été faits en route (`356f00f`, `7cc9a3e`).
+- Reprises automatiques : la routine horaire `trig_01Uj26Mjc3rcJLgFNx9F7eGD` a relancé le travail à chaque levée de limite ; elle est
+  **toujours active** à la date de cette entrée (à désactiver quand tout sera en ligne).
+- Écarts de calendrier à retenir : la phase 3 a commencé le 15/10 (revue critique, outil de joueur test), s'est arrêtée quatre jours
+  (105 vérifications horaires en attente, rien de perdu) et a repris le 19/10 avec la direction artistique et les joueurs test.
+
+### Phase 4 — recette et mise en ligne
+En cours. Documentation finale écrite par l'agent `documentation` (README en vitrine avec quatre captures `docs/screenshots/readme-*.png`,
+architecture § 9 alignée sur les mesures du 20/10, état d'avancement dans `docs/PLAN-WEB.md` ; compte rendu
+`docs/journal/phase4-documentation.md`). *À compléter par l'orchestrateur : recette finale, revue, fusion dans `main`, réglage de Pages et
+première mise en ligne.*
