@@ -118,3 +118,30 @@ dans `.shots/c05fix/`. Lignes mesurées dans le DOM (390×844 / 412×915 / 360×
 - Le contrôle automatique des bas cachés par un manteau (périmètre OUTILS, `c00-outil-check-bas-masque-par-tablier`) n’était pas
   actif au moment de mes vérifications : si `content:check` en gagne un, le « pantalon orange qui dépasse du long manteau vert » de `s3.solved`
   est volontaire (le bas dépasse du manteau, ce que le jeu dessine) et ne doit pas être signalé.
+
+## Reprise et revérification (état du dépôt après l’intégration)
+Une seconde passe sur le même périmètre a trouvé `src/content/cases/c05.ts` **déjà conforme** à ce compte rendu (les corrections sont dans le
+commit `7cc9a3e`, `git diff` vide sur ce fichier) : aucune modification de code n’a donc été refaite, pour ne pas dupliquer ni écraser le travail.
+Tous les constats du périmètre (`c05-q3-indice1-redondant`, `c05-q3-cimetiere-recherche-longue`, `c05-q3-pantalon-orange-invisible`,
+`c05-q3-pas-de-fausse-piste-cimetiere`, `c05-q4-indice1-redondant`, `c05-q5-journal-sans-lien-avec-le-lieu`, `c05-q7-bateau-non-nomme`,
+`c05-q7-indice-pont-du-parc-introuvable`, `c05-q7-sosie-passerelle` pour le mot « discrètement », `c05-s2-retenez-bien-sans-pointer-vers-le-carnet`)
+sont donc appliqués ; les écartés restent ceux de la table ci-dessus.
+
+Les points « en attente » des limites ci-dessus sont résolus depuis :
+- `docs/CONTENT.md` a été régénéré à l’intégration (`d57a900`) : il reprend les textes finaux de `c05.ts` (lignes 1248, 1255-1256, 1267, 1273, 1305).
+- Le contrôle des bas cachés (`tools/content/check.ts`, périmètre OUTILS) est maintenant actif : `npm run content:check` ne signale rien sur
+  le « pantalon orange qui dépasse du long manteau vert » de `s3.solved` (le bas dépasse, ce que le jeu dessine).
+- Le renommage du bateau homonyme de l’hôpital (`c05-q2-bateau-sainte-paille`, périmètre MONDE) est en place : `src/world/names.ts` ligne 74 = `'LA FANEUSE'`.
+
+Mesures refaites en jeu réel sur l’interface actuelle (script `scratchpad/c05check/check.mjs`, Chromium émulé téléphone, sauvegarde injectée, vrais
+taps) : identiques à la table « après » ci-dessus. Question et indices modifiés : 3 lignes à 390, 412 et 360 px (sauf les questions non modifiées de `s3`
+et `s4`, 4 lignes à 360 px, déjà signalées). Fausse piste du cimetière : 3 lignes aux trois largeurs, `mistakes` = 0 ; tombe, pelouse et allée donnent `near`.
+Cartes de réussite : `s2` 5 lignes (390/412/360), `s3` 4 / 4 / 5.
+
+| Commande | Résultat (reprise) |
+|---|---|
+| `npx tsc --noEmit` | passe |
+| `npx vitest run` | 17 fichiers, 362 tests passent |
+| `npm run content:check` | `OK : aucun problème.` (mêmes notes préexistantes c01, c03, c04, c05) |
+| `E2E_PORT=5196 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts` | 1 test passé (1,4 min) ; c05 résolue au doigt en 14,3 s, 3 étoiles |
+| `E2E_PORT=5196 npx playwright test tests/e2e/07-corrections.spec.ts -g R2` | passe (4,4 s) |

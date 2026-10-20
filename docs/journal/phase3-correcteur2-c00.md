@@ -99,3 +99,18 @@ nécessaire). Chaque texte a été recomparé au `newText` des verdicts : identi
 | `scratchpad/c00/verify.mjs` (panneau réel, 390×844, 412×915, 360×740) | mêmes mesures de lignes que le tableau ci-dessus, aucun défilement, aucune erreur console |
 | `E2E_PORT=5191 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts` | 1 test passé (1,5 min), c00 résolue en 6 s |
 | `E2E_PORT=5191 npx playwright test tests/e2e/02-tutoriel.spec.ts` | 1 échec isolé pendant qu'un autre agent éditait `src/ui/*` (pastille, styles), puis 3 passages verts consécutifs ; non lié aux textes de c00 |
+
+## Troisième passage de contrôle (état du dépôt au commit d57a900, arbre propre)
+`src/content/cases/c00.ts` est identique au commit : aucun changement de code. Les six constats appliqués et l'adaptation unique de
+`s3.solved` (« bien trop » → « trop », 4 lignes → 3 à 390 et 412 px) sont inchangés. `docs/CONTENT.md` et le gabarit
+`tools/content/CONTENT.template.md` ont été alignés par l'intégration (commit d57a900) : plus rien à faire de ce côté pour c00.
+Contrôles relancés, aucun autre agent n'éditant le dépôt :
+
+| Commande | Résultat |
+|---|---|
+| `npx tsc --noEmit` | passe |
+| `npx vitest run` | 17 fichiers, 362 tests passent |
+| `npm run content:check` | `OK : aucun problème.` (7 notes de sosies déclarés, aucune sur c00) |
+| `scratchpad/c00/verify.mjs` (panneau réel, 390×844 / 412×915 / 360×740) | mêmes mesures qu'au premier passage : question de s2 5 / 5 / 5 lignes, carte de s2 3 / 3 / 4, question de s3 2 / 2 / 2, résolution de s3 3 / 3 / 4, fausse piste de la tarte 1 / 1 / 2 ; aucun défilement, aucune erreur console ; panneau de s2 à y = 597 / 668 / 493 contre les cibles à y ≈ 296–302 / 331–337 / 244–250 (rien de masqué) |
+| `E2E_PORT=5191 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts` | 1 test passé (1,5 min) ; c00 résolue en 6,9 s, 3 étoiles, puis c01 à bonus-aiguilles |
+| `E2E_PORT=5191 npx playwright test tests/e2e/02-tutoriel.spec.ts` | 1 test passé (14 s) |

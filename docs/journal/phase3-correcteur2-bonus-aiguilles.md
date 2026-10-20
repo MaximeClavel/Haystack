@@ -81,10 +81,28 @@ vérifié sur capture à zoom 2,5 : trait doré avec une petite étoile blanche 
   vert sans rien changer.
 - `E2E_PORT=5197 npx playwright test tests/e2e/07-corrections.spec.ts -g M6` (testament du bonus : 10 vers, relisibles, cochés) : vert.
 
+## Revérification (seconde passe, après intégration)
+
+Les correctifs ci-dessus étaient déjà présents dans le dépôt (commit d'intégration `d57a900`, `docs/CONTENT.md` régénéré). Cette
+seconde passe n'a **rien modifié** dans `bonus-aiguilles.ts` ni dans `CONTENT.template.md` ; elle a seulement revérifié sur l'état
+courant du dépôt (les autres correcteurs et le monde ont bougé depuis) :
+
+- Textes en place : vers 2 et 9 du testament, indices 1 et 2 (texte d'indice 1 adapté, voir plus haut), identiques dans
+  `src/content/cases/bonus-aiguilles.ts`, `tools/content/CONTENT.template.md` et `docs/CONTENT.md`.
+- Vrai jeu à 390×844, 412×915 et 360×740 (Playwright, Vite sur 5197) : indices 1 et 2 achetés par de vrais taps ; chaque `.hint-text`
+  fait **3 lignes** aux trois largeurs ; le briefing (testament complet) ne déborde pas (`scrollHeight == clientHeight`). Panneau après
+  l'indice 2 : 431 px (390 et 412) et 454 px (360×740), carte toujours visible. Pas de spoiler (aucun lieu ni aiguille nommés).
+- « Chaque quartier cache au moins une aiguille » toujours vrai : `npm run world -- ground x y` pour les 10 aiguilles donne
+  gare, parc, halles, centre, faubourg, parc, arts, riviere, jardins, port, soit les 9 quartiers (le retrait des tartes du monde n'a
+  rien déplacé).
+- `npx tsc --noEmit` : aucune erreur. `npx vitest run` : 17 fichiers, 362 tests verts. `npm run content:check` : « OK : aucun
+  problème. »
+- `E2E_PORT=5197 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts` : vert (1 passed, 1,4 min ; le bonus résolu au doigt en
+  12,5 s). `… tests/e2e/07-corrections.spec.ts -g M6` : vert.
+
 ## Limites
 
-- `docs/CONTENT.md` n'est pas régénéré (consigne) : il montre encore les anciens textes tant que `npm run content:doc` n'a pas été lancé
-  à l'intégration.
+- `docs/CONTENT.md` a été régénéré à l'intégration (`d57a900`) ; si un texte du bonus change encore, relancer `npm run content:doc`.
 - L'indice 1 coûte toujours une étoile (règle gardée) ; il apporte désormais un vrai conseil (méthode et échelle) au lieu de recopier le
   briefing.
 - « Chaque quartier cache au moins une aiguille » devient faux si une aiguille est déplacée de façon à vider un quartier (noté dans le

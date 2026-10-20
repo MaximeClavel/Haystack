@@ -1,5 +1,98 @@
 # Phase 3 — Intégration des correcteurs 2
 
+Ce journal couvre deux passes d'intégration, sans fonctionnalité nouvelle et sans commit de ma part : la **seconde passe** (ci-dessous,
+arbre de travail après `d57a900`) puis la **première passe** (§ 1 à 8, conservée telle quelle, commit `d57a900`).
+
+## Seconde passe (arbre de travail au-dessus de `d57a900`, 20/10)
+
+### Ce qui avait changé depuis `d57a900`
+
+`git status` au départ : 12 fichiers modifiés (3 de code, 9 journaux), aucun nouveau, aucun supprimé.
+- `src/content/cases/c04.ts` : une seule ligne, l'indice 1 de l'étape 2 (« Rappelez-vous la vitrine : un seul jumeau tenait le diamant,
+  celui au sac à dos. … », raccourci parce que l'ancienne version passait sur 4 lignes à 390 et 360 px).
+- `tools/content/check.ts` et `tools/content/hidden.ts` : la règle du bas caché juge désormais un texte d'étape sur les **cibles de
+  l'étape** (`accept`) et un message de fausse piste sur la **cible de la fausse piste** (paramètre facultatif `subjects`), au lieu de
+  laisser passer le texte dès qu'un autre personnage de l'enquête montre le même bas à découvert ; 4 cas d'école de plus (19 en tout).
+- 9 journaux `docs/journal/phase3-correcteur2-*.md` : paragraphes de revérification des correcteurs (bonus, c00 à c05, moteur, outils).
+
+### 1. Contrats
+
+`git diff --stat -- src/types.ts src/config.ts src/art/bounds.ts src/world/layoutSpec.ts` (arbre de travail) et
+`git diff --stat d57a900 HEAD` sur les mêmes fichiers : **vides**. Aucun contrat touché ; la ligne « Aucun changement » du 2026-10-20 de
+`docs/ARCHITECTURE.md` § 8 reste exacte (aucune API nouvelle depuis).
+
+### 2. Contrôles statiques
+
+| Commande | Résultat |
+|---|---|
+| `npm run content:doc` | `docs/CONTENT.md` (1 788 lignes avant mes retouches) : la diff au premier passage est **une seule ligne**, l'indice 1 de c04 s2 (nouveau texte), rien d'autre (aucune position, aucun id, aucune apparence). Régénéré une seconde fois après ma retouche du gabarit (voir § 6) : 1 792 lignes, 8 lignes de diff en tout (la ligne de c04 + le paragraphe ajouté à la règle 11), sortie stable (même somme md5 au relancement) |
+| `npm run content:check` | « Monde construit avec 7 enquêtes (98 entités) en 420 ms », **9 notes** (7 déjà présentes à la première passe : sosies déclarés de c01, c03, c04, c05 et `c01.poubelle` recouvert à 28 % par `c01.caisse` ; **2 nouvelles**, voulues par la règle des cibles et déjà décrites dans le journal des outils : `[c05] s2 résolution` et `[c05] s6 fausse piste c05.petronille.1`, « pantalon orange » qui ne dépasse que d'un manteau), **« OK : aucun problème. »** (aucune erreur) |
+| `npx tsc --noEmit` | 0 erreur (6,1 s) ; `npx tsc -p tools/content/tsconfig.json` : 0 erreur (5,4 s) |
+| `npx vitest run` | **17 fichiers, 362 tests verts** (4,8 s), identique à la première passe : aucun test n'a été ajouté (les 4 cas d'école de `hidden.ts` sont dans `content:check`, pas dans Vitest) |
+| `npm run build` | OK en 1,8 s, `index-*.js` 500,4 kB (165,9 kB gzip), CSS 30,4 kB ; seul avertissement : le paquet dépasse 500 kB (connu, inchangé) |
+
+### 3. Tests de bout en bout
+
+`E2E_PORT=5185 npx playwright test` (suite complète, aucun autre processus lourd, vérifié par `ps` avant et après) : **36 tests réussis en
+4,1 min, 0 échec, 0 reprise, aucun test « instable sous charge »**. Enquêtes résolues au doigt par `04-toutes-les-enquetes` : c00 en 6,0 s,
+c01 9,1 s, c02 10,7 s, c03 12,5 s, c04 12,7 s, c05 14,0 s, bonus 12,3 s (3 étoiles imposées). Aucun test n'a eu besoin d'être corrigé : le
+seul texte de jeu modifié depuis la première passe (indice 1 de c04 s2) n'est cité par aucun test (`grep` sur `tests/`, `src/**/*.test.ts`,
+`tools/`, `scripts/` : aucune occurrence de l'ancien ni du nouveau libellé).
+
+### 4. Fluidité (`scripts/perf-map.mjs`, conteneur 4 cœurs, Chromium sans GPU, Pixel 7 émulé)
+
+| Mesure | Résultat | Référence | Verdict |
+|---|---|---|---|
+| CPU ×1, TOTAL (1 486 images) | p50 16,7 / **p95 16,8** / max 33,4 ms, 2 images > 33 ms ; JS moteur p95 10,1 ms ; rendu moyen d'une tuile 7,9 ms | première passe : 16,8 (1 485 images, 0 > 33 ms) ; phase 2 : 16,7–16,8 | **objectif p95 < 20 ms atteint**, inchangé (2 images > 33 ms sur 1 486 : un pincer et un vol, bruit de machine) |
+| CPU ×4, TOTAL (1 082 images) | p50 33,3 / **p95 66,6** / max 133,3 ms, 321 images > 33 ms ; JS moteur p95 22,8 ms ; tuile 38,8 ms ; glisser p95 16,8 ms | première passe : 66,7 ms, tuile 39,5 ms ; phase 2 : 50 ms | identique à la première passe |
+| `--gestures` | **30/30 contrôles réussis** | première passe : 30/30 | identique |
+| `--startup`, ×1 (3 pages neuves) | `buildWorld` à froid médiane 269 ms ; premier rendu 153 ms ; vue de jeu 219 ms | première passe : 269 / 172 / 234 ms ; phase 2 : 211 / 130 / 150–167 ms | identique à la première passe |
+| `--startup`, ×4 (3 pages) | `buildWorld` 1 015 ms + premier rendu 746 ms = **≈ 1,76 s** ; vue de jeu 1 161 ms | première passe : 971 + 876 = 1,85 s (A/B : 1,74–1,83 s pour les trois révisions testées) ; phase 2 : 1,4–1,6 s | sous le seuil de 2 s ; l'écart avec la référence de la phase 2 est celui de la machine du jour, établi à la première passe par A/B (les correcteurs ne ralentissent pas le démarrage), et rien de ce qui a changé depuis ne touche le moteur ni le monde |
+
+Valeur de référence de `docs/ARCHITECTURE.md` § 9 (1,4–1,6 s) non modifiée, pour la même raison qu'à la première passe.
+
+### 5. Outil de joueur test
+
+`node tools/playtest/selftest.mjs` : **84 contrôles « OK », 0 échec**, « SELFTEST OK : tous les contrôles passent. » (exit 0) ; la
+section D confirme l'arrêt propre (8 processus terminés, fichier d'état supprimé, ports fermés) et l'absence d'erreur de page dans
+`daemon.log`. Ensuite `node tools/playtest/blind.mjs list` → « Aucune partie en cours. » ; aucun processus `daemon.mjs` ni Chromium restant.
+
+### 6. Relecture croisée des journaux : ce qui a été corrigé
+
+| # | Incohérence | Correction |
+|---|---|---|
+| 1 | `docs/CONTENT.md` citait l'ancien indice 1 de c04 s2 (annoncé par le journal c04) | régénéré (§ 2) |
+| 2 | Le gabarit `tools/content/CONTENT.template.md` (règle 11 de la bible, copiée dans `docs/CONTENT.md`) décrivait la règle du bas caché sans la précision des cibles de l'étape / de la fausse piste, qui change pourtant le verdict (c05) | un paragraphe ajouté à la règle 11 (« le contrôle juge d'abord la ou les personnes visées… »), `content:doc` relancé |
+| 3 | `docs/journal/phase3-correcteur2-c04.md` : l'introduction de « Adaptations » disait que « les deux textes » passaient sur 4 lignes à 360 px alors que la section en liste désormais trois dont l'un (indice 1 de s2) dès 390 px | introduction réécrite (deux textes à 360/375 px, le troisième dès 390 px) |
+
+Relus sans écart : les paragraphes de revérification de c00, c01, c02, c03, c05, du bonus, du moteur (chiffres cohérents avec ce journal :
+362 tests, 30/30, p95 16,8 ms, 36 e2e) et des outils (19 cas d'école : `grep -c "expect('"` dans `selfTest()` = 19 ; 2 nouvelles notes de c05 :
+vérifiées dans la sortie de `content:check`) ; `README.md`, `tools/playtest/README.md`, `src/art/README.md`, `src/engine/README.md`,
+`src/ui/README.md`, `docs/ARCHITECTURE.md` (§ 4 outils de contenu décrit déjà la règle du bas caché sans entrer dans le détail des cibles,
+ce qui reste exact) : aucun ne décrit un comportement modifié depuis la première passe.
+
+### 7. Ce que je n'ai pas fait / à savoir
+
+- **Les 2 notes de c05** (« pantalon orange » de la résolution de s2 et de la fausse piste de Petronille) sont laissées : une note est un
+  conseil, pas une erreur, et la règle fait ce que le journal des outils annonce ; mais ce sont des textes de jeu (c05), qu'il n'appartient
+  pas à l'intégrateur de réécrire. À arbitrer par l'orchestrateur : les laisser (le pantalon orange est le fil rouge de c05 et la troupe
+  porte le costume en répétition) ou ajouter « qui dépasse du… » comme dans la réussite de s3. Voir `phase3-correcteur2-outils.md`.
+- **Nombre de lignes de l'indice 1 de c04 s2** (3 / 3 / 3 à 390, 412, 360 px) : mesure du correcteur c04, non refaite ; les 36 e2e passent.
+- Captures de `docs/screenshots/`, `docs/JOURNAL.md`, valeur de référence du démarrage : comme à la première passe (voir § 7 ci-dessous).
+
+### 8. Rejouer (seconde passe)
+
+```bash
+npm run content:doc && npm run content:check && npx tsc --noEmit && npx vitest run && npm run build
+E2E_PORT=5185 npx playwright test
+node scripts/perf-map.mjs && node scripts/perf-map.mjs --gestures && node scripts/perf-map.mjs --startup
+node tools/playtest/selftest.mjs && node tools/playtest/blind.mjs list
+```
+
+---
+
+## Première passe (commit `d57a900`)
+
 Rôle : intégrateur, sans fonctionnalité nouvelle. Les correcteurs (monde, c00 à c05, bonus, interface UI-1 et UI-2, moteur, outils)
 avaient déjà été committés par l'orchestrateur en deux temps (`356f00f`, `7cc9a3e`) ; il restait dans l'arbre de travail les retouches
 de commentaires du moteur (`constants.ts`, `mapView.ts`) et la correction du journal du moteur (« 12 » devenu « 11 » nouveaux tests,

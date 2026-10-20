@@ -664,7 +664,11 @@ ne se chevauche.
     le pantalon seulement en bas des jambes. Un texte qui cite « short rouge », « jupe verte »… d’un bas
     entièrement caché est une **erreur** de `content:check`, d’un bas en partie caché une note ; la liste des
     « Signes distinctifs » de chaque enquête annote ces bas (« masqué par le tablier, à ne pas citer »). La phrase
-    qui reconnaît elle-même le bas caché (« pantalon orange qui dépasse du long manteau ») passe.
+    qui reconnaît elle-même le bas caché (« pantalon orange qui dépasse du long manteau ») passe. Pour le texte
+    d’une étape (question, indices, réussite) ou d’une fausse piste, le contrôle juge d’abord la ou les personnes
+    visées (cibles de l’étape, cible de la fausse piste) : si l’une porte le bas cité, c’est d’elle qu’il s’agit, même
+    si un autre personnage de l’enquête montre le même bas à découvert (c05 : le pantalon orange du comédien en
+    costume se voit, celui de la comédienne sous le manteau beaucoup moins).
 12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la

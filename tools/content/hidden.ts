@@ -115,12 +115,19 @@ export interface HiddenBottomAlert {
  * Alertes d'un texte : il cite la couleur d'un bas que PERSONNE de l'enquête ne porte à découvert (si l'un des porteurs
  * a le bas visible, la citation peut le désigner : pas d'alerte), et dont la phrase ne reconnaît pas qu'il est caché.
  * `level` = `total` si tous les porteurs le cachent entièrement, sinon `partial`.
+ *
+ * `subjects` (facultatif) : les personnes dont parle le texte (cibles de l'étape pour sa question, ses indices et sa
+ * réussite ; cible de la fausse piste pour son message). Si l'une d'elles porte le bas cité, c'est d'elle qu'il s'agit :
+ * l'alerte est jugée sur elles seules, même si un autre personnage de l'enquête porte le même bas à découvert
+ * (c05 : le « pantalon orange » du comédien en costume se voit, celui de la comédienne sous le manteau beaucoup moins).
  */
-export function hiddenBottomAlerts(text: string, people: PersonRef[]): HiddenBottomAlert[] {
+export function hiddenBottomAlerts(text: string, people: PersonRef[], subjects: PersonRef[] = []): HiddenBottomAlert[] {
   const alerts: HiddenBottomAlert[] = [];
   const seen = new Set<string>();
   for (const c of bottomCitations(text)) {
-    const holders = people.filter((p) => p.appearance.bottom === c.bottom && p.appearance.bottomColor === c.color);
+    const wears = (p: PersonRef): boolean => p.appearance.bottom === c.bottom && p.appearance.bottomColor === c.color;
+    const aboutSubjects = subjects.filter(wears);
+    const holders = aboutSubjects.length ? aboutSubjects : people.filter(wears);
     if (holders.length === 0) continue;
     const levels = holders.map((p) => bottomHiding(p.appearance.top, p.appearance.bottom));
     if (levels.some((l) => l === null)) continue;
@@ -168,6 +175,15 @@ export function selfTest(): string[] {
   expect('couleur d\'un autre bas', levels('Un pantalon rouge.', [livreur]), []);
   expect('la phrase reconnaît que le bas dépasse', levels('Pantalon orange qui dépasse du long manteau vert.', [person('x.p', 'coat', 'trousers', 'orange')]), []);
   expect('la reconnaissance ne vaut que pour sa phrase', levels('Il dépasse tout le monde. Pantalon orange.', [person('x.p', 'coat', 'trousers', 'orange')]), ['Pantalon orange:partial']);
+  // Personnes dont parle le texte (cibles de l'étape) : c'est d'elles qu'il s'agit, même si un autre porteur montre le bas.
+  const costume = person('x.costume', 'suit', 'trousers', 'orange');
+  const manteau = person('x.manteau', 'coat', 'trousers', 'orange');
+  const alertsAbout = (text: string, people: PersonRef[], subjects: PersonRef[]): string[] =>
+    hiddenBottomAlerts(text, people, subjects).map((a) => `${a.quote}:${a.level}`);
+  expect('la cible cache le bas, un autre porteur le montre', alertsAbout('Un pantalon orange.', [costume, manteau], [manteau]), ['pantalon orange:partial']);
+  expect('la cible montre le bas', alertsAbout('Un pantalon orange.', [costume, manteau], [costume]), []);
+  expect('la cible ne porte pas ce bas : on juge sur tous', alertsAbout('Un pantalon orange.', [costume, manteau], [livreur]), []);
+  expect('la cible reconnaît que le bas dépasse', alertsAbout('Pantalon orange qui dépasse du manteau.', [costume, manteau], [manteau]), []);
   expect('« short » seul, sans couleur', levels('Il porte un short.', [livreur]), []);
   expect('couleur citée ailleurs que près du bas', levels('Un short et une casquette rouge.', [livreur]), []);
   return fails;

@@ -77,6 +77,16 @@ DOM (390×844 / 412×915 / 360×740) :
 - Captures regardées : Q3 à 360 px (panneau sur 3 lignes, parvis visible au-dessus), fausse piste du tablier à 390 px (pont, deux agents
   visibles, carte sur 3 lignes), Q2 à 390 px (dame allongée et Picotin visibles au-dessus du panneau).
 
+### Revérification (seconde passe, après l'intégration des autres périmètres)
+`c03.ts` était déjà conforme aux verdicts (aucun écart avec `git diff HEAD`) : rien de plus à appliquer. Contrôles relancés :
+`npx tsc --noEmit` passe ; `npx vitest run` 17 fichiers, 362 tests passent (les autres périmètres ont ajouté des tests) ;
+`npm run content:check` finit par `OK : aucun problème.` ; `E2E_PORT=5194 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts`
+1 test passé (1,4 min, c03 résolue en 13,1 s). `verify.mjs` rejoué : mêmes lignes que ci-dessus aux trois largeurs (Q2 question
+3 / 2 / 3, nearMiss agents et tablier 3 / 3 / 3, Q3 question et indice 1 3 / 3 / 3, Q5 nearMiss 1 / 1 / 1), aucun défilement, aucune
+erreur console, 0 erreur comptée sur les taps de fausse piste de Q2 et de Q5. (Précision : la réussite de Q2, non modifiée, fait 4 lignes ;
+elle est hors du lot.) `docs/CONTENT.md` est déjà à jour pour c03 (régénéré par l'intégration : il cite les nouveaux textes de Q2 et
+du briefing), ce qui rend caduque la première limite ci-dessous.
+
 ## Limites
 
 - **`docs/CONTENT.md` n'est pas régénéré** (`npm run content:doc`, fait une seule fois à l'intégration) : il cite encore les anciens

@@ -189,24 +189,32 @@ for (const c of DRAFT_CASES) {
 
 // Couleur d'un bas citée dans un texte alors qu'un tablier, un manteau ou une robe le cache : le joueur cherche
 // un détail qu'il ne peut pas voir (« short rouge » sous un tablier). Erreur si tout est caché, note si le bas dépasse en partie.
+// Les textes d'une étape (question, indices, réussite) parlent de ses cibles, ceux d'une fausse piste de la cible de la fausse piste :
+// ces personnes-là priment sur un autre personnage de l'enquête qui porterait le même bas à découvert.
 problems.push(...hiddenBottomSelfTest());
 for (const c of DRAFT_CASES) {
   const people: PersonRef[] = [
     ...c.characters.map((ch) => ({ id: ch.id, appearance: ch.appearance })),
     ...c.entities.filter((e): e is PersonEntity => e.kind === 'person' && !e.character).map((e) => ({ id: e.id, appearance: e.appearance })),
   ];
-  const texts: { where: string; text: string }[] = [
-    { where: 'briefing', text: c.intro },
-    { where: 'épilogue', text: c.epilogue },
-    ...c.replay.map((r) => ({ where: `reconstitution ${r.id}`, text: r.caption })),
+  const aboutIds = (ids: string[]): PersonRef[] =>
+    ids.flatMap((id) => {
+      const e = c.entities.find((x) => x.id === id);
+      return e && e.kind === 'person' ? [{ id: e.id, appearance: e.appearance }] : [];
+    });
+  const texts: { where: string; text: string; subjects: PersonRef[] }[] = [
+    { where: 'briefing', text: c.intro, subjects: [] },
+    { where: 'épilogue', text: c.epilogue, subjects: [] },
+    ...c.replay.map((r) => ({ where: `reconstitution ${r.id}`, text: r.caption, subjects: [] })),
   ];
   for (const s of c.steps) {
-    texts.push({ where: `${s.id} question`, text: s.question }, { where: `${s.id} résolution`, text: s.solved });
-    s.hints.forEach((h, k) => texts.push({ where: `${s.id} indice ${k + 1}`, text: h.text }));
-    for (const n of s.nearMiss ?? []) texts.push({ where: `${s.id} fausse piste ${n.id}`, text: n.feedback });
+    const targets = aboutIds(s.accept);
+    texts.push({ where: `${s.id} question`, text: s.question, subjects: targets }, { where: `${s.id} résolution`, text: s.solved, subjects: targets });
+    s.hints.forEach((h, k) => texts.push({ where: `${s.id} indice ${k + 1}`, text: h.text, subjects: targets }));
+    for (const n of s.nearMiss ?? []) texts.push({ where: `${s.id} fausse piste ${n.id}`, text: n.feedback, subjects: aboutIds([n.id]) });
   }
-  for (const { where, text } of texts) {
-    for (const a of hiddenBottomAlerts(text, people)) {
+  for (const { where, text, subjects } of texts) {
+    for (const a of hiddenBottomAlerts(text, people, subjects)) {
       (a.level === 'total' ? problems : notes).push(`[${c.id}] ${where} : ${describeAlert(a)}`);
     }
   }

@@ -80,9 +80,17 @@ Tout a été rejoué sur l'état actuel du dépôt : `npx tsc --noEmit` passe ; 
 (question de Q3 : 2 / 2 / 3 ; indice 1 : 2 / 2 / 2 ; fausse piste de la file : 2 / 2 / 2 ; aucune erreur console, 0 erreur comptée après le
 tap sur `c01.lafouine.3` en Q3 aux trois tailles, reconstitution croissante vers l'est).
 
+### Revérification finale (état du dépôt au commit d57a900, après intégration)
+`c01.ts` déjà conforme aux verdicts (aucun écart avec les « NOUVEAU TEXTE EXACT »), donc aucune modification de contenu. Rejoué :
+`npx tsc --noEmit` passe ; `npx vitest run` 17 fichiers, 362 tests passent ; `npm run content:check` finit par `OK : aucun problème.` ;
+`E2E_PORT=5192 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts` 1 test passé (1,5 min, c01 résolue au doigt en 9,1 s) ;
+`scratchpad/c01/verify.mjs` (jeu réel, 390×844 / 412×915 / 360×740) : question de Q3 2 / 2 / 3 lignes, indice 1 de Q3 2 / 2 / 2, fausse
+piste de la file du Rex 2 / 2 / 2 (0 erreur comptée avant et après le tap), carte « Excellent ! » de Q2 3 / 2 / 3, légendes de la
+reconstitution 2 lignes partout (caméra croissante vers l'est : 2612, 2716, 2850, 3250, 3302, 3535), aucun défilement, aucune erreur console.
+
 ## Limites
-- **`docs/CONTENT.md` n'est pas régénéré** (`npm run content:doc`, fait une seule fois par l'intégration) : il cite encore les anciens
-  textes de Q3 (question, indice 1, réussite de Q2) et l'ancien ordre/légendes de la reconstitution. `tools/content/CONTENT.template.md`
+- **`docs/CONTENT.md`** n'était pas régénéré par ce correcteur (`npm run content:doc`, fait une seule fois par l'intégration) ; l'intégration
+  (commit d57a900) l'a fait : il cite bien les nouveaux textes de Q3 (vérifié par `grep`). `tools/content/CONTENT.template.md`
   n'a pas besoin de modification pour c01 (sa « vérité » dit déjà « traverse le marché en courant vers l’est, devant Motus » ; ses
   mentions de « caisse sous le bras » sont des exemples de règle et l'historique d'une correction passée).
 - Le fond du problème (la rue des Étals et la rue du Cinéma n'ont aucune plaque lisible ; `placeName` affiche « Les Halles » sur la

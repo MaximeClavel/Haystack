@@ -88,9 +88,18 @@ variantes du texte du bateau), `q2start.mjs` (départ réel de Q2 : panneau et c
 - À 360 px, la question de Q2 se coupe au trait d'union (« …Où l’emporte-t- / il ? ») : 3 lignes, donc dans la limite, mais un « il ? »
   orphelin ; je n'ai pas modifié le texte du verdict pour cela (cosmétique, uniquement à cette largeur). À 320 px (hors cibles), les
   fausses pistes du bateau passent sur 4 lignes ; non traité (la consigne vise 360, 390, 412).
-- `docs/CONTENT.md` n'est pas régénéré ici (consigne : `npm run content:doc` se lance une seule fois à l'intégration). Il cite encore l'ancien
-  briefing (« avec Picotin », ligne 483) et l'ancienne question de Q2 (ligne 598) ; il devra recevoir : la nouvelle question de s2, les deux
-  fausses pistes de s2 (`c02.barbarie.3`, `c02.barque`), celles de la camionnette en s3 et s5 et la phrase du briefing.
+- `docs/CONTENT.md` n'est pas régénéré par ce périmètre (consigne : `npm run content:doc` se lance une seule fois à l'intégration). Contrôle
+  de reprise : l'intégration l'a régénéré, il cite bien le briefing « votre coéquipier Picotin » (ligne 484), la nouvelle question de s2
+  (ligne 599) et les fausses pistes `c02.barbarie.3` / `c02.barque` (lignes 604-605).
 - Une fausse piste n'étant pas comptée comme erreur, un joueur qui sonde le bateau en Q2 apprend que cette scène est « un autre moment de
   l'histoire » : la surprise de Q5 est un peu atténuée (le bateau n'est pas nommé comme refuge), mais pas supprimée. Compromis assumé par
   le verdict.
+
+## Contrôle de reprise (seconde passe)
+La mission a été relancée alors que `c02.ts` contenait déjà tous les correctifs (commits `356f00f` et `7cc9a3e`) et que ce compte rendu existait.
+Relu à nouveau contre `c02.json` et `g-fil-rouge-et-fausses-pistes.json` : aucun doublon de `nearMiss`, aucune cible absente de l'enquête, textes
+identiques à ceux des verdicts sauf la seule adaptation justifiée ci-dessus. L'adaptation a été re-mesurée en jeu réel (`variants.mjs`, lignes du
+texte de la carte « Pas tout à fait… » du bateau) : avec « bien » 4 / 3 / 3 lignes à 360 / 390 / 412 px, sans « bien » 3 / 3 / 3 ; elle est donc maintenue.
+Aucun fichier de code modifié lors de cette seconde passe. Contrôles rejoués : `npx tsc --noEmit` passe ; `npx vitest run` 17 fichiers, 362 tests
+passent ; `npm run content:check` finit par « OK : aucun problème. » ; `E2E_PORT=5193 npx playwright test tests/e2e/04-toutes-les-enquetes.spec.ts`
+passe (c02 résolue au doigt en 9,5 s, test à 3 étoiles).

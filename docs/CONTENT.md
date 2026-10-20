@@ -1027,7 +1027,7 @@ chemise** — deux attributs très visibles.
   - `c04.ludo.1` → « C’est bien lui, le diamant à la main… au moment du vol. Où est-il allé ensuite ? »
   - `c04.lino.1` → « Lino sort de l’égout : il n’a rien en main. Regardez lequel des deux tient le diamant devant la vitrine. »
   - `c04.lino.2` → « C’est Lino, le jumeau sans sac à dos. Devant la vitrine, c’est celui au sac à dos qui tenait le diamant. »
-- **Indice 1** : Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant, celui qui avait un sac au dos. Il est parti vers le nord, vers la Grand-Place.
+- **Indice 1** : Rappelez-vous la vitrine : un seul jumeau tenait le diamant, celui au sac à dos. Il est parti vers le nord, vers la Grand-Place.
 - **Indice 2** : Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule. — zone `{ x: 2735, y: 2330, radius: 140 }`
 - **Résolution** (`solved`) : Ludo Taupin, sac au dos, a traversé la Grand-Place avec le butin. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.
 - **Fils rouges** (`thread`) : `c04.ludo.1` → `c04.ludo.2`
@@ -1621,7 +1621,11 @@ ne se chevauche.
     le pantalon seulement en bas des jambes. Un texte qui cite « short rouge », « jupe verte »… d’un bas
     entièrement caché est une **erreur** de `content:check`, d’un bas en partie caché une note ; la liste des
     « Signes distinctifs » de chaque enquête annote ces bas (« masqué par le tablier, à ne pas citer »). La phrase
-    qui reconnaît elle-même le bas caché (« pantalon orange qui dépasse du long manteau ») passe.
+    qui reconnaît elle-même le bas caché (« pantalon orange qui dépasse du long manteau ») passe. Pour le texte
+    d’une étape (question, indices, réussite) ou d’une fausse piste, le contrôle juge d’abord la ou les personnes
+    visées (cibles de l’étape, cible de la fausse piste) : si l’une porte le bas cité, c’est d’elle qu’il s’agit, même
+    si un autre personnage de l’enquête montre le même bas à découvert (c05 : le pantalon orange du comédien en
+    costume se voit, celui de la comédienne sous le manteau beaucoup moins).
 12. **Une question, un indice ou un vers désigne UNE seule chose.** Vérifier avec `npm run world --
     landmarks | near x y r | rect …` qu’aucun autre élément visible ne répond aussi bien : trois horloges
     en ville (gare, Hôtel de Ville, église), 33 serres aux jardins ouvriers, plusieurs bateaux rouges sur la

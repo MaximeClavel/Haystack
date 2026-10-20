@@ -90,3 +90,15 @@ sans saut de caméra (valeur identique juste après, puis butée de la nouvelle 
 - Quitter une enquête remet les marges à 0 : une caméra posée contre la butée sud (bord de la ville dans la zone libre, hors des bornes « écran entier ») est ramenée en 180 ms ; l'écran suivant
   lance en général son propre vol (Accueil, Explorer), qui prend le relais.
 - `computeMinZoom` reste calculé sur l'écran entier : le zoom minimal ne change pas (aucune modification des gestes ni de `MIN_ZOOM_FLOOR`).
+
+## Revérification (second passage sur `HEAD` d57a900)
+
+Le correctif était déjà appliqué et commité (`camera.ts`, `mapView.ts`, `constants.ts`, `index.ts`, `mapHost.ts`, `camera.test.ts`, `README.md`, `09-camera-marges.spec.ts`) ; ce passage n'a
+modifié aucun code : seulement relu et remesuré, sur une copie de travail propre (`git status` vide au départ).
+
+- `npx tsc --noEmit` : propre. `npx vitest run` : 17 fichiers, **362 tests** passés. `npm run content:check` : « OK : aucun problème ».
+- `node scripts/perf-map.mjs --gestures` : **30/30**. `node scripts/perf-map.mjs` : ×1 **p95 16,8 ms** (objectif < 20 ms, phase 2 : 16,7–16,8), 4 images > 33 ms sur 1482 ;
+  ×4 p95 66,7 ms (même valeur qu'aux mesures A/B ci-dessus).
+- Vrai jeu, c03, zoom 0,188, caméra poussée vers le sud (`y` demandé 99999) : 390 × 844 → `y` = 4139,8, bord sud de la ville à 546 px pour un panneau dont le haut est à 667 px ;
+  412 × 915 → `y` = 3908,9, bord sud à 625 px (panneau : 738 px). Capture : `.shots/moteur-sud-390x844.png` (brouillon, non conservé). Mêmes valeurs qu'au premier passage.
+- `E2E_PORT=5183 npx playwright test` : **36 réussis** (4,3 min), dont les 3 de `09-camera-marges.spec.ts`.

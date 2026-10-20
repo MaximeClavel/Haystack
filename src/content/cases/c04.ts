@@ -102,7 +102,7 @@ export const c04: CaseDef = {
         },
       ],
       hints: [
-        { text: 'Rappelez-vous la scène de la vitrine : un seul des jumeaux tenait le diamant, celui qui avait un sac au dos. Il est parti vers le nord, vers la Grand-Place.' },
+        { text: 'Rappelez-vous la vitrine : un seul jumeau tenait le diamant, celui au sac à dos. Il est parti vers le nord, vers la Grand-Place.' },
         { text: 'Un costaud en sweat gris, bonnet orange et lunettes noires, avec un sac à dos, dans la foule.', area: { x: 2735, y: 2330, radius: 140 } },
       ],
       solved: 'Ludo Taupin, sac au dos, a traversé la Grand-Place avec le butin. Son frère Lino est parti de l’autre côté, vers le Faubourg, pour brouiller les pistes.',
