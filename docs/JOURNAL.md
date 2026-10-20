@@ -211,7 +211,7 @@ contrat (`docs/ARCHITECTURE.md` § 8).
   été coupée par une limite (ses changements sont dans le commit intermédiaire `356f00f`, relus puis gardés) ; plusieurs missions ont
   été relancées sur un arbre déjà corrigé ; des commits de sauvegarde « Phase 3 (en cours) » ont été faits en route (`356f00f`, `7cc9a3e`).
 - Reprises automatiques : la routine horaire `trig_01Uj26Mjc3rcJLgFNx9F7eGD` a relancé le travail à chaque levée de limite ; elle est
-  **toujours active** à la date de cette entrée (à désactiver quand tout sera en ligne).
+  **désactivée le 20/10/2026 à la demande de l'utilisateur** (la mise en ligne restait à faire par lui : réglage de Pages et fusion dans `main`).
 - Écarts de calendrier à retenir : la phase 3 a commencé le 15/10 (revue critique, outil de joueur test), s'est arrêtée quatre jours
   (105 vérifications horaires en attente, rien de perdu) et a repris le 19/10 avec la direction artistique et les joueurs test.
 
