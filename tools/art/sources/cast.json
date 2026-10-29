@@ -1,0 +1,882 @@
+[
+ {
+  "name": "Brigadier Gaston Picotin",
+  "roles": [
+   "votre coéquipier"
+  ],
+  "cases": [
+   "La Tarte de bienvenue",
+   "La Main dans le sac",
+   "Coin-coin !",
+   "La Belle Évasion",
+   "La Grande Paille",
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "short",
+   "hairColor": "red",
+   "hat": "police",
+   "top": "uniform",
+   "topColor": "blue",
+   "topPattern": "plain",
+   "bottom": "shorts",
+   "bottomColor": "beige",
+   "face": "mustache",
+   "accessory": "scarf",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "wave",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "stand",
+    "holding": "baguette",
+    "emote": "heart"
+   },
+   {
+    "pose": "read",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "crouch",
+    "holding": "none",
+    "emote": "sweat"
+   },
+   {
+    "pose": "read",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "stand",
+    "holding": "cake",
+    "emote": "heart"
+   },
+   {
+    "pose": "crouch",
+    "holding": "none",
+    "emote": "sweat"
+   }
+  ]
+ },
+ {
+  "name": "Timothée Fournil",
+  "roles": [
+   "le livreur de la boulangerie"
+  ],
+  "cases": [
+   "La Tarte de bienvenue"
+  ],
+  "appearance": {
+   "skin": "tan",
+   "hair": "curly",
+   "hairColor": "black",
+   "hat": "cap",
+   "top": "apron",
+   "topColor": "white",
+   "topPattern": "plain",
+   "bottom": "shorts",
+   "bottomColor": "red",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "carry",
+    "holding": "cake",
+    "emote": "none"
+   },
+   {
+    "pose": "sit",
+    "holding": "none",
+    "emote": "sleep"
+   }
+  ]
+ },
+ {
+  "name": "Rose Lemiel",
+  "roles": [
+   "la boulangère volée"
+  ],
+  "cases": [
+   "La Main dans le sac"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "bun",
+   "hairColor": "blond",
+   "hat": "chef",
+   "top": "apron",
+   "topColor": "pink",
+   "topPattern": "plain",
+   "bottom": "skirt",
+   "bottomColor": "white",
+   "face": "none",
+   "accessory": "none",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "point",
+    "holding": "none",
+    "emote": "angry"
+   }
+  ]
+ },
+ {
+  "name": "Ernest Lafouine",
+  "roles": [
+   "le voleur"
+  ],
+  "cases": [
+   "La Main dans le sac"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "short",
+   "hairColor": "brown",
+   "hat": "beanie",
+   "top": "sweater",
+   "topColor": "black",
+   "topPattern": "stripes",
+   "bottom": "trousers",
+   "bottomColor": "black",
+   "face": "mask",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "run",
+    "holding": "moneybag",
+    "emote": "none"
+   },
+   {
+    "pose": "walk",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "stand",
+    "holding": "letter",
+    "emote": "music"
+   }
+  ]
+ },
+ {
+  "name": "Motus",
+  "roles": [
+   "le mime du marché"
+  ],
+  "cases": [
+   "La Main dans le sac"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "short",
+   "hairColor": "brown",
+   "hat": "beanie",
+   "top": "sweater",
+   "topColor": "black",
+   "topPattern": "stripes",
+   "bottom": "trousers",
+   "bottomColor": "black",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Adélaïde de la Botte",
+  "roles": [
+   "la propriétaire de Duchesse"
+  ],
+  "cases": [
+   "Coin-coin !"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "bun",
+   "hairColor": "white",
+   "hat": "straw",
+   "top": "dress",
+   "topColor": "purple",
+   "topPattern": "dots",
+   "bottom": "skirt",
+   "bottomColor": "purple",
+   "face": "glasses",
+   "accessory": "handbag",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "sweat"
+   }
+  ]
+ },
+ {
+  "name": "Hippolyte Barbarie",
+  "roles": [
+   "éleveur de volailles, propriétaire du Baron"
+  ],
+  "cases": [
+   "Coin-coin !"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "bald",
+   "hairColor": "grey",
+   "hat": "fedora",
+   "top": "coat",
+   "topColor": "green",
+   "topPattern": "checks",
+   "bottom": "trousers",
+   "bottomColor": "yellow",
+   "face": "beard",
+   "accessory": "none",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "crouch",
+    "holding": "baguette",
+    "emote": "none"
+   },
+   {
+    "pose": "carry",
+    "holding": "box",
+    "emote": "none"
+   },
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "sweat"
+   }
+  ]
+ },
+ {
+  "name": "Lulu",
+  "roles": [
+   "le petit témoin"
+  ],
+  "cases": [
+   "Coin-coin !"
+  ],
+  "appearance": {
+   "skin": "brown",
+   "hair": "spiky",
+   "hairColor": "blond",
+   "hat": "none",
+   "top": "overalls",
+   "topColor": "blue",
+   "topPattern": "plain",
+   "bottom": "shorts",
+   "bottomColor": "orange",
+   "face": "glasses",
+   "accessory": "balloon",
+   "build": "child"
+  },
+  "uses": [
+   {
+    "pose": "point",
+    "holding": "baguette",
+    "emote": "none"
+   },
+   {
+    "pose": "wave",
+    "holding": "none",
+    "emote": "heart"
+   }
+  ]
+ },
+ {
+  "name": "Gaspard Bigarade",
+  "roles": [
+   "chef cuisinier"
+  ],
+  "cases": [
+   "Coin-coin !"
+  ],
+  "appearance": {
+   "skin": "brown",
+   "hair": "short",
+   "hairColor": "black",
+   "hat": "chef",
+   "top": "apron",
+   "topColor": "white",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "black",
+   "face": "mustache",
+   "accessory": "none",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "carry",
+    "holding": "box",
+    "emote": "music"
+   }
+  ]
+ },
+ {
+  "name": "Achille Lapince, dit « le Hérisson »",
+  "roles": [
+   "l’évadé"
+  ],
+  "cases": [
+   "La Belle Évasion"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "spiky",
+   "hairColor": "blond",
+   "hat": "none",
+   "top": "shirt",
+   "topColor": "white",
+   "topPattern": "stripes",
+   "bottom": "trousers",
+   "bottomColor": "grey",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "run",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "sneak",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "climb",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Achille Lapince (déguisé)",
+  "roles": [
+   "l’évadé, en épouvantail"
+  ],
+  "cases": [
+   "La Belle Évasion"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "spiky",
+   "hairColor": "blond",
+   "hat": "straw",
+   "top": "shirt",
+   "topColor": "white",
+   "topPattern": "stripes",
+   "bottom": "trousers",
+   "bottomColor": "grey",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "sweat"
+   }
+  ]
+ },
+ {
+  "name": "Lola Cachou",
+  "roles": [
+   "la fiancée de Lapince"
+  ],
+  "cases": [
+   "La Belle Évasion"
+  ],
+  "appearance": {
+   "skin": "brown",
+   "hair": "curly",
+   "hairColor": "red",
+   "hat": "beret",
+   "top": "dress",
+   "topColor": "pink",
+   "topPattern": "dots",
+   "bottom": "skirt",
+   "bottomColor": "pink",
+   "face": "sunglasses",
+   "accessory": "handbag",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "lie",
+    "holding": "none",
+    "emote": "ko"
+   },
+   {
+    "pose": "wave",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Yves Le Goéland",
+  "roles": [
+   "marin du quai Nord"
+  ],
+  "cases": [
+   "La Belle Évasion"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "spiky",
+   "hairColor": "blond",
+   "hat": "beanie",
+   "top": "shirt",
+   "topColor": "white",
+   "topPattern": "stripes",
+   "bottom": "trousers",
+   "bottomColor": "grey",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "stand",
+    "holding": "rope",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Épouvantail",
+  "roles": [
+   "gardien des potagers"
+  ],
+  "cases": [
+   "La Belle Évasion"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "spiky",
+   "hairColor": "blond",
+   "hat": "straw",
+   "top": "shirt",
+   "topColor": "white",
+   "topPattern": "checks",
+   "bottom": "trousers",
+   "bottomColor": "grey",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Épouvantail décoiffé",
+  "roles": [
+   "gardien des potagers, sans chapeau"
+  ],
+  "cases": [
+   "La Belle Évasion"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "spiky",
+   "hairColor": "blond",
+   "hat": "none",
+   "top": "shirt",
+   "topColor": "white",
+   "topPattern": "checks",
+   "bottom": "trousers",
+   "bottomColor": "grey",
+   "face": "none",
+   "accessory": "none",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "handsup",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Octave Carat",
+  "roles": [
+   "le bijoutier"
+  ],
+  "cases": [
+   "La Grande Paille"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "bald",
+   "hairColor": "grey",
+   "hat": "tophat",
+   "top": "suit",
+   "topColor": "purple",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "purple",
+   "face": "glasses",
+   "accessory": "cane",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "phone",
+    "holding": "none",
+    "emote": "sweat"
+   },
+   {
+    "pose": "sneak",
+    "holding": "cake",
+    "emote": "none"
+   },
+   {
+    "pose": "point",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Ludo Taupin",
+  "roles": [
+   "cambrioleur (le jumeau au sac à dos)"
+  ],
+  "cases": [
+   "La Grande Paille"
+  ],
+  "appearance": {
+   "skin": "tan",
+   "hair": "curly",
+   "hairColor": "black",
+   "hat": "beanie",
+   "top": "hoodie",
+   "topColor": "grey",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "black",
+   "face": "sunglasses",
+   "accessory": "backpack",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "sneak",
+    "holding": "jewel",
+    "emote": "none"
+   },
+   {
+    "pose": "run",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "point",
+    "holding": "none",
+    "emote": "angry"
+   }
+  ]
+ },
+ {
+  "name": "Lino Taupin",
+  "roles": [
+   "cambrioleur (le jumeau sans sac)"
+  ],
+  "cases": [
+   "La Grande Paille"
+  ],
+  "appearance": {
+   "skin": "tan",
+   "hair": "curly",
+   "hairColor": "black",
+   "hat": "beanie",
+   "top": "hoodie",
+   "topColor": "grey",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "black",
+   "face": "sunglasses",
+   "accessory": "none",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "climb",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "run",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Zita Pistache",
+  "roles": [
+   "la sœur du bijoutier"
+  ],
+  "cases": [
+   "La Grande Paille"
+  ],
+  "appearance": {
+   "skin": "dark",
+   "hair": "bun",
+   "hairColor": "grey",
+   "hat": "none",
+   "top": "coat",
+   "topColor": "yellow",
+   "topPattern": "checks",
+   "bottom": "skirt",
+   "bottomColor": "green",
+   "face": "none",
+   "accessory": "handbag",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "carry",
+    "holding": "cake",
+    "emote": "none"
+   },
+   {
+    "pose": "wave",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Bérénice Fard",
+  "roles": [
+   "la victime, diva"
+  ],
+  "cases": [
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "light",
+   "hair": "long",
+   "hairColor": "black",
+   "hat": "none",
+   "top": "dress",
+   "topColor": "red",
+   "topPattern": "plain",
+   "bottom": "skirt",
+   "bottomColor": "red",
+   "face": "none",
+   "accessory": "flowers",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "lie",
+    "holding": "bottle",
+    "emote": "ko"
+   }
+  ]
+ },
+ {
+  "name": "Gontran Lamèche",
+  "roles": [
+   "le doyen de la troupe"
+  ],
+  "cases": [
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "short",
+   "hairColor": "grey",
+   "hat": "tophat",
+   "top": "suit",
+   "topColor": "red",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "orange",
+   "face": "mustache",
+   "accessory": "umbrella",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "read",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "run",
+    "holding": "none",
+    "emote": "none"
+   },
+   {
+    "pose": "crouch",
+    "holding": "none",
+    "emote": "sweat"
+   }
+  ]
+ },
+ {
+  "name": "Le faux infirmier",
+  "roles": [
+   "voleur de poison"
+  ],
+  "cases": [
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "short",
+   "hairColor": "grey",
+   "hat": "tophat",
+   "top": "coat",
+   "topColor": "white",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "orange",
+   "face": "mask",
+   "accessory": "umbrella",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "sneak",
+    "holding": "bottle",
+    "emote": "none"
+   }
+  ]
+ },
+ {
+  "name": "Pétronille Doublure",
+  "roles": [
+   "la doublure"
+  ],
+  "cases": [
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "tan",
+   "hair": "long",
+   "hairColor": "red",
+   "hat": "tophat",
+   "top": "coat",
+   "topColor": "green",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "orange",
+   "face": "none",
+   "accessory": "cane",
+   "build": "slim"
+  },
+  "uses": [
+   {
+    "pose": "read",
+    "holding": "none",
+    "emote": "music"
+   }
+  ]
+ },
+ {
+  "name": "Hector Plumeau",
+  "roles": [
+   "le jeune premier"
+  ],
+  "cases": [
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "brown",
+   "hair": "curly",
+   "hairColor": "brown",
+   "hat": "bowler",
+   "top": "suit",
+   "topColor": "blue",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "orange",
+   "face": "none",
+   "accessory": "umbrella",
+   "build": "regular"
+  },
+  "uses": [
+   {
+    "pose": "stand",
+    "holding": "none",
+    "emote": "heart"
+   }
+  ]
+ },
+ {
+  "name": "Fortuné Cargo",
+  "roles": [
+   "armateur"
+  ],
+  "cases": [
+   "Rideau !"
+  ],
+  "appearance": {
+   "skin": "pale",
+   "hair": "short",
+   "hairColor": "grey",
+   "hat": "tophat",
+   "top": "suit",
+   "topColor": "red",
+   "topPattern": "plain",
+   "bottom": "trousers",
+   "bottomColor": "black",
+   "face": "mustache",
+   "accessory": "umbrella",
+   "build": "large"
+  },
+  "uses": [
+   {
+    "pose": "wave",
+    "holding": "none",
+    "emote": "none"
+   }
+  ]
+ }
+]
