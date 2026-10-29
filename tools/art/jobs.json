@@ -1,0 +1,39 @@
+{
+  "common": "Video game art for HAYSTACK, a cozy hidden-object detective game set in Meulebourg, a small French-Belgian town. Strict isometric view (2:1 dimetric, camera at about 30 degrees, no perspective distortion), clean readable shapes that still read well on a phone screen, lots of small details to search through. No text, no letters, no logos, no UI, no watermark.",
+  "assets": {
+    "diorama": {
+      "aspect": "1:1",
+      "prompt": "SUBJECT: an isometric diorama of one street corner of Meulebourg, shown as a square floating block of ground with visible cut sides. Contents: a bakery with a striped pink and white awning and baguettes in the window, two narrow town houses with tiled roofs and shutters, a small square with a round stone fountain, a fruit market stall with a striped awning, a street with a pedestrian crossing, a small retro car, benches, street lamps, trees, flower boxes. About twelve tiny townspeople spread around: a baker woman with a white chef hat and a pink apron in front of the bakery, a police officer with a navy uniform and kepi directing traffic, a tourist with a straw hat and a blue Hawaiian shirt taking a photo, a sneaky thief with a striped black and white shirt, a black beanie and a sack near the market stall, a child with a red balloon, an elderly lady, passers-by. Plain soft background around the block."
+    },
+    "personnages": {
+      "aspect": "4:3",
+      "prompt": "SUBJECT: a character sheet of four townspeople standing side by side, full body, three-quarter view facing the viewer, same scale, plain light background, generous spacing: (1) a cheerful plump baker woman with a white chef hat, white blouse, pink apron, navy skirt, holding a baguette; (2) a tall police officer with a navy uniform, white gloves and a French kepi, one arm raised to stop traffic; (3) a round-bellied tourist with a straw hat, blue Hawaiian shirt with flowers, beige shorts, sandals, holding a camera; (4) a skinny thief sneaking on tiptoe, black and white striped shirt, black beanie, black eye mask, carrying a sack over the shoulder. Each character must be instantly recognizable by colour and silhouette even when tiny."
+    },
+    "batiment": {
+      "aspect": "1:1",
+      "prompt": "SUBJECT: a single isometric building game sprite, centered, isolated on a plain flat white background, no ground around it: the Meulebourg bakery, a two-storey town house with a tiled roof and a chimney, a striped pink and white awning over the shop window full of bread and pastries, a wooden door, flower boxes under the upper windows."
+    }
+  },
+  "styles": [
+    {
+      "id": "s1",
+      "ref": "refs/ref1-ville-luxuriante.jpg",
+      "style": "lush hand-painted anime mobile RPG background art: vegetation everywhere (ivy on walls, moss on roofs, bushes, flowers), soft warm late-afternoon sunlight with gentle god rays, painterly but crisp edges, saturated fresh greens and warm stone colours, small chibi anime characters with big expressive eyes."
+    },
+    {
+      "id": "s2",
+      "ref": "refs/ref2-village-de-pierre.jpg",
+      "style": "cozy painted pixel-art inspired isometric diorama: the block is cut out of the ground showing layers of grass, red brick and grey stone blocks, half-timbered houses with orange tiled roofs, cobblestone paths, conifers and yellow-green trees, crisp chunky shapes with subtle texture, tiny chibi characters."
+    },
+    {
+      "id": "s3",
+      "ref": "refs/ref3-ile-low-poly.jpg",
+      "style": "stylized low-poly 3D render: flat-shaded facets, no outlines, soft global illumination, warm dusk light with glowing lanterns, muted teal water around a sandy pink island with wooden docks and small boats, tiny simple faceless characters, calm and cozy mood."
+    },
+    {
+      "id": "s4",
+      "ref": "refs/ref4-diorama-bonbon.jpg",
+      "style": "cute vector illustration with thick dark plum outlines on every shape, saturated candy colours (purple, orange, mint, lime green), cel shading with small white highlights, a floating chunky island diorama with a few tiny floating islets and sparkles around it, round characters with big white eyes and small black pupils, warm tan background."
+    }
+  ]
+}
