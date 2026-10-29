@@ -83,9 +83,10 @@ VARIANTS = {
     'thief': [{}, {'stripes': 'red'}, {'stripes': 'navy', 'beanie': 'navy', 'skin': 'skin4'}, {'stripes': 'green', 'beanie': 'green'},
               {'stripes': 'purple', 'skin': 'skin5'}, {'stripes': 'orange', 'beanie': 'brown', 'skin': 'skin3'}],
 }
-names = ['baker', 'cop', 'tourist', 'thief']
-for i, n in enumerate(names):
-    img = Image.open(f'{D}/char{i}.png').convert('RGBA')
-    for j, ch in enumerate(VARIANTS[n]):
-        variant(n, img, ch).save(f'{D}/{n}-{j}.png')
-print('ok')
+if __name__ == '__main__':
+    names = ['baker', 'cop', 'tourist', 'thief']
+    for i, n in enumerate(names):
+        img = Image.open(f'{D}/char{i}.png').convert('RGBA')
+        for j, ch in enumerate(VARIANTS[n]):
+            variant(n, img, ch).save(f'{D}/{n}-{j}.png')
+    print('ok')
