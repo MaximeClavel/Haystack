@@ -1,7 +1,8 @@
 # Prépare un dossier par personnage d'enquête pour le faire générer à la main dans Gemini :
 # image du personnage de base, images des chapeaux / accessoires / objets à lui donner, et prompt.md.
-# Usage : python3 tools/art/dossiers.py   (lit tools/art/sources/cast.json, écrit tools/art/personnages/)
-import json, os, re, shutil, unicodedata
+# Usage : python3 tools/art/dossiers.py [--zip N]   (lit tools/art/sources/cast.json, écrit tools/art/personnages/ ;
+#         --zip N : ajoute dans les N premiers dossiers un zip de leur contenu, à télécharger d'un coup)
+import json, os, re, shutil, sys, unicodedata, zipfile
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -221,6 +222,14 @@ def main():
             'à partir de son `resultat.png`, pour ne changer que le détail qui compte dans l\'enquête.', '',
             'Les bulles d\'émotion ne sont pas à dessiner sur les personnages : le jeu les pose par-dessus.', '',
             '| Dossier | Personnage | Rôle | Départ |', '|---|---|---|---|', *rows, '']))
+    if '--zip' in sys.argv:
+        n = int(sys.argv[sys.argv.index('--zip') + 1])
+        for name in sorted(e for e in os.listdir(OUT) if os.path.isdir(f'{OUT}/{e}'))[:n]:
+            d = f'{OUT}/{name}'
+            with zipfile.ZipFile(f'{d}/{name}.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+                for f in sorted(os.listdir(d)):
+                    if not f.endswith('.zip'):
+                        z.write(f'{d}/{f}', f)
     print(len(rows), 'dossiers')
 
 
