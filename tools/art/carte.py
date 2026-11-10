@@ -429,7 +429,7 @@ def section_prompt(s):
 
 
 def write_section(s):
-    d = f'{OUT}/02-carte/{s["id"]}-{s["slug"]}'
+    d = f'{ROOT}/_archive/drive-02-carte/{s["id"]}-{s["slug"]}'
     os.makedirs(d, exist_ok=True)
     prompt, names = section_prompt(s)
     col, row = s['id'][1], int(s['id'][0])
@@ -487,7 +487,7 @@ def plan_md():
           '(la rue du voisin passe derrière).',
           '- Dans le parc (1E, 1F, 2E, 2F), la pelouse continue d\'une section à l\'autre, sans rue.',
           '- La Fenaison (rangée 5) traverse chaque section du bord haut-gauche au bord bas-droit ; les deux ponts longent le bord bas-droit.', '']
-    open(f'{OUT}/02-carte/plan.md', 'w').write('\n'.join(L))
+    open(f'{ROOT}/_archive/drive-02-carte/plan.md', 'w').write('\n'.join(L))
 
 
 def readme():
@@ -540,14 +540,16 @@ def plan_png(path):
 
 
 def main():
-    shutil.rmtree(OUT, ignore_errors=True)
-    os.makedirs(OUT)
-    readme()
+    """Fiches des personnages (toujours valables). Les 36 sections séparées sont abandonnées au profit de la carte mère
+    (carte_mere.py) ; leurs descriptions de scènes restent ici pour préparer les morceaux. `--sections` les réécrit dans _archive."""
+    shutil.rmtree(f'{OUT}/01-personnages', ignore_errors=True)
+    os.makedirs(OUT, exist_ok=True)
     for k in CH:
         write_character(k)
-    for s in S:
-        write_section(s)
-    plan_md()
+    if '--sections' in sys.argv:
+        for s in S:
+            write_section(s)
+        plan_md()
     if '--plan' in sys.argv:
         plan_png(sys.argv[sys.argv.index('--plan') + 1])
     print(len(CH), 'personnages,', len(S), 'sections')
