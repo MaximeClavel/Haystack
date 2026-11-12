@@ -69,3 +69,6 @@ p25 1DdHea7syx48RdDiRAl1x7fWQ8l_QV46Y
 03-morceaux 1KShdDcoseLFYl6UulmPkWy6F-wqRZj3S
 03-morceaux/essai-1-2 1XVD0odk-ndDMPqYzq69LQnLX6S2fuFxn
 03-morceaux/essai-1-3 1A0CTAGGKBFcXt3ejAWEp2F1VckvhAM2E
+# essai-1-2 et essai-1-3 (première carte mère) déplacés dans _archive
+03-morceaux/morceau-1-2 1VVRiJ3NX6G5L6Z6XWf5GkXr2NypBbdne
+03-morceaux/morceau-1-3 1UZAKiJXJgTbO3Q6s6UsGu9XLLvFGxg8N
