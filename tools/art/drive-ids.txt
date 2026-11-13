@@ -72,3 +72,30 @@ p25 1DdHea7syx48RdDiRAl1x7fWQ8l_QV46Y
 # essai-1-2 et essai-1-3 (première carte mère) déplacés dans _archive
 03-morceaux/morceau-1-2 1VVRiJ3NX6G5L6Z6XWf5GkXr2NypBbdne
 03-morceaux/morceau-1-3 1UZAKiJXJgTbO3Q6s6UsGu9XLLvFGxg8N
+02-carte-mere/resultat.jpg 1_Os47WRPPSCu4DWvmcY9lAa5hcmkb1_Q
+# 03-morceaux (25 morceaux, découpe 5×5)
+1-1-champs-cimetiere 14XMiCXsFI3MIml4nIO4jxwiNGVjRtmMs
+1-2-champs-hotel 133XZSXH2TbnZzAV8TU7D6KfNF_u-oUCa
+1-3-gare 1FeoSUyiuOMzjbHd3sey9p9EcIPPu1w8Z
+1-4-depot 1Q_5nCLlctmizgkM25MFXv_Mz-Sl19_lr
+1-5-voies-wagons 1lB7f8K6jEOQKR-Jhs-sZOBG4uuYONh39
+2-1-commissariat 15nLKPRaV_aHO5vfoFrQk-o1i3s0U---I
+2-2-hotel-pharmacie 1ZHrPNzk3zt7dEwcwQsKU5t9sa72izn3n
+2-3-marche 1Oe4vrS6pcjtwLfvEeEwnwE6FPSGPStj7
+2-4-cinema 1OzEKlsiNpNgPpDwcui94nx3yLHp1ne8W
+2-5-statue 1PkW9utln62sgY6fR8pqTopSYSIILIflk
+3-1-bar-ecole 16iq-OidyHfkPctN2GA850OKiKZqrSp-m
+3-2-fontaine 1QJVOYSlhDeQr2myXolqqYIfXj4hY7bKT
+3-3-hotel-de-ville 1kWEqRxxApG8kZnvLGGgJ8rd0RymkGcvM
+3-4-kiosque 10kDLpQetFcduuWEicWKjEMsXmJe22aqX
+3-5-etang 1UFabzqACBe7uJaYJLspGGgl_LBPCmq2F
+4-1-quai-nord 1wUTqbNdfgTRU4RwKSJ6vYQZ8RAbzHhzf
+4-2-pont-central 1j2gCJtRonTt-Mve887Msd-VgHFbQxEix
+4-3-bijouterie 1yWheiGx2SeqpJ9_KSf4k6oVfkhTjqz8l
+4-4-theatre 140qD1B3zIz3ZjK0BtfUiozeJkDliCNwr
+4-5-aire-de-jeux 170e8B9WFZ6mG0VM1x83m8ztJDF_a-uQo
+5-1-moulin-jardins 1Gh5yMFmLZG3tFQzeE6p2XPHtOweJHHWW
+5-2-serre-capitainerie 1XIbtExcJ4BUCBvVohkENm4MxiHtCChMi
+5-3-entrepots 1iPAVtS_AfaVfo-1BE5ts8JmxToLNJGKQ
+5-4-parvis-theatre 1RXT0NUOM3sxlBkDj10w2kXr1Q-Fkr9tT
+5-5-hopital-port 1QrpOpAZJ1r23Y-obMPjJnkMP7ssR5Vaw
